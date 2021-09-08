@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript">
+        function Json() {
+            return this.Jsonchange({
+            "color":"red",
+            "text-decoration":"none",
+            "transition": "0.5s",
+            "font-size" : "24px",
+    
+            })
+        }
+
+
+        function Jsonchange(style){
+        var string = [];
+        
+          for(let array in style){
+              string.push(`${array}:${style[array]}`);
+              console.log(`${array}`)   //为什么会重复两次呢? 因为key与value的原因吗?
+              
+              /*string.push(array+':'+style[array]);*/
+              //注:不在push里直接添加';'是因为直接加会直接被包裹成字符串";"
+          }
+          string = string.join(';')
+          //所以需要join这个能在每个数组里添加;隔开  同时转换成str返回给js
+         
+          return string
+      }
+
+        var change2 = function(){
+            /*var ul_link_item = `$("ul>li.nav-link-item")`;*/
+
+            var ul_link_item = document.getElementById("paper");
+            /*setStyle('ul_link_item', this.Json())*/
+            console.log(this.Json())
+            ul_link_item.setAttribute("style",this.Json())
+}
+
+
+        /**
+     * 设置样式
+     * 
+     * @param {string} selector CSS 选择器
+     * @param {object} styles 样式对象，例 { fontSize: '16px', color: '#000' }
+     
+    function setStyle(selector, styles) {
+        var elems = document.querySelectorAll(selector);
+
+        elems.forEach(function (elem) {
+            for (let key in styles) {
+                elem.style[key] = styles[key];
+            }
+        });
+    }
+*/
+        /*沉思:JS是通过sidebar.style.right = "-300px";这样的方式
+        即value必须是字符串来包裹起来
+    
+        
+        
+        */
+        
+    </script>
+
+    <style type="text/css">
+        body{
+            background-color: orange;
+        }
+
+        #paper{
+            text-decoration: underline;
+            color: aliceblue;
+
+        }
+
+        #nav-link-item{
+            
+        }
+    </style>
+
+    <div id ="paper" onclick="change()">it just a simple test</div>
+
+
+    <ul onclick="change2()" id="menu">
+        <li class="nav-link-item" id="nav-link-item">Silence,wench</li>
+        <li class="nav-link-item">I don't want to be horny anymore</li>
+        <li class="nav-link-item"><a href="?"></a>I just want to be happy</li>
+    </ul>
+<div id="text">如果需要做一个自由调换，可以直接以一个click事件响应text_color变动 然后再由click事件嵌套change函数 这样就达成了一键切换的目的 并不需要你去干嘛干嘛 那为什么style就是不能响应string变量呢？</div>
+</body>
+</html>

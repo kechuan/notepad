@@ -1,0 +1,176 @@
+/*white-space属性指定元素内的空白怎样处理
+*/
+
+* {
+    font-family: Hiragino Sans GB,Microsoft YaHei,Arial,sans-serif !important;
+}
+
+body {
+    margin:0;
+    padding:0;
+    user-select:none;
+    overflow-x:auto;
+    overflow-y:hidden;
+}
+/*输入框go*/
+
+.main {
+    height:643px;
+    position:absolute;
+    top:8%;
+    left:5%;
+    /*margin-top:-321.5px;*/
+    opacity:0;
+    transition:top 0.3s,opacity 0.3s,width 0.3s,height 0.3s;
+    transition-timing-function:ease;
+    /*white-space:nowrap;*/ /*不换行，遇到br为止*/
+}
+
+.modern_main {
+    width:1344px;
+    height:100%;
+    /*display:inline-block;*/
+    vertical-align:top;
+    /*white-space:initial;*/
+}
+
+.modern {
+    background-color:rgba(0,0,0,0.25);  /*决定所有快的颜色*/
+    display:inline-block;               /*如果不用inlineblock限制 一个块就会直接占一行*/
+    position:relative;
+    /*box-shadow:0px 0px 0px 1px rgba(255,255,255,0.4) inset;*/
+    margin:0 6px 7px 0;
+    overflow:hidden;
+}
+    .modern:hover {
+        margin-top:-3px;
+        margin-right:3px;
+        margin-bottom:4px;
+        margin-left:-3px;
+        border:3px solid #000;
+    }
+    .modern:active {
+        margin-top:-4px;
+        margin-right:2px;
+        margin-bottom:3px;
+        margin-left:-4px;
+        border:4px solid #000;
+    }
+
+.modern .sub {
+    width:100%;
+    height:100%;
+    color:#fff;
+    text-align:center;
+    cursor:default;
+    font-size:14px;
+}
+
+
+.vertical_middle_main {
+    width:100%;
+    display:table;
+    height:100%;
+}
+/*垂直居中 先是通过垂直调整至middle 因为父元素已作为table显示
+这里的子元素再显示为table-cell 既能根据父元素来自动排序(水平垂直)
+而这种是text-align做不到的
+*/
+    .vertical_middle_box {
+        display:table-cell;
+        vertical-align:middle;
+        
+
+    }
+
+.modern .sub .title {
+    font-size: 24px;
+}
+
+.modern .sub p {
+    margin: 0.5% 0;
+}
+
+.modern .sub .download {
+    border:5px solid #6299ba;
+    box-sizing:border-box;
+}
+.modern .sub .icon {
+    margin-top:22%;
+    display:block;
+    font-size:60px;
+}
+.modern .sub .full {
+    margin-left:-3%;
+    width:106%;
+}
+.modern .name {
+    position:absolute;
+    bottom:4%;
+    left:10px;
+    font-size:14px;
+    color:#fff;
+    cursor:default;
+    text-shadow:0px 0px 2px rgba(0,0,0,0.1);
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    overflow:hidden;
+    width:95%;
+    text-align:left;
+}
+
+.modern.opacity {
+    opacity:0;
+}
+.modern.wa {
+    width:93%;
+    padding:0 3px;
+}
+.modern.w {
+    width:100%;
+}
+.modern.w1 {
+    width:11%;
+}
+.modern.w2 {
+    width:22%;
+    padding:0
+            5px;
+}
+.modern.w3 {
+    width:33%;
+    padding:0 10px 0 11px;
+}
+.modern.w4 {
+    width:44%;
+    padding:0 16px;
+}
+.modern.h1 {
+    height:24%;
+}
+.modern.h2 {
+    height:0;
+    padding:5px 6px 5px 5px;
+    position:absolute;
+    opacity:0;
+}
+.modern.wh2 {
+    position:absolute;
+    width:307px;
+    height:319px;
+}
+@media(max-width:1400px) {
+    .main {
+    height:490px;
+}
+.modern_main {
+    width:1024px;
+}
+.modern.wh2 {
+    width:236px;
+    height:246px;
+}
+.download_main
+            .item {
+    width:235px;
+}
