@@ -20,7 +20,7 @@ css临时
 
 　　说到这，有必要提的就是**置换元素**。何为置换元素，在html中，有类特殊的元素如:
 
-　　<img>|<input>|<button>|<select>|<textarea>|<label>
+　　\<img>|\<input>|\<button>|\<select>|\<textarea>|\<label>
 
 　　他们被称为可置换元素（Replaced element）。他们区别一般inline元素（相对而言，称non-replaced element）是：这些元素拥有内在尺寸(intrinsic dimensions),他们可以设置width/height属性。他们的性质同设置了display:inline-block的元素一致。上述六个标签在现代浏览器中即为
 
