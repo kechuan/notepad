@@ -2899,7 +2899,25 @@ parent、child、sibling(同胞节点即为拥有相同父节点的节点)
 var me = document.getElementById("p2");
 var father = p2.parentElement;
 father.removeChild(p2)
+
+---
+
+father.children
+
+father.removeChild(father.child[1])
 ```
+
+而且 删除是个动态的过程
+
+还记得father.children的回报内容么
+
+> <<HTMLcollection(3) [h1, p1, p2]
+
+这意味着  当你删除掉任意一个节点时,child属性会被发生变化
+
+如果有三个节点 你删除掉了[1] 再去执行删除[2]就会报错
+
+
 
 思考:到底是什么情况会需要特地去删除节点呢？
 
