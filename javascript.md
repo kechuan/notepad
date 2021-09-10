@@ -2827,6 +2827,80 @@ document.cookie
 
 
 
+****
+
+### 6、 操作DOM对象
+
+DOM (Document Object Model) 译为**文档对象模型**，是 HTML 和 XML 文档的编程接口。
+
+HTML DOM 定义了访问和操作 HTML 文档的标准方法。
+
+DOM 以树结构表达 HTML 文档。(这个是jquery一些知识的前置)
+
+
+
+什么意思？
+
+事实上你一个tag或一处div id它都是一处DOM节点，没有上面的节点存在，自然也就不会有下面的分支
+
+根据 W3C 的 HTML DOM 标准，HTML 文档中的**所有内容**都是节点：
+
+> - 整个文档是一个文档节点
+> - 每个 HTML 元素是元素节点
+> - HTML 元素内的文本是文本节点
+> - 每个 HTML 属性是属性节点
+> - 注释是注释节点
+
+而你要操作DOM节点 那必然要先获得DOM节点
+
+
+
+经典*document*	对应CSS选择器
+
+> document.getElementByTagName 对应着p1 p2 h1..
+>
+> document.getElementById("id") 对应着被命名的ID
+
+
+
+以及相对关系的父子&兄弟节点
+
+parent、child、sibling(同胞节点即为拥有相同父节点的节点)
+
+![Node tree](https://www.runoob.com/wp-content/uploads/2013/09/dom_navigate.gif)
+
+> parentNode.children (获取父节点下的所有节点)
+>
+> father.firstChild
+>
+> father.lastChild
+>
+> *.previousSibling/nextSibling
+
+
+
+更新
+
+这里笔记不再赘叙更新，你连一键json都做出来了 还要写这个吗？
+
+
+
+删除
+
+首先先说明一点 该节点不能执行删除自己的属性， 只能父和兄弟节点里执行删除该节点
+
+一般都是获取父节点，然后再父节点里删除该节点
+
+> father.removeChild(Node)
+
+```
+var me = document.getElementById("p2");
+var father = p2.parentElement;
+father.removeChild(p2)
+```
+
+思考:到底是什么情况会需要特地去删除节点呢？
+
 
 
 
@@ -3066,11 +3140,15 @@ loop tasks 7.31
 8.19-8.23(截止)
 
 - [x] 正则表达式
-- [ ] T3 课程3节/3个有用点
+- [x] T3 课程3节/3个有用点
 - [ ] json!
-- [ ] flex布局!
-- [ ] git!
-- [ ] stack overflow什么的 会用吗
+- [x] ~~flex布局?~~ inline-block布局!
+- [x] git!
+- [x] stack overflow什么的 会用吗
 
  狂妄 懒惰
+
+9.10
+
+- [ ] 
 
