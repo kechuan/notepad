@@ -8,7 +8,7 @@
 > git config --global core.editor "'工具目录'"进行设定
 > 2. 你要至少commit成功(提交新内容)一次才能创建master分支
 >
-> 
+> 3. 使用commit -a 来强制提交没有文件添加变化的更改
 >
 > 
 
