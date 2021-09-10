@@ -600,7 +600,7 @@ console.log(str.match(patt1))
 
 
 
-*贪婪模式/懒惰匹配
+*贪婪模式/懒惰匹配(`.*`/`.*?`的用法)
 
 什么是贪婪模式？
 
@@ -608,7 +608,9 @@ console.log(str.match(patt1))
 >
 > (而且 空格间隔并不会打断？)
 
-`.*`/`.*?`的用法
+
+
+贪婪示例
 
 ```javascript
 var me = "aabab"
@@ -632,7 +634,7 @@ me.match(/a.*b/)
 
 
 
-演示段:
+`.*?`演示段:
 
 ```javascript
 var me = "aabab"
