@@ -1166,7 +1166,7 @@ paper = car2;
 
 
 
-> **通过 setAttribute 方法 设置元素的style属性** 	[来源于CSDN](https://cloud.tencent.com/developer/article/1435270)
+> **通过 setAttribute 方法 设置元素的style属性** 
 >
 > 
 >
@@ -1383,7 +1383,73 @@ var api = {
 >
 > 这种看着一目了然的结构 自然更适合应对复杂数据流
 
-总之我认为json比起传输这些 对于编写它们的人来说更有意义,更直观..
+
+
+**实例**:(某视频的弹幕xml)
+
+ ```xml
+<?xml version="1.0" encoding="utf-8"?>
+<i>
+<chatserver>chat.bilibili.com</chatserver>
+<chatid>312258891</chatid>
+<mission>0</mission>
+<maxlimit>8000</maxlimit>
+<state>0</state>
+<real_name>0</real_name>
+<source>k-v</source>
+<d p="493.10000,1,25,16777215,1616410758,0,69d4a0e8,46802447104999431">？关键词察觉</d>
+<d p="198.25200,1,25,16777215,1614958556,0,5f5c42b2,46041074962530309">晶姐表示很淦</d>
+<d p="583.49500,1,25,16777215,1614958339,0,19e40eb4,46040961134362627">佑树的家</d>
+<d p="432.43800,1,25,16777215,1614958305,0,19e40eb4,46040943464808455">可还行，佑树请客</d>
+<d p="628.10300,1,25,16777215,1614957889,0,4d1f44b2,46040725128740869">嗨，辛苦了</d>
+<d p="160.71200,1,25,16777215,1614957794,0,cd7eecc8,46040675264757765">快进到晶姐发现自己摊子掉进坑里</d>
+<d p="596.94700,5,25,16777215,1614957445,0,fa370a04,46040492385763335">快，这里是警察局的近路（</d>
+<d p="166.51900,1,25,16777215,1614957068,0,c7854631,46040294927368195">晶：你小子又在干啥</d>
+<d p="188.28900,1,25,16777215,1614956239,0,a3b3d975,46039860124319749">说，骑士君经常带女的去好吗</d>
+</i>
+//除了前面的前缀 就只有弹幕这一种信息(数字代表着发送时间,颜色,位置,用户UID..) 编写生成这样的xml难度也低 就是看着很乱
+ ```
+
+
+
+**如果是json标示 这段代码应该表示成..**
+
+```json
+{
+chatserver:"chat.bilibili.com",
+chatid:"312258891",
+.
+.blablabla
+danmuku(假设) = [
+    {
+  		name:"某个UID",
+		danmus:{
+            danmu1:["时间","位置","各种信息etc","danmu"],
+            danmu2:["时间2","位置","各种信息etc","danmu"]
+            //etc..
+        	}
+    },
+        
+    {
+  		name:"某个UID2",
+		danmus:{
+            danmu1:["时间","位置","各种信息etc","danmu"],
+            danmu2:["时间2","位置","各种信息etc","danmu"]
+            //etc..
+    	}
+     }
+]
+
+
+```
+
+是不是看着很整洁 但想也知道在简单数据流情况下把数据分割成几块来写会平白无故给自己添麻烦
+
+所以大概还是专事专办吧
+
+
+
+总之我认为json比起传输这些 对于编写存储调用它们的人来说更有意义,且更直观..
 
 
 
@@ -1426,69 +1492,7 @@ JSON.stringify(array)
 
 以及"解压"方式
 
-`JSON.parse(*)`
-
-**实例**:(某视频的弹幕xml)
-
- ```xml
- <?xml version="1.0" encoding="utf-8"?>
- <i>
- <chatserver>chat.bilibili.com</chatserver>
- <chatid>312258891</chatid>
- <mission>0</mission>
- <maxlimit>8000</maxlimit>
- <state>0</state>
- <real_name>0</real_name>
- <source>k-v</source>
- <d p="493.10000,1,25,16777215,1616410758,0,69d4a0e8,46802447104999431">？关键词察觉</d>
- <d p="198.25200,1,25,16777215,1614958556,0,5f5c42b2,46041074962530309">晶姐表示很淦</d>
- <d p="583.49500,1,25,16777215,1614958339,0,19e40eb4,46040961134362627">佑树的家</d>
- <d p="432.43800,1,25,16777215,1614958305,0,19e40eb4,46040943464808455">可还行，佑树请客</d>
- <d p="628.10300,1,25,16777215,1614957889,0,4d1f44b2,46040725128740869">嗨，辛苦了</d>
- <d p="160.71200,1,25,16777215,1614957794,0,cd7eecc8,46040675264757765">快进到晶姐发现自己摊子掉进坑里</d>
- <d p="596.94700,5,25,16777215,1614957445,0,fa370a04,46040492385763335">快，这里是警察局的近路（</d>
- <d p="166.51900,1,25,16777215,1614957068,0,c7854631,46040294927368195">晶：你小子又在干啥</d>
- <d p="188.28900,1,25,16777215,1614956239,0,a3b3d975,46039860124319749">说，骑士君经常带女的去好吗</d>
- </i>
- //除了前面的前缀 就只有弹幕这一种信息(数字代表着发送时间,颜色,位置,用户UID..) 编写生成这样的xml难度也低 就是看着很乱
- ```
-
-
-
-**如果是json标示 这段代码应该表示成..**
-
-```json
-{
-chatserver:"chat.bilibili.com",
-chatid:"312258891",
-.
-.blablabla
-danmuku(假设) = [
-    {
-  		name:"某个UID",
-		danmus:{
-            danmu1:["时间","位置","各种信息etc","danmu"],
-            danmu2:["时间2","位置","各种信息etc","danmu"]
-            //etc..
-        	}
-    },
-        
-    {
-  		name:"某个UID2",
-		danmus:{
-            danmu1:["时间","位置","各种信息etc","danmu"],
-            danmu2:["时间2","位置","各种信息etc","danmu"]
-            //etc..
-    	}
-     }
-]
-
-
-```
-
-是不是看着很整洁 但想也知道在简单数据流情况下把数据分割成几块来写会平白无故给自己添麻烦
-
-所以大概还是专事专办吧
+`JSON.parse(*)` 其实就是还原
 
 
 
@@ -1546,6 +1550,10 @@ var cat2 = {cat2.name="cat", cat2.color=color()}
 
 然后你在想 难道就不能在var变量的时候就直接生成好所有对应的属性的值吗？(像内置的Date()一样)
 
+而且你的颜色也不一定只有黑啊 黄 白 之类的怎么办？
+
+
+
 Patch E1.1:
 
 ```javascript
@@ -1595,12 +1603,12 @@ Patch E1.2
 
 ```javascript
 function Cat(name,color){
-    this.nationality="chinese";
+    this.nationality="chinese"; //以及你可以额外添加这只猫的“固定属性”
 	this.name=name;
 	this.color=color;
 }
 var cat1 = new Cat("me","you")
-以及你可以额外添加这只猫的“固定属性”
+
 //Cat{nationality: "chinese",color: "you",name: "me"}
 
 ```
@@ -1627,6 +1635,8 @@ var cat1 = new Cat("me","you")
 
 然后往新变量再塞**属性**不就行了？
 
+> 待补充 也许是两个库选择性合并 也许是已继承的对象再添加另一个库里对象
+
 
 
 E2:
@@ -1645,7 +1655,7 @@ prototype即为某个函数的原型,是个函数都会有这个属性
 
 什么意思？
 
-你构造出来的函数必有原型属性(`prototype`)指向你new出来的原型(`__proto__`)
+你构造出来的函数必有原型属性(`prototype`)指向你new出来实例对象的原型(`__proto__`)
 
 
 
@@ -1665,17 +1675,18 @@ Cat.prototype.fur = ?;
 
 Cat函数的原型属性多了一个自己新定义的属性重新赋值
 
-你可以理解为 cat的子属性
+你可以理解为Cat的子属性
 
 
 
 E2.1:
 
 ```javascript
-function Cat(name,color){
+function Cat(name,color,description){
     this.nationality="chinese";
 	this.name=name;
 	this.color=color;
+    this.description=description;
 	
 }
 Cat.prototype.fur = "white"	//Cat的原形属性fur是指向于你new出来的cat1
@@ -1687,7 +1698,7 @@ var cat2 = new Cat("sily","black")
 Cat.prototype.fur = "sort"
 Cat.prototype.voice = "short"
 cat2.__proto__
-//{fur: "sort", voice: "short", constructor: ƒ}
+//{fur: "sort", voice: "short"}
 
 //注：这样写会让cat1的__proto__属性多出fur:white，而非直接显示在cat1上
 ```
@@ -1704,7 +1715,7 @@ cat2.__proto__
 
 所有上文new的函数的`__proto__`属性全部指向了该函数
 
-一旦函数的prototype一修改，下文的new对象的`__proto__`属性全部都会被修改
+一旦函数的prototype一修改，下文的new对象的`__proto__`属性**全部都会被修改**
 
 ![img](https://img2018.cnblogs.com/blog/850375/201907/850375-20190708151322530-1608157973.png)
 
@@ -1738,10 +1749,11 @@ Extra:
 
 ```javascript
 class Cat{
-    constructor(name,color){
+    constructor(name,color,description){
     	this.nationality="chinese";
 		this.name = name;
 		this.color = color;
+        this.description=description;
 	}
 	
 	//在class里 如果你要新增属性 你可以直接写入而不用再去书写*.prototype.*
@@ -2519,7 +2531,7 @@ console.log(a);
 > 在你new的过程中，this也会指向`a`这个新对象
 >
 
-不 没有冲突
+
 
 根据顺序 this应该先绑定了对象a 然后再去执行user
 
@@ -2831,7 +2843,7 @@ document.cookie
 
 ****
 
-### 6、 操作DOM对象
+### 6、操作DOM对象
 
 DOM (Document Object Model) 译为**文档对象模型**，是 HTML 和 XML 文档的编程接口。
 
@@ -2857,11 +2869,21 @@ DOM 以树结构表达 HTML 文档。(这个是jquery一些知识的前置)
 
 
 
-经典*document*	对应CSS选择器
+#### **获取**
 
-> document.getElementByTagName 对应着p1 p2 h1..
+经典*document*文档操作
+
+> document.getElementByTagName("p1..") 对应着p1 p2 h1这种标签..
+>
+> 另一种写法
+>
+> document.getElementsByTagName("p")[1] (代表p标签下的第二个标签/0即为P1它自己)
+>
+> 
 >
 > document.getElementById("id") 对应着被命名的ID
+>
+> 
 
 
 
@@ -2881,13 +2903,13 @@ parent、child、sibling(同胞节点即为拥有相同父节点的节点)
 
 
 
-更新
+**更新**
 
-这里笔记不再赘叙更新，你连一键json都做出来了 还要写这个吗？
+这里笔记不再赘叙更新 改变即是更新
 
 
 
-删除
+#### **删除**
 
 首先先说明一点 该节点不能执行删除自己的属性， 只能父和兄弟节点里执行删除该节点
 
@@ -2913,7 +2935,11 @@ father.removeChild(father.child[1])
 
 > <<HTMLcollection(3) [h1, p1, p2]
 
-这意味着  当你删除掉任意一个节点时,child属性会被发生变化
+
+
+这意味着
+
+当你删除掉任意一个节点时,child属性会被发生变化
 
 如果有三个节点 你删除掉了[1] 再去执行删除[2]就会报错
 
@@ -2923,7 +2949,161 @@ father.removeChild(father.child[1])
 
 
 
+#### **添加**
 
+(与其说是添加 不如说是剪切?)
+
+> father.appendChild()
+
+前文也说过 实际上你给原本空的内容添加了内容 实际上就是了添加了节点(可能会是文字 会是元素 也可能是属性)
+
+示例：
+
+```html
+<h1>title</h1>
+<div id="father">
+<p id="1">1</p>
+<p id="2">2</p>
+<p id="3">3</p>
+
+</div>
+
+<div id ="js">js</div>
+
+<script>
+var father = document.getElementById("father")
+var js = document.getElementById("js")
+</script>
+
+<< father.appendChild(js)
+
+>>  <h1>title</h1>
+	<div id="father">
+	<p id="1">1</p>
+	<p id="2">2</p>
+	<p id="3">3</p>
+	<div id ="js">js</div>
+	</div>
+```
+
+
+
+**插入**
+
+>  Node.insertBefore(Node末,Node起)
+
+简单来说就是在两个节点之中插入新节点 append仅支持末尾 而这个就是任意
+
+```
+var 1 = doc.get("1");
+var 2 = doc.get("2");
+var 3 = doc.get("3");
+
+1
+2
+3
+
+3.insertBefore(2,1);
+
+<<
+1
+3
+2
+```
+
+
+
+**创建**
+
+****
+
+元素节点
+
+你还可以真正意义上创建一个新的元素节点
+
+> document.createElement("p")
+
+
+
+当然 新建的标签会默认处在网页的末端，如果你要添加特定的地方
+
+你就应该为该元素添上**ID**让父节点得以添加进去
+
+> var p4 = document.createElement("p")
+>
+> p4.id = "p4"
+>
+> father.appendChild(p4)
+
+
+
+当然还有
+
+标签节点
+
+\<script>,\<style>,\<link>...etc
+
+也是可以通过createElement("script")之类的添加进去
+
+
+
+不过事实上 真正的内容不是它们的这个框架 而是它们要执行的内容
+
+****
+
+#### **设置属性**
+
+是的 你单拥有个标签是没有任何用的 你得给它们加上属性才会有大用
+
+例如\<div style="">或者\<style>(InnerHtml)\</style>这样才会有用处
+
+于是乎通过设置属性的子属性就来了 setAttribute
+
+用法:
+
+> *.setAttribute("Attr",val)
+
+
+
+示例：
+
+```javascript
+ul_link_item.setAttribute("style",this.Json())
+```
+
+是的 val部分甚至可以是一个对象 如果是字符串的话就要手动包裹
+
+这一段说明该变量的style属性指向json函数里面的内容
+
+
+
+或者
+
+```javascript
+var other_style = document.createElement("style");
+other_style.innerHTML = "body{background-color:black;}"
+var me = document.getElementsByTagName("head")[0].appendChild(other_style)
+```
+
+
+
+注:*寒冰兔说有了jQuery来实现的话 会轻松更多 建议赶紧学会以打开新世界*
+
+
+
+### 7、操作表格
+
+Form(表格单) 表格单作为前端给用户提交信息的的渠道 可以说是非常重要
+
+这里简短过一遍input包含的所有属性
+
+> input type="text"
+>
+> radio 单选
+>
+> checkbox 复选
+>
+> form 表单
 
 ### X、 Jquery库
 
