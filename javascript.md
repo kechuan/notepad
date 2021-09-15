@@ -3095,15 +3095,85 @@ var me = document.getElementsByTagName("head")[0].appendChild(other_style)
 
 Form(表格单) 表格单作为前端给用户提交信息的的渠道 可以说是非常重要
 
-这里简短过一遍input包含的所有属性
+这里简短过一遍HTML里的基础内容
 
-> input type="text"
+form method="post/hidden" (明文/秘文) action=""提交时的行动
+
+input包含的所有属性(name=组/value=填入值,placeholer=提示)
+
+> input type="text" 输入框
 >
-> radio 单选
+> *radio 单选 
 >
-> checkbox 复选
+> *checkbox 复选 
 >
-> form 表单
+> textarea 文字输入框
+
+*需要添加name属性以绑定为同一列选项(submit时也能正常传输),value便为真选项(传递的值)
+
+*2 ID是为了能够锁定该标签
+
+
+
+这里主要的是记录运用表格单的属性去获得 或者 修改值 以此传递到服务器或给用户
+
+
+
+怎么体现？
+
+比如最基础的value
+
+
+
+```
+例如 有这么几行
+<form action="post">
+姓名: <input type="textarea" id="text"></input> <br>
+性别: <input type="checkbox" id="check_ch1" value="me" name="choose" descripton>男</input>
+	 <input type="checkbox" id="check_ch2" value="you" name="choose">女</input>
+
+</form>
+
+此时 你用doc锁定了ID 绑定到变量上
+通过变量的子属性来获得它们的value
+```
+
+
+
+> 姓名: 哼哼 啊啊啊啊啊
+> 性别: - [X] 男 - [ ] 女
+>
+> var text = document.getElementById("text")
+> text.value
+> "哼哼 啊啊啊啊啊"
+>
+> 
+>
+> 以及选择框的作答与否
+>
+> var choose = document.getElementById("check_ch1")
+>
+> choose.checked
+>
+> << true
+>
+> 或者直接定义value的值/checked的状态
+
+
+
+但是这些实际上有什么用呢
+
+前端嘛 就得给数据打包好 至少是前端以内可以处理好的东西就搞定完毕 再丢给服务器
+
+
+
+使用js代码对输入数据进行验证/传输加密
+
+让抓包失效
+
+
+
+
 
 ### X、 Jquery库
 
