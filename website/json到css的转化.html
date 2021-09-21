@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
 <body>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    
     <script type="text/javascript">
         function Json() {
             return this.Jsonchange({
@@ -23,8 +24,9 @@
         var string = [];
         
           for(let array in style){
-              string.push(`${array}:${style[array]}`);
-              /*string.push(array+':'+style[array]);*/
+              string.push(`${array}:${style[array]}`);  
+              //顺序访问(元素):返回(顺序位置)的值
+              // string.push(array+':'+style[array]);
               //注:不在push里直接添加';'是因为直接加会直接被包裹成字符串";"
           }
           string = string.join(';');
@@ -40,7 +42,8 @@
             var ul_link_item = document.getElementById("paper");
             /*setStyle('ul_link_item', this.Json())*/
             console.log(this.Json()) //为什么log的结果会重复两次呢? 因为key与value的原因吗?
-            ul_link_item.setAttribute("style",this.Json())
+            // ul_link_item.setAttribute("style",this.Json())
+            $("#paper").css("style",this.Json())
 }
 
 

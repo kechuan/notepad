@@ -1,4 +1,4 @@
-## notepad for JavaScript
+notepad for JavaScript
 
 <svg t="1626158047738" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1648" width="18" height="18"><path d="M0 0h1024v1024H0z" fill="#FFFFFF" p-id="1649"></path><path d="M944 896H80.213333a31.189333 31.189333 0 0 1-27.306666-16.213333l-5.845334-9.813334a33.493333 33.493333 0 0 1 0-32.426666l431.36-736.426667a32.597333 32.597333 0 0 1 27.733334-15.786667h12.8a32.554667 32.554667 0 0 1 27.733333 15.786667l430.506667 736.426667a33.28 33.28 0 0 1 0 32.426666l-5.930667 9.813334a31.232 31.232 0 0 1-27.264 16.213333z m-453.205333-256a21.333333 21.333333 0 0 0-21.333334 21.333333v42.666667a21.333333 21.333333 0 0 0 21.333334 21.333333h42.666666a21.333333 21.333333 0 0 0 21.333334-21.333333v-42.666667a21.333333 21.333333 0 0 0-21.333334-21.333333z m-7.722667-256a21.333333 21.333333 0 0 0-21.333333 23.893333l17.066666 137.386667a10.666667 10.666667 0 0 0 10.581334 9.386667h45.354666a10.709333 10.709333 0 0 0 10.666667-9.386667l17.066667-137.386667a21.333333 21.333333 0 0 0-21.333334-23.893333h-58.069333z" p-id="1650"></path></svg> warning
 
@@ -550,6 +550,10 @@ E3:纯汉字
 1. 汉字嘛..范围是[\u4e00-\u9fa5] 第一第二句复刻修改 `^[\u4e00-\u9fa5]+$`
 
 
+
+E4:以某个词组(2021)开头的
+
+`^(2021)+...`?
 
 
 
@@ -3051,6 +3055,41 @@ var 3 = doc.get("3");
 
 ****
 
+#### 事件监听
+
+**addEventListener("event",function(),(capture))**
+
+> -event 必须字符串，指定事件名。
+>
+> capture(可选) 指定是否在捕获阶段执行
+
+为某个元素添加监视器,当用户对某个元素执行什么操作之后 就会触发该监视器执行内容
+
+> document.addEventListener("click", function()
+> {
+>     body.innerHTML = "Hello World";
+> });
+>
+> 像这种就是点(click)任何地方都会让#demo 替换为Hello world
+>
+> 估计还能替代计时器的作用
+>
+> 
+>
+> 顺带jquery的.on 原型就是这个
+>
+> .on("click", handler)
+
+
+
+当然 既然有添加 那必然也有删除
+
+removeEventListener()
+
+.off("click", handler)
+
+****
+
 #### **设置属性**
 
 是的 你单拥有个标签是没有任何用的 你得给它们加上属性才会有大用
@@ -3061,7 +3100,7 @@ var 3 = doc.get("3");
 
 用法:
 
-> *.setAttribute("Attr",val)
+> *.setAttribute("Attr",value)
 
 
 
@@ -3071,7 +3110,7 @@ var 3 = doc.get("3");
 ul_link_item.setAttribute("style",this.Json())
 ```
 
-是的 val部分甚至可以是一个对象 如果是字符串的话就要手动包裹
+是的 val部分甚至可以是一个对象 如果val是字符串的话就要手动包裹
 
 这一段说明该变量的style属性指向json函数里面的内容
 
@@ -3101,7 +3140,7 @@ form method="post/hidden" (明文/秘文) action=""提交时的行动
 
 input包含的所有属性(name=组/value=填入值,placeholer=提示)
 
-> input type="text" 输入框
+> input type="text" 输入框*
 >
 > *radio 单选 
 >
@@ -3109,7 +3148,7 @@ input包含的所有属性(name=组/value=填入值,placeholer=提示)
 >
 > textarea 文字输入框
 
-*需要添加name属性以绑定为同一列选项(submit时也能正常传输),value便为真选项(传递的值)
+*1 需要添加name属性以绑定为同一列选项(submit时也能给服务器回报正确的值),value便为真选项(传递的值)
 
 *2 ID是为了能够锁定该标签
 
@@ -3121,11 +3160,9 @@ input包含的所有属性(name=组/value=填入值,placeholer=提示)
 
 怎么体现？
 
-比如最基础的value
+比如最基础的value属性
 
-
-
-```
+```html
 例如 有这么几行
 <form action="post">
 姓名: <input type="textarea" id="text"></input> <br>
@@ -3163,53 +3200,138 @@ input包含的所有属性(name=组/value=填入值,placeholer=提示)
 
 但是这些实际上有什么用呢
 
-前端嘛 就得给数据打包好 至少是前端以内可以处理好的东西就搞定完毕 再丢给服务器
+前端嘛 就得给数据打包好 理论上来说 至少是前端以内可以处理好的东西就搞定完毕 再丢给服务器
+
+在此之前还能使用js代码对输入数据进行验证/传输加密
+
+****
+
+#### 明文信息加密(MD5加密)
+
+尽管MD5碰撞理论出现已久 但..有加密好过明文直接泄露不知多少倍
+
+> 我可不会直接写出个js加密
+>
+> 所以直接调用别人的js好了(悲
+>
+> 
+>
+> 兴许你顺便能看懂它在写什么
 
 
 
-使用js代码对输入数据进行验证/传输加密
+usage:
 
-让抓包失效
+```javascript
+具体的那种加密例子
+具体例子:
+
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+<script type="text/javascript">
+function md5_encry(){
+	var username = document.getElementById("username");
+	var password = document.getElementById("password");
+	password.value = md5(password.value);
+	console.log(password.value)
+}
+</script>
+
+<form action="#" method="post">
+username: <input type="text" id="username" name="username"></input> <br>
+password: <input type="password" id="password" name="password"></input> <br>
+<button type="sumbit" onclick="md5_encry()">提交</buttom>
+</form>
+
+```
 
 
+
+不过实话说..我想应该会有比这更好 更安全的加密方式 毕竟这里也只是基础js嘛..
+
+
+
+总而言之 还是继续学罢(
 
 
 
 ### X、 Jquery库
 
+#### 介绍与作用
+
 实际上 JS与Jquery并不是两个完全独立的东西
 
+> 介绍如下
+>
 > jQuery是一个快速的，简洁的javaScript库
 >
-> jQuery是JS的框架，基于JS语言，集合Ajax技术开发出来的JS库，封装JS和Ajax的功能，提供函数接口，大大简化了Ajax，JS的操作。
+> jQuery是JS的框架，基于JS语言，集合Ajax技术开发出来的JS库，封装JS和Ajax的功能，提供函数接口，大大简化了Ajax，JS的操作。具有跨浏览器适配 CSS友好 轻量等特性..
 >
->  
+> 
 >
->  一般JS调用Jquery链接:
+> 总而言之 封装 就是它的特点
 >
-> [Jquery引用]: https://code.jquery.com/jquery-3.3.1.min.js	" 它支持V4/V6访问"
+> 
+>
+> 一般JS调用Jquery链接:
+>
+> [Jquery引用]: https://code.jquery.com/jquery-3.6.0.js	" 它支持V4/V6访问(留意官网版本更新)"
+>
+> 要加速访问 自行选适合自己的CDN吧
+>
+> 
 
 
 
-##### `$`转义 [^$的用法]
+它是怎么实现所谓的节省空间？
 
-<div id="gap"
-    style="
-    border:1px solid black;
-	height:1px;
-	border-top:1px;"
-    ></div>
-**实际上是也有许多不引入库本身 但是也有一些便利操作可以让我们简写代码**
+具体表现为:
+
+```html
+Before:
+<div id="openNotepad" onclick="openNotepad()">打开</div>
+<div id="openNotepad" onclick="closeNotepad()">关闭</div>
+
+然后js里面自行配置function openNotepad(){}/function closeNotepad(){}
+
+After:
+<div id="openNotepad">打开</div>
+<div id="openNotepad">关闭</div>
+
+js里
+$("body").ready(function(){
+	$("#openNotepad").click(function(){
+		blablabla...
+	})
+})
+
+$("body").ready(function(){	
+	$("#closeNotepad").click(function(){
+		blablabla...
+	})
+})
+
+也许你认为这并没有简化多少.
+```
 
 
+
+我们来个实际点的
+
+
+
+#### `$`转义 [^$的用法]
+
+****
+
+**实际上是也有许多不引入库本身 但是也有一些便利的操作可以让我们简写代码**
 
 **注:反单引号`` `包裹希望生效的区域**
 
 
 
-如`$`符号 在JS里面只是没有意义的符号
 
-但它在非jquery搭配时拥有着这几个转义
+
+`$` 它在非jquery搭配时拥有着这几个转义
 
 
 
@@ -3217,10 +3339,11 @@ input包含的所有属性(name=组/value=填入值,placeholer=提示)
 
 即 包裹的内容回被译作`""` 且调用它时会直接免掉字符串与变量链接时需要调用`+`来链接
 
-```
-var a = 'sdcard'
-innerHtml(`${a}`)
-//sdcard
+```javascript
+string.push(`${array}:${style[array]}`);  
+string.push(array+':'+style[array]);
+
+即使引入jquery后 这个原生的功能也不会受影响
 ```
 
 实现一个整体是字符串 生效字符 
@@ -3229,23 +3352,36 @@ innerHtml(`${a}`)
 
 `$()` 代表着CSS转义
 
+默认下不加`#`/`''`便默认规定为选择ID
+
 > ```javascript
-> `$("#id")`=document.getElementById("id");
-> //#为特地标注ID
+> 要注意的是 $("#id") != document.getElementById("id");
+> 
+> 毕竟[0]才会相等,原本的是jquery初始化的 调用功能?
+> 
+> $("#nav-link-item")[0].innerText = "huh?"
 > ```
 >
 > 以及
 >
 > ```javascript
-> `$("a")`=a{
+> $("a").css()=a{
 > 
 > }
 > 即它选择了所有的<a>这个标签
+> 
+> 但是它又和document.getElementsByTagName("a")不相同	//false
+> 硬要说的话 一个是DOM原生节点 另一个是jQuery的吧?
+> document.getElementsByTagName("a")[0] == $("a")[0] //true
 > ```
 
 那么 它要怎么表达CSS里的**ul li{}** 与 **ul li.nav-link-item{}** 与 **ul#menu li a{}**的效果呢？
 
 
+
+这是jquery引入前
+
+****
 
 <div style="color: #119151; font-size: 23px;">你一个个来(恼)</div>
 
@@ -3257,13 +3393,9 @@ innerHtml(`${a}`)
 
 **属性名**
 
-class类
+class类 直接.class就可以表示
 
-> 直接.class就可以表示
-
-ID类
-
-> 直接#ID作表示
+ID类 直接#ID作表示
 
 这点还是和CSS的表示方式**一样**
 
@@ -3271,23 +3403,168 @@ ID类
 
 所以
 
-
-
-**ul li{}** = `$("ul>li")` = document.getElementById("ul li");
+**ul li{}** = `$("ul>li/ul li")` = document.getElementById("ul li");
 
 **ul li.nav-link-item{}** = `$("ul>li.nav-link-item")`
 
 **ul#menu li a{}** = `$("ul#menu>li>a")`
 
-但是你不能直接用 `$("ul#menu>li>a")`.style这样直接调整CSS，需要用它的方式设置CSS
+但是你不能直接用 `$("ul#menu>li>a")`.style或者var ** = $("\*") 这样直接调整CSS，需要用它的方式设置CSS
 
 
 
 etc...
 
+这些特点 你不引入jquery也能够实现
+
+
+
+这是jquery引入后
+
 ****
 
+引入之后 使用方式大大修改 具体用法是
 
+> $("*")([0]).css("attr","val")	如果是标签名\<a>类[0]就成了可选 此时指代所有的\<a>标签
+>
+> goto EXP1
+>
+> $("a").css("text-decoration","underline")	TAG类
+>
+> ::EXP1
+>
+> 
+>
+> goto EXP2
+>
+> $('#framework').css("z-index","3") 是的 对具体的ID用jquery自带的css属性后 你已经不需要特定指定[*]了
+>
+> ::EXP2
+
+
+
+它还支持直接这样引入 .css( propertyName, function(index, value) ) 切合你之前的setAttribute this.json的操作
+
+
+
+
+
+#### 选择器
+
+那么引入了jQuery后
+
+jQuery里普遍有这么一种定义
+
+> $(selctor)[*].action
+
+
+
+一般用法:
+
+> $('#framework')
+>
+> <<  *jQuery.fn.init [div#framework, prevObject: jQuery.fn.init(1)]*
+>
+> ​	  0: div#framework
+>
+> 是的 这意味着你应该如此调用**$(#framework)[0]**才能等同于
+>
+> 不加jQuery **$(#freamwork)**的效果
+
+
+
+即存在了选择器这个概念
+
+除了上文提到的CSS类用法还有：
+
+| 选择器                  | 实例                       | 选取                  |
+|:---------------------- |:------------------------- |:------------------- |
+| [*]                     | $("*")                    | 所有元素               |
+| #*id*                   | $("#lastname")            | id="lastname" 的元素   |
+| .*class*                | $(".intro")               | 所有class="intro"的元素| 
+| *element*               | $("p")                    | 所有 <p> 元素          |
+||||
+| :first                  | $("p:first")              | 第一个 <p> 元素|
+| :last                   | $("p:last")               | 最后一个 <p> 元素|
+| :even                   | $("tr:even")              | 所有偶数 <tr> 元素|
+| :odd                    | $("tr:odd")               | 所有奇数 <tr> 元素|
+| :hidden                 | $("p:hidden")             | 所有隐藏的 <p>元素|
+| :header                 | $(":header")              | 所有标题元素 <h1> - <h6>|
+||||
+| [:contains(*text*)]     | $(":contains('W3School')")| 包含指定字符串的所有元素 |
+||||
+| s1,s2,s3                | $("th,td,.intro")         | 所有带有匹配选择的元素|
+||||
+| [*attribute*\]          | $("[href]")               | 所有带有 href 属性的元素|
+| [attribute*=*value*\]   | $("[href='#']")   | 所有 href 属性的值等于 "#"的元素 |
+| [attribute*!=*value*\] | $("[href!='#']") | 所有href 属性的值不等于 "#" 的元素 |
+| [attribute*$=*value*\] | $("[href$='.jpg']")| 所有 href 属性的值包含以 ".jpg" 结尾的元素 |
+||||
+| :input                  | $(":input")                | 所有 <input> 元素  |
+| :text                   | $(":text")         | 所有 type="text" 的 <input>元素|
+| :password               | $(":password"| 所有 type="password" 的 <input> 元素 |
+| :radio                  | $(":radio")    | 所有 type="radio" 的 <input> 元素|
+| :checkbox               | $(":checkbox")             | 所有 type="checkbox" 的 <input> 元素       |
+| :submit                 | $(":submit")               | 所有 type="submit" 的 <input> 元素         |
+|                         |                            |                                            |
+| :button                 | $(":button")               | 所有 type="button" 的 <input> 元素         |
+| :image                  | $(":image")                | 所有 type="image" 的 <input> 元素          |
+| :file                   | $(":file")                 | 所有 type="file" 的 <input> 元素           |
+|                         |                            |                                            |
+| :enabled                | $(":enabled")              | 所有激活的 input 元素                      |
+| :disabled               | $(":disabled")             | 所有禁用的 input 元素                      |
+| :selected               | $(":selected")             | 所有被选取的 input 元素                    |
+| :checked                | $(":checked")              | 所有被选中的 input 元素                    |
+
+
+
+****
+
+#### click事件
+
+和原生的onclick作用类似
+
+
+
+> ST搜寻结果
+>
+> The `.click()` only work on elements that are in the DOM when the method is called
+>
+> 翻译一下就是 你必须在DOM加载完成之后 去执行才会生效
+>
+> 
+>
+> 为什么click失效而又在console里生效 正是因为你在DOM未干完活前 先执行了它
+>
+> 建议套在ready()(window.load)内执行
+
+
+
+
+
+Extra: 为什么更推荐用原生的evenListener(.on)代替单纯的click()事件？
+
+ST里有一处解答
+
+当用click的时候
+
+1. 许多匹配的元素会创建许多相同的处理程序，从而增加内存占用(不是很懂)
+2. 动态新增的项目**不会**被click响应 - 如果你的绑定对象为class类 而你想在原本的class上 再新增一个需要click响应的项目。 除非您重新绑定处理程序，否则按钮将不起作用。
+
+
+
+而使用.on("click",...)时
+
+1. 指定好单一的处理程序匹配的所有元素，其中包括动态创建的。
+2. 既然你是用on来添加 如果你想删除的话 直接off就完事 而click却做不到如此简便的移除事件
+
+
+
+*什么时候能接触到单纯看页面的内存占用诊断工具呢？*
+
+
+
+****
 
 
 
