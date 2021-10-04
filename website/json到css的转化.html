@@ -21,11 +21,11 @@
 
 
         function Jsonchange(style){
-        var string = [];
+        var string = [];    //创建一个空集合变量,以便存放数据(为什么var一个null实现数据自适应是不允许的? 我也不知道)
         
           for(let array in style){
               string.push(`${array}:${style[array]}`);  
-              //顺序访问(元素):返回(顺序位置)的值
+              //顺序元素下标访问(元素):(顺序元素下标)的值
               // string.push(array+':'+style[array]);
               //注:不在push里直接添加';'是因为直接加会直接被包裹成字符串";"
           }
@@ -37,38 +37,18 @@
       }
 
         var change2 = function(){
-            /*var ul_link_item = `$("ul>li.nav-link-item")`;*/
-
             var ul_link_item = document.getElementById("paper");
             /*setStyle('ul_link_item', this.Json())*/
-            console.log(this.Json()) //为什么log的结果会重复两次呢? 因为key与value的原因吗?
-            // ul_link_item.setAttribute("style",this.Json())
-            $("#paper").css("style",this.Json())
-}
-
-
-        /**
-     * 设置样式
-     * 
-     * @param {string} selector CSS 选择器
-     * @param {object} styles 样式对象，例 { fontSize: '16px', color: '#000' }
-     
-    function setStyle(selector, styles) {
-        var elems = document.querySelectorAll(selector);
-
-        elems.forEach(function (elem) {
-            for (let key in styles) {
-                elem.style[key] = styles[key];
-            }
-        });
-    }
-*/
-        /*沉思:JS是通过sidebar.style.right = "-300px";这样的方式
-        即value必须是字符串来包裹起来
-    
-        
-        
-        */
+            console.log(this.Json())
+            ul_link_item.setAttribute("style",this.Json())
+            // $("#paper").css("style",this.Json()) 这是不行的
+        }
+        $(function(){
+            $("#paper").on("click",function(){
+                $("#text").text("实现")
+            })
+                
+        })
         
     </script>
 
@@ -88,7 +68,7 @@
         }
     </style>
 
-    <div id ="paper" onclick="change()">it just a simple test</div>
+    <div id ="paper">it just a simple test</div>
 
 
     <ul onclick="change2()" id="menu">
