@@ -1,34 +1,238 @@
+body本身也是有自带的margin属性 初始值为8 这个默认值总比直接贴上去屏幕左上角好看这没问题
+
+但是这会对开发时的像素计算有很大的误导性(-16)
+
+建议每次开发页面前 都直接赋值body的margin为0.
+
+
+
 #### css布局排列
+
+##### 以往的排列元素
 
 1. **块级元素（block elements）**,来源于CSS盒子模型。块级元素包含width height,padding,border与margin，他们的排列方式是从上到下排列。 行内元素，排列方式是水平排列。(*但是一个div就将直接占用一行的长度,所以实际结果便是从上往下排)
 
-   
+
+
 
 2. **行内元素（inline elements）**排列方式是水平排列。(*大小完全受限于文字)
 
-   
 
-5. **行内块元素（inline-block elements）**在内部他的表现类似block元素，比如他拥有block元素的width height,即可以设定自己的高宽值，亦可以设定自己的padding,border与margin，而外部的排列方式有类似行内元素，即水平排列，而不是像块级元素一样从上到下排列。
 
-   (大小不完全受文字限制 可以自定义大小)
+3. **行内块元素（inline-block elements）**在内部他的表现类似block元素，比如他拥有block元素的width height,即可以设定自己的高宽值，亦可以设定自己的padding,border与margin，而外部的排列方式有类似行内元素，即水平排列，而不是像块级元素一样从上到下排列。
+
+(大小不完全受文字限制 可以自定义大小)
 
 　　之所以称之为inline-block。是因为它兼具行内元素(inline-element)和块级元素(block-element)的特征。
 
-(疑问:为什么给一个div区块下的)
-
-　　**Replaced element 置换元素**
+**Replaced element 置换元素**
 
 　　说到这，有必要提的就是**置换元素**。何为置换元素，在html中，有类特殊的元素如:
 
 　　\<img>|\<input>|\<button>|\<select>|\<textarea>|\<label>
 
-　　他们被称为可置换元素（Replaced element）。他们区别一般inline元素（相对而言，称non-replaced element）是：这些元素拥有内在尺寸(intrinsic dimensions),他们可以设置width/height属性。他们的性质同设置了display:inline-block的元素一致。上述六个标签在现代浏览器中即为
+　　他们被称为可置换元素（Replaced element）
 
-**天生的inline-block元素。**
+​		他们的性质同设置了display:inline-block的元素一致。上述六个标签在现代浏览器中即为
+
+​		**天生的inline-block元素。**
 
 
 
-关于内容的垂直水平居中显示
+##### 现在的趋势
+
+4. **弹性布局(flex/inline-flex)**
+
+   注:设为Flex布局以后，子元素的**float**、**clear**和**vertical-align**(因为会有justify-content/align-item属性)
+
+   属性将失效
+
+   采用Flex布局的元素，称为Flex容器（flex container），简称”容器”。它的所有子元素自动成为容器成员，称为Flex项目（flex item），简称”项目”。
+
+   ![img](https://www.runoob.com/wp-content/uploads/2015/07/3791e575c48b3698be6a94ae1dbff79d.png)
+
+   容器默认存在两根轴：
+
+   **水平**的主轴（main axis）主轴的开始位置（与边框的交叉点）叫做main start，结束位置叫做main end；
+
+   **垂直**的交叉轴（cross axis）交叉轴的开始位置叫做cross start，结束位置叫做cross end。
+
+   
+   
+   好了 主要疑问来了
+   
+   我们到底什么时候才会用得上flex?
+   
+   > aims at providing a more efficient way to lay out, align and distribute space among items in a container, even when their size is unknown and/or dynamic (thus the word “flex”).
+   >
+   > 这是flex布局描述的原话
+   >
+   > 诚然 如果你只是想简简单单水平排列inline-block就能做的到
+   >
+   > 但是容器里的项目 并不永远都是规规矩矩的大小相同 直接排序 很有可能造成间距排列不当 影响正常观感
+   
+   
+   
+   <img src="C:\Users\kechuan\Desktop\notepad\images\image-20211011162021738.png" alt="image-20211011162021738" style="zoom: 80%;" />
+   
+   
+   
+   从这可以看到 作者直接把顶部栏直接用flex布局整体包裹 以此兼容各类项目的大小差异
+   
+   而如果是单纯的inline-block布局 光是让其他元素能够随意的排列就得针对padding或者是postion调各种设置
+   
+   这显然是各种意义上的开销更大
+   
+   
+   
+   那么本md的flex旨在理解怎么做出这样的效果(顺带看看能不能把我之前写的ul li给用更高效的排列方法替换掉)
+   
+   
+   
+   项目默认沿**主轴排列**。单个项目占据的主轴空间叫做main size，占据的交叉轴空间叫做cross size。
+
+和inline-block有点类似但是它还要更多的子属性可供调节:
+
+display:flex/inline-flex
+
+排列 flex允许你对一组/一个项目进行统一排列 这样就能更弹性的控制项目的位置
+
+****
+
+**容器框架**用
+
+排列方向
+
+- flex-direction: row | row-reverse | column | column-reverse| ltr-rtl/top-down
+
+在容器某一个坐标满载之后 你可以将溢出的项目移动到下一个"合理"的地方
+
+- flex-warp:nowrap(默认)|wrap(top-down)|wrap-reverse
+
+- align-content
+
+该属性只对整体flex内容有效(?)
+
+![image-20211014105426872](C:\Users\kechuan\Desktop\notepad\images\image-20211014105426872.png)
+
+****
+
+
+
+![image-20211014105135117](C:\Users\kechuan\Desktop\notepad\images\image-20211014105135117.png)
+
+****
+
+间隔
+
+- gap
+
+用法和普通的margin一样 不过还能够自适应flex容器
+
+> .flex container{
+>
+> display:flex
+>
+> gap:10px; 
+>
+> row-gap: 10px; column-gap:20px; | gap: 10px 20px;
+>
+> }
+>
+> 
+
+
+
+****
+
+<div style="color:red;">集合</div>
+
+- flex-flow(`flex-direction` `flex-wrap`的简括)
+  - row nowarp(默认)
+
+****
+
+**项目**用
+
+序号排列
+
+- order:1(默认排列是0)
+
+<img src="C:\Users\kechuan\Desktop\notepad\images\image-20211011165440241.png" alt="image-20211011165440241" style="zoom:65%;" />
+
+**必要**时的项目收缩能力(窗口缩小)
+
+- flex-shrink:Num(负数无效)
+
+(优先排列等级似乎低于justify-content?)
+
+**必要**时的项目扩展能力
+
+- flex-grow
+
+(什么是必要时? )
+
+自己看到的情况:
+
+1. 某个项目在两项目之间的时候,如果对单独一个项目使用此属性时会扩充完整个容器的轴
+
+2. 当前容器的某项长度项目满的话 搭配flex-wrap生效后会强制生效grow的属性
+
+   造成项目强制扩张
+
+![image-20211012225032304](C:\Users\kechuan\Desktop\notepad\images\image-20211012224717649.png)
+
+****
+
+![](C:\Users\kechuan\Desktop\notepad\images\image-20211012224641472.png)
+
+****
+
+![image-20211012113211689](C:\Users\kechuan\Desktop\notepad\images\image-20211012113211689.png)
+
+也就是说 当整体的容器 **未完全** 占满一个轴的空间时 运用此时属性 某个被选定的项目(们)就会直接占满掉空间
+
+
+
+
+
+- justify-content(对项目(包括项目内的文字都生效))
+  - justify-content: flex-start | flex-end | center | space-between | space-around;
+
+  ![image-20211011172214874](C:\Users\kechuan\Desktop\notepad\images\image-20211011172214874.png)
+  
+  center时 体现为**水平垂直**
+  
+  (space-evenly)保持间距相等
+  
+  注:这些子属性支持基础较差
+  
+- align-items
+
+![image-20211013120929357](C:\Users\kechuan\Desktop\notepad\images\image-20211013120929357.png)
+
+其中 
+
+center体现为**纵向垂直**
+
+stretch是尽量填充剩余空间
+
+baseline是让项目尽量切合着 第一行文字的水平线进行排序
+
+- flex(建议优先直接用这个值)
+
+这是`flex-grow` ,`flex-shrink`和`flex-basis`组合的简写(默认分别的值为0 1 auto)
+
+
+
+> align-items: center;
+> justify-content: center;
+>
+> 
+>
+> 结合起来就可以直接实现项目的内容绝对居中
+
+
 
 **块级元素：**
 
@@ -129,9 +333,59 @@ white-space属性指定元素内的空白怎样处理
 | pre-wrap | 保留空白符(space)序列，但是正常地进行换行。                  |
 | pre-line | 合并空白符(space)序列，但是保留换行符。                      |
 | inherit  | *规定应该从父元素继承 white-space 属性的值。                 |
-| initial  | 初始值(?)                                                    |
+| initial  | 继承父元素的设置值                                           |
 
 
+
+
+
+首先基础框架main肯定是
+
+absoulte固定位置 
+
+并设置height
+
+width:1344px;
+
+
+
+#### @media响应用法
+
+除了你隔壁直接暴力resize配jquery的各种伪类封装之外
+
+css也有它自己的动态调整
+
+@media查询
+
+> @media 可以针对不同的屏幕尺寸设置不同的样式，特别是如果你需要设置设计响应式的页面，@media 是非常有用的。
+>
+> 当你重置浏览器大小的过程中，页面也会根据浏览器的宽度和高度重新渲染页面。
+
+
+
+> @media *mediatype(缺省时默认为screen)* and|not|only *(media feature)* {*
+>   CSS-Code;
+> *}
+
+这串响应由媒体类型&并联关系&媒体功能组成
+
+目前能用的**媒体类型** 说实话也只有screen而已 而screen本身又可以被忽略掉..
+
+**连接词** 顾名思义 符合 什么样的情况时才去触发响应
+
+
+
+但是理由就和上文一样 能用的几乎就只有一个 所以大部分也没什么必要
+
+> @media (max-width/height:){
+>
+> css here..
+>
+> }
+
+****
+
+#### 知识增加
 
 发现:
 
@@ -160,151 +414,19 @@ CSS的class其实在命名时就允许你加入多级关系
 
 
 
-flex的逻辑显示方式
+10.17
 
+在css的样式设置中id的优先级是大于class的
 
+避免这种情况时 就可能用到这个`!important`的标识
 
-首先基础框架main肯定是
+> ```css
+> #Box div{color: red;}
+> .text-color{color: blue;}
+> .important_true{color: blue !important;}
+> ```
 
-absoulte固定位置 
+其实用途反而不是很明显(指上文直接多css阶梯) 只是提醒你有这么一条id>class的设定(
 
-并设置height
 
-width:1344px;
-
-
-
-*其中作者这里运用了动态@media (max-width)调节 所以**height**/**width**属性在非正常大小是被替代的
-
-然后子集modern_main
-
-​		~~显示为inline-block,~~
-
-​		~~并垂直调整到top头部~~	(始方块从上部开始排序,这个其实也是保险)
-
-​		modern_width:1344px	(显然 main的宽度靠它撑开)
-
-​		height:100%属性				(继承main)
-
-​		*width:100%
-
-​		~~*其中作者这里运用了动态@media (max-width)调节 所以**width**属性在非正常大小是被替代的~~
-
-
-
-​		(Q:inline-block的理由？ A:也许仅仅只是个保险 因为去除之后也不会有任何崩塌)
-
-​		(Q2:那么它的作用到底是什么？如果只是弹性调整为什么不在main上就设置完宽高
-
-​				而非要父级负责一个属性，而子集又负责另外一个属性？)
-
-​		(A2:给作者一个方便动态调整宽高的”容器“ 如果整合进main的话 会造成main的限制
-
-​				还记得下面的属性的width,height继承的谁属性吗 
-
-​				~~自然根源分别就是media_main 与 main~~
-
-​				~~TM的 我编不下去了 备份走起 8.28修改css~~
-
-​				~~??也许 它这样写 就是为了允许获取你屏幕大小的代码能够更自由的发挥？~~
-
-​				总之 我改成 是继承于main属性
-
-)
-
-****
-
-​		然后子集
-
-​				modern wa h1(这里拆分为modern/wa/h1 后不赘叙)
-
-> 其中modern预先设立好背景颜色 并同样显示为inline-block 
->
-> 当然它的位置必须跟随着abs(main)的relative
->
-> 它们的高宽来自于modern_main(main)
->
-> h1设立好高度 11%
->
-> wa 设立好宽度 90%
-
-
-
-​				wa占宽度 h1占高度
-
-​				然后子集
-
-​						sub 在这里 提前设立好text-align/font-size/color/cursor等属性操作
-
-​						Q:~~但是这里的sub属性 为什么还要特地说明width/height 100%?~~
-
-​							这个div 到底有什么存在的必要吗？
-
-​						A:也许是设计理念相同 就是更加语义化 多一个sub 来专门负责文字的部分
-
-​						**并列** name 设置背景颜色
-
-
-
-​						(?)然后子集(内容繁多的时候就需要)
-
-​						vertical_middle_main
-
-​						此处写明table与width/height
-
-​						而下一个子集
-
-​								自然就是table-cell 以及 vertical-align:middle
-
-​								最后就是内容
-
-​										<p>...
-
-​							(因为上面的class早已规定好文字的各种(sub) 以及面板排序的(table) 以及占用(inline-block) 基本上这里直接填充内容即可)
-
-
-
-
-
-除了你隔壁直接暴力resize配jquery的各种伪类封装之外
-
-css也有它自己的动态调整
-
-@media查询
-
-> @media 可以针对不同的屏幕尺寸设置不同的样式，特别是如果你需要设置设计响应式的页面，@media 是非常有用的。
->
-> 当你重置浏览器大小的过程中，页面也会根据浏览器的宽度和高度重新渲染页面。
-
-
-
-> @media *mediatype(缺省时默认为screen)* and|not|only *(media feature)* {*
->   CSS-Code;
-> *}
-
-这串响应由媒体类型&并联关系&媒体功能组成
-
-目前能用的**媒体类型** 说实话也只有screen而已 而screen本身又可以被忽略掉..
-
-**连接词** 顾名思义 符合 什么样的情况时才去触发响应
-
-
-
-但是理由就和上文一样 能用的几乎就只有一个 所以大部分也没什么必要
-
-****
-
-所以直接来说媒体功能吧
-
-
-
-常见的用途比如
-
-屏幕缩放之后 的元素排列
-
-这通常影响到你的视窗 宽度和高度
-
-所以一般也用宽度和高度来对应
-
-> (max-width/max-height)
 

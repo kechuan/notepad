@@ -20,7 +20,7 @@ notepad for JavaScript
 >
 >    你就该祈祷不要碰上谁还在用IE打开你网页
 >    
-> 7. 它虽然不支持unicode码直接转义写入 但还是支持HTML码识别的 通过此Hyberlink查询\![unicodewiki](https://unicode-table.com/cn/blocks/control-pictures/)
+> 7. 它虽然不支持unicode码直接转义写入 但还是支持HTML码识别的 通过[unicodewiki](https://unicode-table.com/cn/blocks/control-pictures/)查询
 >    
 >    
 >    
@@ -3557,7 +3557,7 @@ jQuery里普遍有这么一种定义
 | #*id*                   | $("#lastname")            | id="lastname" 的元素   |
 | .*class*                | $(".intro")               | 所有class="intro"的元素|
 | *element*               | $("p")                    | 所有 <p> 元素(Tag)     |
-||||
+|||类比还有img之类的标签|
 | :first                  | $("p:first")              | 第一个 <p> 元素|
 | :last                   | $("p:last")               | 最后一个 <p> 元素|
 | :even                   | $("tr:even")              | 所有偶数 <tr> 元素|
@@ -3637,10 +3637,6 @@ ST里有一处解答
 
 
 
-*什么时候能接触到单纯看页面的内存占用诊断工具呢？*
-
-
-
 那么说到click 必然也少不了hover了
 
 ##### Hover事件
@@ -3715,6 +3711,16 @@ jQuery里将赋值和得值都并在一个接口里
 
 另外直接一个`$`也是代表整个body.ready的效果
 
+
+
+个人建议 如果想实现载入完毕之后让你的jquery的交互全部有效
+
+建议用
+
+> $(function(){code here})代替简单的$() 算是jquery的一种IIFE?
+
+
+
 ****
 
 文本节点
@@ -3767,7 +3773,7 @@ jQuery毕竟还能控制js
 
 
 
-无非就是放大/缩小(resize) 滚轮(scroll)  鼠标移动(mousekey)..等操作
+无非就是放大/缩小(resize) 滚轮(scroll)..等操作
 
 
 
@@ -3827,49 +3833,7 @@ function symbol_fliter(str) {
 
 
 
-### Z、changed log
-
-**7.5?-7.23** 
-
-我才写了那么点 就比之前写半年的index+css+js(去除废话注释)都要大了... 离谱
-
-**7.31**
-
-+ 数组排版整理
-
-**+** function
-
-**+** String细致
-
-**+** TODO待办事项
-
-8.1-8.18
-
-对象完善(json基本)
-
-BOM基本
-
-This完善
-
-运算符特殊用法
-
-7.31完成
-
-传参基本完善
-
-GitHub开始使用
-
-8.20
-
-正则编写
-
-
-
-
-
-
-
-### Ω、 TODO
+### Z、 TODO
 
 loop tasks 7.31
 
