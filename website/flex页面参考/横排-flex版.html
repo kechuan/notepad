@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+<style>
+	body{
+		margin: 0;
+	}
+
+	#nav-bar{
+		width: 90%;
+		height: 47px;
+		display: flex;
+		flex-direction: row;
+		
+	}
+
+	.nav-item{
+		display: flex;
+		width: 203px;
+		height: 45px;
+		align-items: center;
+		justify-content: center;
+		border: solid black 1px;
+	}
+
+
+	.nav-item.h:hover{
+		background-color: black;
+		transition: 0.5s;
+	}
+
+	.nav-item.empty{
+		flex: 1 0 auto;
+	}
+
+	.nav-item.db{
+		border: none;
+	}
+
+	@media(max-width: 820px) {
+		#nav-bar{
+			width: 720px;
+		}
+		
+	}
+</style>
+<script type="text/javascript" src="C:\Users\kechuan\Desktop\notepad\website\jquery-3.6.0.js"></script>
+<script type="text/javascript">
+	
+</script>
+<body>
+
+	<div id="nav-bar">
+			<div class="nav-item h">Music Player</div>
+			<div class="nav-item h">kechuan's profile</div>
+			<div class="nav-item h">forget something?</div>
+			<div class="nav-item db empty"></div>	
+			<!-- 没错,遇到想留空白 又不想直接套格式之类的 就利用填充 在两个项目之间填充一个grow属性撑满两项目之间剩余的空间 -->
+			<div class="nav-item db">Time is ?</div>
+
+	</div>
+至此 flex版布局复刻完毕
+</body>
+</html>
