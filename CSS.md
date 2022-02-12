@@ -6,6 +6,10 @@ body本身也是有自带的margin属性 初始值为8 这个默认值总比直�
 
 
 
+另外body不是元素块 所以你不能直接对body标签设置overflow属性
+
+
+
 #### css布局排列
 
 ##### 以往的排列元素
@@ -143,6 +147,41 @@ display:flex/inline-flex
 
 
 
+- justify-content(对项目(包括项目内的文字都生效))
+
+  - justify-content: flex-start | flex-end | center | space-between | space-around;
+
+  ![image-20211011172214874](C:\Users\kechuan\Desktop\notepad\images\image-20211011172214874.png)
+
+  center时 体现为**水平垂直**
+
+  (space-evenly)保持间距相等
+
+  注:这些子属性支持基础较差
+
+- align-items
+
+![image-20211013120929357](C:\Users\kechuan\Desktop\notepad\images\image-20211013120929357.png)
+
+其中 
+
+center体现为**纵向垂直**
+
+stretch是尽量填充剩余空间
+
+baseline是让项目尽量切合着 第一行文字的水平线进行排序
+
+
+
+> align-items: center;
+> justify-content: center;
+>
+> 结合起来就可以直接实现项目的内容绝对居中
+
+
+
+
+
 ****
 
 <div style="color:red;">集合</div>
@@ -194,43 +233,13 @@ display:flex/inline-flex
 
 
 
-
-
-- justify-content(对项目(包括项目内的文字都生效))
-  - justify-content: flex-start | flex-end | center | space-between | space-around;
-
-  ![image-20211011172214874](C:\Users\kechuan\Desktop\notepad\images\image-20211011172214874.png)
-  
-  center时 体现为**水平垂直**
-  
-  (space-evenly)保持间距相等
-  
-  注:这些子属性支持基础较差
-  
-- align-items
-
-![image-20211013120929357](C:\Users\kechuan\Desktop\notepad\images\image-20211013120929357.png)
-
-其中 
-
-center体现为**纵向垂直**
-
-stretch是尽量填充剩余空间
-
-baseline是让项目尽量切合着 第一行文字的水平线进行排序
-
 - flex(建议优先直接用这个值)
 
 这是`flex-grow` ,`flex-shrink`和`flex-basis`组合的简写(默认分别的值为0 1 auto)
 
 
 
-> align-items: center;
-> justify-content: center;
->
-> 
->
-> 结合起来就可以直接实现项目的内容绝对居中
+5.网格布局(grid)
 
 
 
