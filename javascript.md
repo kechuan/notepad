@@ -1289,7 +1289,12 @@ ES6引入
 
 [^function-toString]:  jump!
 
+追加 `*.concat()`
 
+```javascript
+var str = "abc"
+str.concat("def")
+```
 
 分割 `*.substring()`
 
@@ -3140,7 +3145,7 @@ function flick(x,y){return x+y}
 const flick = (x,y) =>  (x+y)	//return x+y
 
 以及这样用
-() => {counter++} 不需要额外的参数传入 直接空着 也不需要函数名 因为上层会直接调用它
+() => counter++ 不需要额外的参数传入 直接空着 也不需要函数名 因为上层会直接调用它
 ```
 
 如果函数执行体只是单个语句，则能省略 `return` 关键字和`{}` 这样会更简洁
@@ -4183,7 +4188,7 @@ jQuery里普遍有这么一种定义
 |[attribute*^=*value]|$("[href^='2021']")|所有 href 属性的值包含以 "2021" 开头的元素|
 | :input                  | $(":input")                | 所有 <input> 元素  |
 | :text                   | $(":text")         | 所有 type="text" 的 <input>元素|
-|  |                |                                            |
+| :... |                |                                            |
 | :的都是 <br />附属元素/选项/规则 |                            |                                            |
 |                      |                            |                                            |
 | .prev | $("#02").prev() | 此节点的上一个 |
@@ -4412,9 +4417,347 @@ jQuery毕竟还能控制js
 
 ****
 
+### Y、Vue.js
+
+介绍
+
+一套用于构建用户界面的**渐进式框架** 帮你从js底层与表层html的各种标签直接建立一层关系
+
+从而**方便**你快捷将底层的js呈现在表层的html上
+
+*渐进式*:简单来说就是要用什么给你什么 跟你调用单个函数这种感觉
 
 
-### Y、 即时工具库
+
+为什么不接着用jQuery更新DOM？
+
+> 我们要做的无非就是更新类似计时器 然后DOM更新
+>
+> 然而以后的数据在变化之后 往往难以继续快捷的追踪
+>
+> 而这些的成因都是 因为他们<b>没有</b>一个<b>简单</b>的提示板来告诉我当前数值的状态
+>
+> 而vue直接将一个标签绑定在一段APP上 则APP的数据便能在这个标签很快捷的查看/修改
+>
+> 以往的DOM想实现这点只能手动适配
+>
+>  
+>
+> 而且 在追求原生占用和快速构建上 后者往往收益更高 和jQuery一样的原则 write less do more.
+>
+> 更合理的选择是原生ES jQuery Vue 混用 哪个在当前条件下适合就用哪个
+
+
+
+#### 创建/挂载
+
+Vue的处理方式是将一个需要作用的片段命名为App,然后将需要作用的地方称作挂载(Mount)
+
+```javascript
+const app = Vue.createApp({
+				data(){
+					return {counter:0}	//已将counter绑定到app的$data上 
+				}
+				
+			}).mount("#counter")		//与#id=counter的元素挂载
+			//您必须一次性完成创建与挂载的操作 否则return出来的数据是不会再与vue挂钩
+			//app.counter >> undefined
+html部分
+
+<div id="#counter">{{ counter }}</div>
+
+已可以通过app.counter来访问 counter标签里的counter数据
+>>app.counter
+<<0
+```
+
+上述也被称为文本挂载 根据`{{}}`标签与挂载定位让vue来处理
+
+
+
+**注**:这样绑定的方式不允许第二个重名的标签，为什么？大概是给下面的指令让路
+
+****
+
+#### 指令
+
+除了单纯的对标记执行关联
+
+Vue内置作用于标签的多种指令以便Vue调用函数来实现各种功能
+
+
+
+监听事件	但是不知道为什么目前的例子click都只能对按钮标签使用(
+
+`v-on`
+
+```html
+<button v-on:click="reset">清零</button>
+
+const reset = {
+  data() {
+    return {
+    	qingling: '清零'	//注意 标注的字符 不能与method的函数名字一致! 否则会报堆栈溢出错误
+        				 //所以还是第一次显示文字时不如直接在标签上重命名 
+    }
+  },
+
+  methods: {
+    reset() {
+      display.counter = 0
+    }
+  }
+}
+
+Vue.createApp(reset).mount('ul li')
+```
+
+****
+
+同原生一样 一般我们的行为都可以被监听到
+
+不过在vue里则是以一种修饰符来细分监听的区域
+
+用户在浏览器正常的输入 大多数的媒介也是键盘/鼠标
+
+所以vue里也细分为 `click`,`keyup`领域
+
+
+
+**事件处理**
+
+一般来讲 v-on代表`addEventListener`事件 但原生的ES代码是有对其植入传入参数的
+
+其实这里也有 且vue针对v-on还有和jQuery一样的省略符号`@`
+
+@click = 这个事件将要执行什么 可以是直接执行@click="count++" = v-on:click("count++")
+
+
+
+且也能代表标签对应的动作
+
+例如 `<input>`里面的`submit`动作 只需要
+
+```html
+<form action="post">
+<input @keyup.enter.prevent="submit"></input>	//即可代表在激活输入框时输入enter完成提交动作
+</form>
+```
+
+
+
+**事件修饰符**
+
+1. Vue.js 为 v-on 提供了事件修饰符来处理 DOM 事件细节
+2. Vue.js 通过由点 `.` 表示的指令后缀来调用修饰符。(@click.*)
+3. 修饰符允许单独调用不必加 `v-on`等指令 (@submit.prevent)
+4. 修饰符允许串联调用
+
+
+
+**click**的则有
+
+> - `.once` - 只触发一次	//事件通用
+> - `.left` - 左键事件
+> - `.right` - 右键事件
+> - `.middle` - 中键事件 (滚轮)..
+
+
+
+**keyup**的则将部分常用的key绑定在vue的修饰符上供调用
+
+> 常用的除F(X)的功能键
+>
+> 而除此以外的则遵循ASCII码转义(48→0 65→A 97→a)
+>
+> 例:<**input** @keyup.alt.67="clear">	*<!-- Alt + C -->*
+>
+> 也可以将鼠标键盘的事件组合起来
+>
+> *<!-- Ctrl + Click -->*
+> <**div** @click.ctrl="doSomething">Do something</**div**>
+
+
+
+通用
+
+> **exact 修饰符**	精确的系统修饰符组合触发的事件
+>
+> *<!-- 有且只有 Ctrl与鼠标 被按下的时候才触发 -->*
+> <**button** @click.ctrl.exact="onCtrlClick">A</**button**>
+>
+>  
+>
+> **触发**
+>
+> 如submit事件
+>
+> - `.stop` - 阻止冒泡
+>   - `.prevent` - 阻止默认事件	例如submit提交时默认会重载页面
+>   - 而直接<submit @.prevent>这样就可以防重载直接提交数据
+> - `.capture` - 捕获事件?
+
+
+
+从这个部分开始大概是原生ES6 `addEventListener`不包含的事件了( 
+
+我觉得这点上我才能感受得出响应式框架的特点罢
+
+
+
+****
+
+**通用传参**
+
+不过即使是原生ES6也包含传入参数 要不然监听是为了干什么(
+
+```javascript
+或传入methods里function中的参数 缺省时等于空参传入
+
+仅传入写入参数 
+v-on:click="fun(123)" = <button @click="fun(123)">烦内</button>
+传入自定义参数(args)/写入参数
+
+<button @click="reset($event,123)">烦内</button>
+//兄啊 click事件要怎么传除了鼠标输入的值啊(
+```
+
+****
+
+
+
+`v-model`
+
+双向数据绑定
+
+目前的绑定都是底层→表层
+
+而双向就能实现表单输入和应用状态之间的双向绑定 但是我目前还真找不到这玩意从表层直接作用于底层的效果 它是表层到表层 既然如此 
+
+如果我仅仅只要我输入的东西 我直接input.value不也是一样的？ 
+
+也许就为了看浏览器的文字渲染？
+
+知识 未来可期
+
+
+
+2.21
+
+`v-model`更多用于表单上(`v-model` 会根据控件类型自动选取正确的方法来更新元素)
+
+因为它会关联表单中的 toggle、checked、value、selected事件 
+
+智能根据当前标签的radio/select来关联表单的DOM
+
+```html
+那么既然是表格单 那肯定也有输入
+无论是单选还是复选
+<form action="post" id="form">
+<input type="radio" v-model="value">
+
+</form>
+    
+const app = Vue.createApp({
+data:{
+	return value:"?"
+}
+	
+}).mount(#form)
+```
+
+
+
+****
+
+`v-if`
+
+绑定到DOM的结构 大概是通过attribute与val(true/false)来控制DOM结构？
+
+
+
+`v-for`
+
+绑定**数组**的数据来渲染一个项目列表
+
+目前作用是文字标签的增强版 应该说更合理的版本
+
+```javascript
+<div id="list-rendering">		<!-- 这个for指令就可以做到整个标签内都是作用域 -->
+  <ol>
+    <li v-for="todo in todos">	<!-- 经典for循环 从todos列表里寻找 但是调用起来时却又是todo的子属性 -->
+      {{ todo.text }}
+      {{ todo.text2 }} 			<!-- 也允许在同一个标签内写上两个同父属性的标签 -->
+      {{ todo.description}}
+    </li>
+
+  </ol>
+</div>
+
+const ListRendering = {
+  data() {
+    return {
+      todos: [
+        { text: 'JavaScript' },
+        { text: 'Vue' },
+        { text2: 'awesome' },
+        { description:"比单独文字标签不知道高到哪里去了"}
+      ]
+      
+    }
+  },
+
+}
+Vue.createApp(ListRendering).mount('#list-rendering')
+```
+
+
+
+#### 组件化
+
+`app.component("",{})`
+
+实际上就是将你的代码转变成模板使其可以重复在任何地方上插入
+
+就是重复利用代码
+
+```javascript
+const component_head1 = Vue.createApp({})   //先创建app
+
+component_head1.component('head1', {      //然后将app组件化 (标签组件名,{执行体})
+    data() {
+    return {
+      count: 0
+    }
+  },
+    template: 
+    `<h1>自定义组件!</h1>
+	<button @click="count++">
+      点了 {{ count }} 次！
+    </button>` 
+    
+    //模板内容(如果标签需要因为打属性要用到双引号时 要前置加上反引号包裹 不过加了就不需要引号了)
+    
+}).mount('.app_widget')              //但是调用组件前必须要前置挂载位创立
+ 
+ 
+
+<div id="app_widget">
+    <head1></head1> = <h1>自定义组件!</h1>
+</div>
+
+<head1></head1>
+```
+
+
+
+而
+
+
+
+
+
+### A、 即时工具库
 
 毕竟不是html 没法直接写好CSS里面然后直接调用 减少冗余 但是真奇怪 能翻译html 却不能用页面总体style？
 
@@ -4456,7 +4799,7 @@ function symbol_fliter(str) {
 
 
 
-### Z、 TODO
+### B、 TODO
 
 loop tasks 7.31
 
