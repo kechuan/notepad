@@ -1218,8 +1218,9 @@ Jesus 这些数值运算时 因为原生的数值已经不能够支撑正常四�
 既然如此 那就直接不让在小数的时候参与运算活动了 
 直接预先将小数点抹掉(replace) 完完全全为一个整数 再除小数位就可以了
 
-
 ****
+
+ES6引入 
 
 ```javascript
 function float_cal(a,b){
@@ -1266,7 +1267,18 @@ var str_b = b.toString();
 
 
 
-ES6引入 
+ES7引入
+
+`indexOf()` 已经可以切换为更加语义化的`includes()`了
+
+```javascript
+//ES6 str_a.indexOf(".")==-1
+//ES6+ str_a.includes(".")	//	true/false
+还支持从哪个索引值开始搜索
+str_a.includes(".",1)
+```
+
+
 
 ****
 
@@ -3878,7 +3890,8 @@ let start_timestamp;
         //你可以重复这个循环至差距到某个值为止，以实现终止
 		if(latency<2000){
             //1单位的时间戳=1ms
-			window.requestAnimationFrame(increase);
+			window.requestAnimationFrame(increase);	
+            //未达到条件时 重复带着当前时间戳执行increase函数
         }
         //如果你想控制动画的速率 因为你无法控制时间戳流速
         //那你就只能拉长/缩短总动画时间 
@@ -3894,13 +3907,143 @@ let start_timestamp;
 
 既然是根据屏幕刷新率来进行刷新
 
-那怎么避免不同刷新率下动画速率不同的问题？
+那怎么避免不同刷新率下动画速率不同的问题？ 还是说函数自动规避这问题
 
 > 75/1000 = 13.3ms
 >
 > 60/1000 = 16.6ms
 
 我现在还真不知道(
+
+
+
+### 9、 import引入JS
+
+你当然可以直接在html里面直接写进一堆script标签来将你要的script全部引入
+
+就算是要动态引入 你也可以通过jQuery
+
+```
+$("Father_node").append(<script src="blablabla")
+或者自己手写内容在textarea上面 然后click提交等等
+```
+
+不过这样引入 未免太不语义化了(
+
+这方法都是基于原生createElement"script" 然后setAttribute("src",url)的思想
+
+
+
+不过又在**ES6**规范上
+
+终于有了类似其他语言一样 可以直接以**模块**的形式import引入外部文件的操作
+
+而**模块**是由要引入的js文件书写export自己说明的
+
+`import`与`export`是相互配合的
+
+不过 什么是模块?
+
+> 模块(Module)或者说模组( 本意就是基于原版然后附加的外部小功能
+>
+> 原意也很简单 如果你要套一个模板且每个页面都要实现有丢丢不同的功能
+>
+> 那你是不可能将一个模板内塞入全部的功能的 这样会造成其他页面的资源浪费
+>
+> 
+>
+> 这个道理就和#include stdio.h/import Math from Math一样
+>
+> 且JavaScript的module可以控制外部的js哪个部分/函数 可以被调用 哪个无法调用
+
+
+
+注:
+
+> 1. 无论是否声明了 `strict mode`，导入的模块都运行在严格模式下
+> 2. 引入时 必须处在http等连接模式下 **file浏览**是不允许引入的 这将导致 [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) 错误
+> 3. 引入时 必须script的类型是module 为什么是module 还看下文对MINE类型的解释
+> 4. module类型**不能**与正常的text/javascript混用 这样做会使所有其他命令失效 建议独立script标签引入module
+
+ 
+
+外部js的基础module构造并**导出**
+
+```javascript
+var import_alert = function(){
+    console.log("import it")
+}
+
+var int_cal = function(a,b){
+	return ParseInt(a+b);
+}
+export{import_alert}	//将定义好的函数导出去
+
+//其实这样一个基础的module就完成了
+```
+
+默认导出(导出一个值或得到模块中的返回值) 感觉没什么意义.. 除非是不想让别人看到你的过程
+
+****
+
+模块聚合 允许你将不同的小组件结合起来 再一起导入进js里
+
+```javascript
+partA.js
+const A = ...?
+export {A}
+
+partB.js
+const B = ...?
+export {B}
+
+partA+B.js
+export {A} from "partA.js"
+export {B} from "partB.js"
+
+<<导入
+
+import {A,B} from "partA+B.js"
+//其实功夫也没省多少 还是语义化的作用更高点 毕竟你可以在引入/导出的过程中可以改名 这样能更结构化罢
+```
+
+
+
+****
+
+静态导入import
+
+一是仅调用外部js的某个已导出函数
+
+```javascript
+import {import_alert} from '../js/test.js'
+//但无法调用Int_cal
+import {import_alert,int_cal} from '../js/test.js'
+//可以调用这两个
+
+//你也可以将模块以什么样的名字导入
+import {xxApbkie as alert} from '../js/test.js'
+alert = xxApbike
+```
+
+二是直接引入整个js
+
+```javascript
+import * as ??? from "../js/jsonchange"
+//可以调用
+```
+
+
+
+天国的json导入
+
+
+
+### 10、异步操作
+
+原生的JavaScript是一个单线程语言 在现在 单线程语言当然完全不能支撑一些负载
+
+然而JavaScript又引入了异步操作概念来实现类似多线程处理任务的效果
 
 
 
@@ -4460,8 +4603,7 @@ const app = Vue.createApp({
 				}
 				
 			}).mount("#counter")		//与#id=counter的元素挂载
-			//您必须一次性完成创建与挂载的操作 否则return出来的数据是不会再与vue挂钩
-			//app.counter >> undefined
+
 html部分
 
 <div id="#counter">{{ counter }}</div>
@@ -4477,6 +4619,37 @@ html部分
 
 **注**:这样绑定的方式不允许第二个重名的标签，为什么？大概是给下面的指令让路
 
+利用`v-for`即可重命名标签 但需调用子属性
+
+****
+
+##### 引用json
+
+```JavaScript
+为什么我不能直接import js一样导入json?
+>>import pink from "./json/pink.json"
+<<MIME type of "application/json". Strict MIME type checking is enforced for module scripts
+/**
+它提到module类型的script无法检测到json应用类型
+这就要提到MINE类型模块资源 因为json/JavaScript在模块化的时候 同属于MINE资源 
+即无法保证json文件引入之后是否真的像json一样运作而不会被恶意植入JavaScript有预先恶意执行脚本的风险
+(最经典的莫过于劫持后 给你正常浏览的网页添加挖矿负载之类的东西)
+除非引入的时候 承认该文件就是json(只能于json的方式运作解析json文件)
+
+但是第三方脚本实际上可以在这种情况下执行，因为第三方服务器可能会意外的返回JavaScript／MIME类型和恶意JavaScript负载，在导入的作用于中执行代码
+**/
+
+//Chrome 91+
+import pink from "./json/pink.json" assert {type:"json"}
+//这样做之后 确实能够把json打包成模块等待模块工具调用了 但是缺点也很明显 对客户端的版本号要求较高
+```
+
+所以既然我们有vue 那当然是直接引用范围适用性广的工具了
+
+
+
+Jesus 还是需要import
+
 ****
 
 #### 指令
@@ -4491,13 +4664,15 @@ Vue内置作用于标签的多种指令以便Vue调用函数来实现各种功�
 
 `v-on`
 
+缩写: `@prop`
+
 ```html
-<button v-on:click="reset">清零</button>
+<button v-on:click="reset">清零</button>	//挂载后从methods库里寻找reset函数执行
 
 const reset = {
   data() {
     return {
-    	qingling: '清零'	//注意 标注的字符 不能与method的函数名字一致! 否则会报堆栈溢出错误
+    				     //注意 标注的字符 不能与method的函数名字一致! 否则会报堆栈溢出错误
         				 //所以还是第一次显示文字时不如直接在标签上重命名 
     }
   },
@@ -4521,6 +4696,8 @@ Vue.createApp(reset).mount('ul li')
 用户在浏览器正常的输入 大多数的媒介也是键盘/鼠标
 
 所以vue里也细分为 `click`,`keyup`领域
+
+
 
 
 
@@ -4620,6 +4797,7 @@ v-on:click="fun(123)" = <button @click="fun(123)">烦内</button>
 
 <button @click="reset($event,123)">烦内</button>
 //兄啊 click事件要怎么传除了鼠标输入的值啊(
+//input里的键盘也是这样 怎么传入除键盘动作以外的值啊(恼)
 ```
 
 ****
@@ -4632,11 +4810,11 @@ v-on:click="fun(123)" = <button @click="fun(123)">烦内</button>
 
 目前的绑定都是底层→表层
 
-而双向就能实现表单输入和应用状态之间的双向绑定 但是我目前还真找不到这玩意从表层直接作用于底层的效果 它是表层到表层 既然如此 
+而双向就能实现表单输入和应用状态之间的双向绑定 但是我目前还真找不到这玩意从表层直接作用于底层的效果 它是从表层到底层再到表层 既然如此 
 
 如果我仅仅只要我输入的东西 我直接input.value不也是一样的？ 
 
-也许就为了看浏览器的文字渲染？
+~~也许就为了看浏览器的文字渲染？~~
 
 知识 未来可期
 
@@ -4646,24 +4824,23 @@ v-on:click="fun(123)" = <button @click="fun(123)">烦内</button>
 
 `v-model`更多用于表单上(`v-model` 会根据控件类型自动选取正确的方法来更新元素)
 
-因为它会关联表单中的 toggle、checked、value、selected事件 
-
-智能根据当前标签的radio/select来关联表单的DOM
+因为它会关联表单中的 toggle、checked、value、selected、picked等事件  
 
 ```html
 那么既然是表格单 那肯定也有输入
 无论是单选还是复选
-<form action="post" id="form">
-<input type="radio" v-model="value">
+<div id="post">
+<form action="post">
+  <input type="radio" v-model="picked" id="number" value="1234">1234</input>
+  <input type="radio" v-model="picked" id="number2" value="5678">5678</input>
+  <div id="status">{{ picked }}</div>
+</div>
 
+<input @keyup.enter="submit" placeholder="input即可以被触发为post"></input>
+<input @keyup.enter.prevent="choice3" placeholder="input也可以触发app函数"></input>
 </form>
-    
-const app = Vue.createApp({
-data:{
-	return value:"?"
-}
-	
-}).mount(#form)
+</div>
+
 ```
 
 
@@ -4674,7 +4851,7 @@ data:{
 
 绑定到DOM的结构 大概是通过attribute与val(true/false)来控制DOM结构？
 
-
+****
 
 `v-for`
 
@@ -4711,6 +4888,43 @@ const ListRendering = {
 Vue.createApp(ListRendering).mount('#list-rendering')
 ```
 
+****
+
+`v-bind`
+
+缩写 `:prop`
+
+和标签的 **属性名** 或 **属性值** 绑定 属性值绑定类似于原生的`setAttribute()`
+
+```html
+<!-- 绑定 attribute -->
+<img src="1.jpg"></img>
+setAttribute("src","???")
+or
+<img :src="???"></img>	create--> mounted --> app.src=""
+<!-- 动态 attribute 名 -->
+<button :[key]="value"></button>	create--> mounted --> app.key="???" << ???="value"
+
+<!-- 但对于class属性有点特殊	因为同一个标签允许同时上多个标签
+而vue允许你动态得将某些已绑定的class属性进行修改
+其中包括开/关 !-->
+<div :class="{red:isRed}"></div> create-->(data:{isRed:true}) mounted --> app.isRed="false"  //Red失效
+<!--也支持一次性引入多个class属性 并赋予可开关属性!-->
+<div :class="[classA, classB]"></div>
+<div :class="[classA, { classB: isB, classC: isC }]"></div>
+
+```
+
+也和style属性直接绑定
+
+```
+
+```
+
+
+
+jQuery貌似不能直接.css("style","attr") 看看vue行不行
+
 
 
 #### 组件化
@@ -4730,30 +4944,57 @@ component_head1.component('head1', {      //然后将app组件化 (标签组件�
       count: 0
     }
   },
-    template: 
+    template: 								//组件和模板对应 如果你没有重复利用的必要 那也没必要去组件化
     `<h1>自定义组件!</h1>
 	<button @click="count++">
       点了 {{ count }} 次！
     </button>` 
     
-    //模板内容(如果标签需要因为打属性要用到双引号时 要前置加上反引号包裹 不过加了就不需要引号了)
+    //模板内容(如果标签需要因为打属性要用到双引号时 要前置加上反引号包裹 不过加了反引号的话就不再需要双引号包裹了)
     
-}).mount('.app_widget')              //但是调用组件前必须要前置挂载位创立
+}).mount('#app_widget')              //但是调用组件前必须要前置挂载位创立
  
  
 
 <div id="app_widget">
-    <head1></head1> = <h1>自定义组件!</h1>
+    <head1></head1> = <h1>自定义组件!</h1>	//生效
 </div>
 
-<head1></head1>
+<head1></head1>	//不生效
 ```
 
 
 
-而
+不过vue还能将app的内容能单纯的用变量代替
+
+```javascript
+const button_temp = {
+	template:
+    `<h1>自定义组件!</h1>
+	<button @click="count++">
+      点了 {{ count }} 次！
+    </button>` 
+}
+
+const button = Vue.createApp({
+	compoenet:{button_temp}	//更语义化
+}).mount('#app_widget')
+
+<div id="app_widget">
+    <head1></head1> = <h1>自定义组件!</h1>	//生效
+</div>
+
+//methods应该也是同理
+```
 
 
+
+Z、包管理
+
+```
+npm root -g	//获取当前npm全局安装包的位置
+npm install -g
+```
 
 
 
@@ -4767,8 +5008,11 @@ component_head1.component('head1', {      //然后将app组件化 (标签组件�
 <div id="gap"
     style="
     border:1px solid black;
-	height:1px;
-	border-top:1px;">
+    height:1px;
+    border-left: none;
+    border-top: none;
+    border-right: none;
+                    	">
 </div>
 
 我真傻 真的 我就应该先了解这些特殊用法.. ****
@@ -4846,3 +5090,9 @@ loop tasks 7.31
 
 - [x] jquery选择器应用
 
+
+
+2.27
+
+- [ ] 如何import json并正确调用？
+- [ ] 如何理解async的意义
