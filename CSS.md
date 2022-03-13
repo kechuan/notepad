@@ -10,16 +10,16 @@ body本身也是有自带的margin属性 初始值为8 这个默认值总比直�
 
 
 
-#### css布局排列
+### css布局排列
 
-##### 以往的排列元素
+#### 以往的排列元素
 
 1. **块级元素（block elements）**,来源于CSS盒子模型。块级元素包含width height,padding,border与margin，他们的排列方式是从上到下排列。 行内元素，排列方式是水平排列。(*但是一个div就将直接占用一行的长度,所以实际结果便是从上往下排)
 
 
 
 
-2. **行内元素（inline elements）**排列方式是水平排列。(*大小完全受限于文字)
+2. **行内元素（inline elements）**排列方式是水平排列。(*大小完全受限于文字/以及图标实际占用空间)
 
 
 
@@ -43,11 +43,11 @@ body本身也是有自带的margin属性 初始值为8 这个默认值总比直�
 
 
 
-##### 现在的趋势
+#### 现在的趋势(flex)
 
 4. **弹性布局(flex/inline-flex)**
 
-   注:设为Flex布局以后，子元素的**float**、**clear**和**vertical-align**(因为会有justify-content/align-item属性)
+   注:设为Flex布局以后，子元素的**float**、**clear**和**vertical-align**(因为会有justify-content/align-item属性替代)
 
    属性将失效
 
@@ -77,13 +77,13 @@ body本身也是有自带的margin属性 初始值为8 这个默认值总比直�
    
    
    
-   <img src="C:\Users\kechuan\Desktop\notepad\images\image-20211011162021738.png" alt="image-20211011162021738" style="zoom: 80%;" />
+   <img src=".\images\image-20211011162021738.png" alt="image-20211011162021738" style="zoom: 80%;" />
    
    
    
    从这可以看到 作者直接把顶部栏直接用flex布局整体包裹 以此兼容各类项目的大小差异
    
-   而如果是单纯的inline-block布局 光是让其他元素能够随意的排列就得针对padding或者是postion调各种设置
+   而如果是单纯的inline-block布局 光是让其他元素能够随意的排列就得针对padding/margin或者是postion调各种设置
    
    这显然是各种意义上的开销更大
    
@@ -103,7 +103,9 @@ display:flex/inline-flex
 
 ****
 
-**容器框架**用
+
+
+##### **容器框架**
 
 排列方向
 
@@ -117,13 +119,13 @@ display:flex/inline-flex
 
 该属性只对整体flex内容有效(?)
 
-![image-20211014105426872](C:\Users\kechuan\Desktop\notepad\images\image-20211014105426872.png)
+![image-20211014105426872](.\images\image-20211014105426872.png)
 
 ****
 
 
 
-![image-20211014105135117](C:\Users\kechuan\Desktop\notepad\images\image-20211014105135117.png)
+![image-20211014105135117](.\images\image-20211014105135117.png)
 
 ****
 
@@ -131,7 +133,7 @@ display:flex/inline-flex
 
 - gap
 
-用法和普通的margin一样 不过还能够自适应flex容器
+用法和普通的margin一样 不过还能够自适应所有flex容器内的项目
 
 > .flex container{
 >
@@ -151,7 +153,7 @@ display:flex/inline-flex
 
   - justify-content: flex-start | flex-end | center | space-between | space-around;
 
-  ![image-20211011172214874](C:\Users\kechuan\Desktop\notepad\images\image-20211011172214874.png)
+  ![image-20211011172214874](.\images\image-20211011172214874.png)
 
   center时 体现为**水平垂直**
 
@@ -161,7 +163,7 @@ display:flex/inline-flex
 
 - align-items
 
-![image-20211013120929357](C:\Users\kechuan\Desktop\notepad\images\image-20211013120929357.png)
+![image-20211013120929357](.\images\image-20211013120929357.png)
 
 其中 
 
@@ -180,8 +182,6 @@ baseline是让项目尽量切合着 第一行文字的水平线进行排序
 
 
 
-
-
 ****
 
 <div style="color:red;">集合</div>
@@ -191,13 +191,13 @@ baseline是让项目尽量切合着 第一行文字的水平线进行排序
 
 ****
 
-**项目**用
+##### 容器**项目**用
 
 序号排列
 
 - order:1(默认排列是0)
 
-<img src="C:\Users\kechuan\Desktop\notepad\images\image-20211011165440241.png" alt="image-20211011165440241" style="zoom:65%;" />
+<img src=".\images\image-20211011165440241.png" alt="image-20211011165440241" style="zoom:65%;" />
 
 **必要**时的项目收缩能力(窗口缩小)
 
@@ -213,21 +213,21 @@ baseline是让项目尽量切合着 第一行文字的水平线进行排序
 
 自己看到的情况:
 
-1. 某个项目在两项目之间的时候,如果对单独一个项目使用此属性时会扩充完整个容器的轴
+1. 某个项目在两项目之间的时候,如果对单独一个项目使用此属性时会扩充完整个容器的轴(是填充空剩余白内容的好选择)
 
-2. 当前容器的某项长度项目满的话 搭配flex-wrap生效后会强制生效grow的属性
+2. 当前容器的某项长度项目未满的话 搭配flex-wrap生效后会强制生效grow的属性
 
    造成项目强制扩张
 
-![image-20211012225032304](C:\Users\kechuan\Desktop\notepad\images\image-20211012224717649.png)
+![image-20211012225032304](.\images\image-20211012224717649.png)
 
 ****
 
-![](C:\Users\kechuan\Desktop\notepad\images\image-20211012224641472.png)
+![](.\images\image-20211012224641472.png)
 
 ****
 
-![image-20211012113211689](C:\Users\kechuan\Desktop\notepad\images\image-20211012113211689.png)
+![image-20211012113211689](.\images\image-20211012113211689.png)
 
 也就是说 当整体的容器 **未完全** 占满一个轴的空间时 运用此时属性 某个被选定的项目(们)就会直接占满掉空间
 
@@ -358,7 +358,7 @@ width:1344px;
 
 
 
-#### @media响应用法
+### @media响应用法
 
 除了你隔壁直接暴力resize配jquery的各种伪类封装之外
 
@@ -392,9 +392,65 @@ css也有它自己的动态调整
 >
 > }
 
+
+
+你也可以两个属性共同作用
+
+> @media (max-widht:), and (max-height:)
+
 ****
 
-#### 知识增加
+
+
+### svg图标的使用
+
+svg本质矢量图 在html解析上本质就是一串path代码来组成这样的图形
+
+因为是矢量图 不会因为图片失真 且容量相对于纯图片要小 常用于各种图标上
+
+
+
+图标来源 你可以选择自己在在线网站(iconfont)画一个然后导出svg代码
+
+当然你也可以直接本地下载下来然后symbol导入 etc..
+
+
+
+**属性解释**
+
+aria-hidden:true/false
+
+把 `aria-hidden="true"` 加到元素上会把该元素和它的所有子元素从可访问性树上移除。这样做可以通过隐藏下列内容来提升使用辅助技术的用户体验：
+
+- 纯装饰性的内容，如图标、图片
+- 重复的内容，如重复的文本
+- 屏幕外或被折叠的内容，如菜单
+
+
+
+可访问树的移除:包括display:none，以及visibility: hidden
+
+****
+
+**iconfont**
+
+```html
+下载下来的downloads.zip
+其中css是示例用法 js文件是主导入核心
+script引入js 和 一份css即可使用
+<svg class="svg1">
+<use xlink:href="#?"></use>
+</svg>
+
+要自定义名字需要更改js里的预先注入svg id="", 此项对应导入js后的svg xlink
+而css则对应一份通用的设置css
+```
+
+
+
+
+
+### 知识增加
 
 发现:
 
