@@ -21,6 +21,7 @@
 > - [ ] 潜行吧!奈亚子
 > - [ ] 妄想学生会(N)
 > - [ ] 妖精森林的小不点
+> - [ ] [骆驼的烟草](https://www.skyey2.com/forum.php?mod=viewthread&tid=10995)
 >
 
 

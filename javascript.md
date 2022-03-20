@@ -853,7 +853,7 @@ JS支持你去调用不存在的变量属性 且不会报错
     
     作用域大的跟Window.i一样
     ```
-    **Extra**
+    ****
 
     你终究会遇到多个js文件挤在一起全局变量到处飞的时候(希望你做个人)
 
@@ -861,10 +861,12 @@ JS支持你去调用不存在的变量属性 且不会报错
 
     这里要做的是如何避免到那个情况
 
+    
+
     **唯一全局变量**
 
     ```
-    var x = {};	//定义全局变量
+    x = {};	//定义全局变量
     x.asdasda;
     x.gretgasd;
     没错,定义了全局变量之后，你就能好像在调用属性一样调用你写的js,早日养成习惯，不要随便占用Window
@@ -872,7 +874,7 @@ JS支持你去调用不存在的变量属性 且不会报错
 
     
 
- 2. 局部变量
+ 2. 局部全局变量
 
     ```javascript
     //var作用域允许各个函数里面调用相同的变量而不冲突，全局变量做不到这点
@@ -900,9 +902,9 @@ JS支持你去调用不存在的变量属性 且不会报错
         console.log(x);
         
         function c2(x){			//内部x取代了外部的x
-        console.log(x*y)
+        console.log(x*y)		//NaN
     	}
-    	c2()
+    	c2()	//空值传入
         //更别提这种离谱的变量重名时的反应(会直接让变量从内部开始向外寻找变量(要符合内向外的原则))
         //所以C2的x变量为空 即结果为NaN
         //所以你只要去掉c2函数里的'x'就能跑出结果了，因为不再重名变量，自然不需要从内部寻找变量
@@ -915,6 +917,16 @@ JS支持你去调用不存在的变量属性 且不会报错
 **Extra**
 
 var还有一个奇怪的性质，如果你把声明变量赋值写在末尾，然后把该变量要参与的计算写在前面,它不会报错,而是返回undefined.即它已经被**定义**过了，但与其定义的值并没有被**赋值**上去.
+
+这种情况叫做变量提升
+
+
+
+个人**很不建议**用这种情况 这种书写方式非常反语言也反直觉
+
+你看严格模式就不允许你这么写 但为什么会开放这种编写方式？
+
+大抵是在编译器看来 (因为已经自己组合起来了)顺序是没什么必要的罢
 
 ```javascript
 console.log(y)
@@ -940,9 +952,15 @@ var y = "y";
    这也是为什么for in会优先考虑用let变量而不是var这种有联系性的变量
    ```
 
+
+
+ES6 关键字表示常量
+
  **const(常量)**
 
 官方定义为**只读**变量,即不可被**修改**
+
+其同样也不属于全局作用域 与`let`同等级的作用域
 
 
 
@@ -950,13 +968,7 @@ var y = "y";
 
 像极了C(#define PI 3.14
 
-
-
-*ES6 关键字表示常量
-
-`const`
-
-```
+```javascript
 const PI = '3.14';
 PI = '3.1415'; //type error
 console.log(PI)
@@ -965,41 +977,37 @@ console.log(PI)
 
 
 
-
-
    但是它们有什么区别？
 
-   首先不必多说全局最大
+   首先不必多说全局唯一最大
 
    但是局部的var的范围又是多大？
 
    **A:**
 
-   > 用`var`定义就是作用域内变量，不用`var`就是全局变量。
+   > 用`var`定义就是作用域内变量，不用`var`就是全局变量。(当然你在什么都没有的情况下直接var
    >
-   > `var`的变量表示的是作用域可用
+   > 那也等效于直接全局作用域了)
    >
    > 
+   >
+   > 而`var`的变量表示的是当前作用域可用
    >
    > 什么是作用域？
    >
    > **变量（变量作用于又称上下文）和函数生效（能被访问）的区域**
    >
-   > 
-   >
    > 实际上还有一个区别，用var定义的不能用delete删除，不用var的可以用delete删除，也就是说，实际上不用var定义的变量变成了某个对象(全局window或者自定义的全局)的属性。
    >
    > 
    >
-   > `let`命令范围只有在所在的代码块内有效
+   > 而更低作用域的`let`命令范围**只有**在所在的代码块内有效
    >
-   > 什么意思 即为function()
+   > 如果说var的变量能从又内而外的向外访问
+   >
+   > 那么let就仅局限于它这一层的作用域内可以访问
 
-   
-
-   
-
-   
+ 
 
 #### 1.2、访问对象(属性)
 
@@ -1028,7 +1036,7 @@ dog["age"]	//或者是(对象内存在的)字符串
 
 但是这样做到底有什么意义呢? 真的会存在不知道对象的属性 却知道中间变量的情况?
 
-
+我不是很懂(
 
 
 
@@ -1043,7 +1051,81 @@ var i = 1;
 
 
 
+**Extra2**
 
+//ES6 let与保留关键字的强制使用
+
+```javascript
+const carouselList = [         //列表
+    {num:"01",desc:"standard"},
+    {num:"02"},
+    {num:"03"}
+]
+
+const standard = carouselList[0];
+let status = standard;
+
+>>status
+<<{num:"01",desc:"standard"}
+```
+
+****
+
+
+
+这看着很正常
+
+而当你将let status换成var status的时候
+
+> \>>status
+>
+> <<[object Object]
+
+
+
+还记得之前提到过的let/const的作用域问题吗
+在当前的作用域下 var出来的变量属于window/global
+而let/const的出来的变量并不属于 所以无法读取
+
+
+
+然而即使你把全部变量都以var命名 status依然会是[object Object]
+然后更神奇的来了
+
+>window.standard
+><<{num:"01",desc:"standard"}
+>
+>window.status
+>
+><<[object Object]
+
+这说明status即使以var定义了 也不属于window作用域
+
+这时候情况大概明了了
+
+即 当你想用一个var套另一个var内的属性的时候
+
+第二个var将自动降级为window.var.var 即这个不在作为window作用域 而是类似被套了一层function
+
+
+
+怎么解决?
+
+前文说过的 你只要在定义变量的时候始终将他们作为低一级的作用域就行了
+
+即用 let 与 const
+
+
+
+现在我发现了更根本的问题
+
+status大概是某个保留关键字 默认直接输入会返回 `""`(草
+
+所以直接var的话会与某段代码抵触的
+
+就当看个乐罢
+
+****
 
 ### 2、 数据类型
 
@@ -1051,7 +1133,7 @@ var i = 1;
 
 > <div style="color:red;">string</div>
 >
-> <div style="color:red">object</div>
+> <div style="color:red">object(function,array,var……………………)</div>
 >
 > boolean 	true/false
 >
@@ -1061,7 +1143,6 @@ var i = 1;
 >
 > <div style="color:blue;">Null/undefined</div>
 >
-> function
 
 
 
@@ -2147,9 +2228,9 @@ A1.area
 
 `super()`在这里做了什么工作?
 
-声明与父类对象this绑定
+在构造器里声明与父类对象this绑定
 
-且从此除了this这个父子类共同继承的属性以外 还有super这种只作用于父类的属性
+且从此除了this这个父子类共同继承的属性以外 还有super这种只作用于父类的方法
 
 如果父类需要在构造器里与子类的变量链接的时候
 
@@ -2158,12 +2239,15 @@ class A{
 		constructor(x){
 			this.x = x;	//3 or undefined
             //如果是this.x = 0
-            console.log(this.x)
+            console.log(this.x+"B")
+      
 		}
     
-    	tips(){
-            console.log("trigger")
-        }
+  	tips(){
+      console.log("trigger")
+    }
+
+    
 	}
 
 class B extends A{
@@ -2171,20 +2255,26 @@ class B extends A{
         super(x);	//则super就不需要带上对应的变量
         console.log(this.x)
     	this.x = 5;
+        console.log(this.x+"M")
+        
     }
     
     tips(){
         console.log(super.tips())	//super导向至父类的tips函数触发trigger
     }
+
+    get use(){
+      return this.tips()
+    }
 }
 
 var C = new B(3)
-C.tips()
+C.use
 ```
 
 就应该在super里填入对应的变量 以实现this链接
 
-如果super里未包含的绑定属性 将视作NaN/undefined处理
+如果super里存在还未包含的绑定属性 将视作NaN/undefined处理
 
 
 
@@ -2243,9 +2333,9 @@ class Child2 extends Father {
     
     constructor(test){
          super();				//调用父类普通方法
-         //console.log(super.test1()); 非static无法访问
+         //console.log(super.test2()); 非static无法访问
          console.log(this.test1());	// C1
-         console.log(super.test1())
+         console.log(super.test1())	// F1
     }
     
     static test2(){
@@ -2258,7 +2348,7 @@ class Child2 extends Father {
     }
 }
 
-var A = new Child2
+var A = new Child2()
 A.test()
 
 ```
@@ -2271,9 +2361,6 @@ A.test()
 > 2. 且static关键字的对象仅能在父子类以super的形式调用
 > 3. 而super属性固定调用父类的对象(child.static or child.super.fatherprop)
 >
-> 
->
-> 
 
 
 
@@ -2382,6 +2469,27 @@ array.forEach(function(ele){
 
 
 
+以及
+
+#### every
+
+every()方法遍历可以达到break效果。
+
+every的代码块种仍然不能使用break，continue，会抛出异常
+
+```javascript
+[1,2,3,4,5].every(function(i){
+  if(i===2){
+    return false; //return false等同于break
+  }else{
+    console.log(i)
+    return true  // return true 等同于continue
+  }
+})
+```
+
+看着有点反直觉 不过至少也得看得懂
+
 
 
 ##### Map 和 Set(保留)
@@ -2424,8 +2532,6 @@ console.log(a)
 
 通过元素获得下标索引 类似python里的`*.index()`
 
-
-
 `lastIndexOf()` 方法返回指定文本在字符串中**最后**一次出现的索引
 
 
@@ -2443,11 +2549,6 @@ console.log(a)
 ##### **特殊(数组)**
 
 ****
-
-> 
-> 
-
-
 
 ###### **组型变化**
 
@@ -2612,11 +2713,7 @@ return temp;
 
 
 
-
-
 当然你也可往function里塞正则筛选 这样就能对数组进行等同于字符串的筛选操作了
-
-
 
 
 
@@ -4461,6 +4558,14 @@ string.push(array+':'+style[array]);
 
 即使引入jquery后 这个原生的功能也不会受影响
 ```
+
+
+
+不过有一个特点就是如果你直接将`${}`指向一个对象集的话`status = ({num:01},{num:02},)` 他会直接返回[Object object]而非对象本身
+
+这也说明你只能调用一个对象集的某个属性 `${status.num}` 而非`${status}`本身 
+
+
 
 实现一个整体是字符串 生效字符 
 
