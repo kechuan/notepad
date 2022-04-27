@@ -306,6 +306,21 @@ git pull --rebase [name] [fetch]
 
 
 
-当然你也可以直接强制
+如果你还有分支合并？	建议顺手
+
+> git fetch
+
+
+
+最后再
+
+> git reabase --continue
+
+
+
+当然你也可以直接强制这样操作
 
 > git push -f [name] [fetch]
+
+然后本地直接强制覆盖掉仓库(当然仓库方得允许你这样做)
+
