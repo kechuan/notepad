@@ -141,7 +141,7 @@ github(
 
 
 
-#### 常用工作
+#### 常用阶段解读
 
 那么同步流程里总结也就是这三阶段 同时github上看到的也是这么三个状态
 
@@ -230,3 +230,82 @@ lib/*.txt	#只忽略该文件夹下的指定后缀(文件 文件夹嵌套 etc..)
 默认全忽略当然就直接
 ```
 
+
+
+#### 新环境迁移配置
+
+SSH key重新引入
+
+> ssh-keygen -t rsa -C "your@email.com"
+
+会将在你user/username下 生成`.ssh`文件夹其中包含ssh的私钥与公钥
+
+将`.pub`的公钥重新在GitHub上添加
+
+
+
+并在当前Git环境下重新配置
+
+> git config --global user.name "[name]"
+>
+> git config --global user.email "[email]"
+
+
+
+最后在你的本地项目文件下
+
+重新初始化git环境
+
+> git init
+
+并重新配置当前的git的远程仓库etc..
+
+> git remote add [rep_name] [git_addr]
+
+
+
+****
+
+#### 排障
+
+一般由于迁移新环境引起..
+
+
+
+手上拿的是旧版本代码 然后自己改动了 想推进仓库里 报错
+
+>  ! [rejected]        master -> master (non-fast-forward)
+> error: failed to push some refs to 'github.com:kechuan/notepad.git'
+> hint: Updates were rejected because a pushed branch tip is behind its remote
+> hint: counterpart. Check out this branch and integrate the remote changes
+> hint: (e.g. 'git pull ...') before pushing again.
+> hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+
+其中 提示 
+
+```
+Check out this branch and integrate the remote changes
+hint: (e.g. 'git pull ...') before pushing again.
+```
+
+建议你去先将所有的代码通过 git pull 完全整合在一起 再去push
+
+
+
+但是你直接git pull难道不会直接覆盖你改动后的东西？
+
+
+
+所以git pull 分支选项有
+
+```
+git pull --rebase [name] [fetch]
+```
+
+让你从仓库中只拖下来你本地欠缺的东西
+
+
+
+当然你也可以直接强制
+
+> git push -f [name] [fetch]
