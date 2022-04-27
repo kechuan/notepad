@@ -155,9 +155,11 @@ staged(暂存) 你已将工作区的新改动后的所有文件放入了暂存�
 
 > git add 将工作区已修改的文件 添加进暂存区
 >
-> git status 查看当前暂存区的文件
+> git status 查看当前暂存区与旧工作区对比的文件
 >
 > git diff 查看暂存区与工作区的不同
+>
+> git rm 移除工作区的文件
 
 
 
@@ -275,11 +277,10 @@ SSH key重新引入
 手上拿的是旧版本代码 然后自己改动了 想推进仓库里 报错
 
 >  ! [rejected]        master -> master (non-fast-forward)
-> error: failed to push some refs to 'github.com:kechuan/notepad.git'
+> error: failed to push some refs to 'xxx.git'
 > hint: Updates were rejected because a pushed branch tip is behind its remote
 > hint: counterpart. Check out this branch and integrate the remote changes
 > hint: (e.g. 'git pull ...') before pushing again.
-> hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 
 其中 提示 
 
@@ -323,4 +324,12 @@ git pull --rebase [name] [fetch]
 > git push -f [name] [fetch]
 
 然后本地直接强制覆盖掉仓库(当然仓库方得允许你这样做)
+
+
+
+****
+
+22 connect refused
+
+建议用https来push，或者多等一会(恼
 

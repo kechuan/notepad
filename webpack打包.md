@@ -1,6 +1,8 @@
+#### 为什么需要webpack？
+
 前端路线——打包工具
 
-为什么我们需要webpack这类打包工具？
+
 >  因为webpack将我们所有浏览器无法直接读取的文件通过依赖建立的方式与对应的文件关联（less,json）等文件与开发运行环境的工具打包 最终转化为浏览器可以读取的静态文件包(css,js,img..)
 
 而且 你打包也意味着运行环境的隔离
@@ -17,58 +19,78 @@
 
 
 
-这个也不是什么新概念
-之前引入ES6 module模块时已经有过这种打包的思想
+这个也不是什么新概念 之前引入ES6 module模块时已经有过这种打包的思想
 
-
+****
 
 ### 0. 运行环境
 node.js>npm>webpack
 
-文件配置
-在工作环境文件下
-创立webpack.config.js
-内容包括
+**文件配置**
 
-0.node.js操作路径环境
-1. module.export
-2.包选取的模块(入口)
-3. 出口的命名
-3.1.loader javascript兼容性处理 
-4.npm模式选择
+在工作环境(项目根目录下)文件下创立`webpack.config.js`
 
+基础内容应包括`module.export`以声明以下内容都是将作为以ES6的module总出口导出 以达成大部分浏览器平台的兼容性
 
-> 基础路径结构:const path = require('path');
-
-且之后所有出入口相关的打包 兼容性处理应被
-`module.exports{}`包裹
-
-> module.exports{
-> output:,
-> loader,
-> }
-
-亦或是
-
-> const config = {entry:,output:,loader:,...}
-> module.exports = config;
-
-
-以声明以下内容都是将作为es6的module导出
-
-webpack.config.js一般与将要被打包的模块平级 以方便调用
+`webpack.config.js`一般与将要被打包的模块平级 以方便调用
 
 ****
+
+**运行配置**
+
+最后在npm项目根目录下的`package.json`中的`script`引入webpack入口
+
+```
+Expression_1:
+"scripts": {
+    "dev": "webpack"
+  },
+```
+
+再执行
+
+> npm run dev
+
+以执行webpack封装程序
+
+
+
+<div style="color:red">封装完成后会在项目根目录生成<b>dist</b>文件夹 以及其<b>main.js</b>文件<div>
+
+
+
+这便是webpack打包完的产物
+
+直接引入这个js 便可调用本次打包的所有资源
+
+
+
+*那么代价就是node_module 占用22MB 比你自己写的所有静态网址大小翻了有四倍多体积*
+
+*所以不要傻乎乎的连同node_module一起发布(半恼*
+
+
+
+****
+### 1.基础设置
+
 #### 0.路径环境
+
 const path = require('path');
 
 #### 1. 入口与出口(Entry&Output)
 入口起点(entry point)指示 webpack 应该使用哪个模块
 
-疑似loader webpack 会找出有哪些模块和库是有依赖关系的。
+疑似	loader webpack 会找出有哪些模块和库是有依赖关系的。
 
 webpack将打包好的产物称作  Bundle
 而所有被打包的东西被称作  chunk
+
+
+
+<div style="color:red">默认的打包入口文件会在<b>src</b>里的<b>index.js</b>
+
+
 
 单入口与多入口
 entry:
@@ -79,7 +101,7 @@ entry:
 
 >	entry:'./js/json2css.js'
 
-既然会有默认名称 说明这个方式引入多个chunk将会发生命名重复的问题 也说明这个会被叫作单入口的原因
+既然会有默认名称 说明这个方式引入多个chunk将会发生命名重复的问题 这也是会被叫作单入口的原因
 
 
 2.array --> ['./js/json2css.js','pink.json']
@@ -93,12 +115,19 @@ entry:
 对象分为键与值（其实就是属性与对应的值）
 每个对象都会被生成一个bundle
 
-`output` 属性告诉 `webpack` 在哪里输出它所创建的 bundles，以及如何命名这些文件，默认值为 `./dist` 
+`output` 属性告诉 `webpack` 在哪里输出它所创建的 bundles，以及如何命名这些文件，默认值为 `./dist`文件夹 
 
 `output` 分为输出路径(path)与输出文件名(filename)这两个部分
 
+****
+
+
+
+#### 2.输出配置
+
 **path**
-而在哪里 则需要依靠node.js环境给的路径了
+而输出在哪里 则需要依靠node.js环境给的路径了
+
 > const path = require('path')
 这项操作使得webpack能借助node访问当前的路径并绑定在path常量里
 
@@ -111,6 +140,8 @@ entry:
 
 则应该使用占位符(substitutions)来确保每个文件具有唯一的名称。
 
+
+
 **filename**
 而output文件名输出 `filename` 里提供了一组配置供我们使用
 [name]	根据对象的键名来命名出口
@@ -122,7 +153,9 @@ entry:
 －[chunkhash]只针对变动的文件发生hash变动并创立
 > output:{filename:[name]-[hash:6]... }
 
-loader:
+****
+
+**loader:**
 兼容性管理
 通过调用npm里的其他解码包 来生成对应处理过的可被浏览器直接读取的资源文件以达成兼容的目的
 
@@ -138,17 +171,35 @@ use则为对此文件类型采用对应的手段
 > use: [ { loader: 'style-loader' }, { loader: 'css-loader', options: { modules: true } } ] } ]
 > }
 
+****
 
-
-mode:
+**mode:**
 module.exports = { 
 mode: 'production'/mode: development 
 };
 
 webpack联动npm工作环境(线上环境与开发环境)
 不过疑惑的是 命令行直接
+
 > webpack -D/-S
 就能选择了
 
-为啥还要特地配置呢
+~~为啥还要特地配置呢~~
 
+
+
+22.4.27
+
+现在你知道了 webpack会根据你`webpack.config.js`线上环境和开发环境的区别
+
+执行不同的方案打包	这就是为什么要额外配置的原因
+
+
+
+且webpack本身有这么一种处理机制
+
+> -D操作会使得webpack快速打包 快速生成main.js
+>
+> -S操作则为使得webpack采用尽力压缩算法 节省空间
+
+****
