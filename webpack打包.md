@@ -23,7 +23,10 @@
 
 ****
 
+
+
 ### 0. 运行环境
+
 node.js>npm>webpack
 
 **文件配置**
@@ -35,6 +38,8 @@ node.js>npm>webpack
 `webpack.config.js`一般与将要被打包的模块平级 以方便调用
 
 ****
+
+
 
 **运行配置**
 
@@ -55,7 +60,7 @@ Expression_1:
 
 
 
-<div style="color:red">封装完成后会在项目根目录生成<b>dist</b>文件夹 以及其<b>main.js</b>文件<div>
+<div style="color:red">封装完成后会默认在项目根目录生成<b>dist</b>文件夹 以及其<b>main.js</b>文件<div>
 
 
 
@@ -69,31 +74,47 @@ Expression_1:
 
 *所以不要傻乎乎的连同node_module一起发布(半恼*
 
-
-
 ****
+
+
 ### 1.基础设置
+
+
 
 #### 0.路径环境
 
-const path = require('path');
+用来导入node.js中专门操作路径的模块
+
+> const path = require('path');
+
+目前意义不是很明
+
+****
+
+
 
 #### 1. 入口与出口(Entry&Output)
+
 入口起点(entry point)指示 webpack 应该使用哪个模块
 
 疑似	loader webpack 会找出有哪些模块和库是有依赖关系的。
 
 webpack将打包好的产物称作  Bundle
-而所有被打包的东西被称作  chunk
+而所有被打包的东西被称作  chunk 
 
 
 
-<div style="color:red">默认的打包入口文件会在<b>src</b>里的<b>index.js</b>
+<div style="color:red">默认的打包入口文件会在<b>src</b>文件夹里的<b>index.js</b>
+
+*注:无论是默认入口还是默认出口 均可以被`webpack.config.js`相关配置修改*
+
+****
 
 
 
 单入口与多入口
-entry:
+
+**entry:**
 
 1. string --> './js/json2css.js'
 	字符串方式(单入口)
@@ -103,11 +124,18 @@ entry:
 
 既然会有默认名称 说明这个方式引入多个chunk将会发生命名重复的问题 这也是会被叫作单入口的原因
 
+****
 
-2.array --> ['./js/json2css.js','pink.json']
-	数组方式（多入口）
+
+
+2. array --> ['./js/json2css.js','pink.json']
+   	数组方式（多入口）
 
 > entry:['./js/json2css.js','pink.json']
+
+****
+
+
 
 3. object(对象,多入口,多出口)
 
@@ -119,28 +147,37 @@ entry:
 
 `output` 分为输出路径(path)与输出文件名(filename)这两个部分
 
-****
 
 
+而问题在于既然是多出口 那么每一个出口的名字就应该有独立的一个名字(默认名字都是main.js) 
 
-#### 2.输出配置
-
-**path**
-而输出在哪里 则需要依靠node.js环境给的路径了
-
-> const path = require('path')
-这项操作使得webpack能借助node访问当前的路径并绑定在path常量里
-
-> output:path:		path.resolve(__dirname,'dist'),
-
-****
-而问题在于既然是多出口 那么每一个出口的名字就应该有独立的一个名字(默认名字都是main.js) 否则会导致出口名字冲突导致报错
+否则会导致出口名字冲突导致报错
 
 而在下游的output里有适配的输出方式规避名字冲突
 
 则应该使用占位符(substitutions)来确保每个文件具有唯一的名称。
 
+****
 
+
+
+**path**
+而输出在哪里 则需要依靠node.js环境给的路径了
+
+比如最上面提到的
+
+> const path = require('path')
+
+这项操作使得webpack能借助node访问当前的路径并绑定在path常量里
+
+> output:path:		path.resolve(__dirname,'dist'),
+
+****
+
+
+
+
+#### 2.输出配置
 
 **filename**
 而output文件名输出 `filename` 里提供了一组配置供我们使用
