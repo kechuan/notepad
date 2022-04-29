@@ -60,16 +60,6 @@ Expression_1:
 
 
 
-<div style="color:red">封装完成后会默认在项目根目录生成<b>dist</b>文件夹 以及其<b>main.js</b>文件<div>
-
-
-
-这便是webpack打包完的产物
-
-直接引入这个js 便可调用本次打包的所有资源
-
-
-
 *那么代价就是node_module 占用22MB 比你自己写的所有静态网址大小翻了有四倍多体积*
 
 *所以不要傻乎乎的连同node_module一起发布(半恼*
@@ -143,21 +133,81 @@ webpack将打包好的产物称作  Bundle
 对象分为键与值（其实就是属性与对应的值）
 每个对象都会被生成一个bundle
 
-`output` 属性告诉 `webpack` 在哪里输出它所创建的 bundles，以及如何命名这些文件，默认值为 `./dist`文件夹 
-
-`output` 分为输出路径(path)与输出文件名(filename)这两个部分
+****
 
 
+
+**output:**
+
+`output` 属性告诉 `webpack` 在哪里输出它所创建的 bundles，以及如何命名这些文件
+
+
+
+<div style="color:red">封装完成后会默认在项目根目录生成<b>dist</b>文件夹 以及其<b>main.js</b>文件<div>
+
+
+
+
+这便是webpack打包完的产物
+
+直接引入这个js 便可调用本次打包的所有资源
+
+****
+
+
+
+`output` 分为输出路径(path)与输出文件名(filename)这两个属性
+
+```javascript
+output:{
+	path:,
+    filename:
+}
+```
 
 而问题在于既然是多出口 那么每一个出口的名字就应该有独立的一个名字(默认名字都是main.js) 
 
 否则会导致出口名字冲突导致报错
 
-而在下游的output里有适配的输出方式规避名字冲突
 
-则应该使用占位符(substitutions)来确保每个文件具有唯一的名称。
+
+这就是为什么`output`里不会像`entry`一样 一个配置写满`path`与`filename`
+
+毕竟`entry`上 文件名是已经确定的
+
+而`output`在多文件上则是属于未确定的文件名 会有概率重复
+
+
+
+**path**
+
+此处`path`基本会与`entry`的规则配置一致 只是输出不再是具体到文件 而是文件夹
+
+因为文件名会交给`filename`处理
+
+
+
+
+
+**filename**
+而output文件名输出 `filename` 里提供了一组配置供我们使用
+[name]	根据对象的键名来命名出口
+-[hash]	追加hash值来校验*所有*对象打包的内容变与不变
+--[hash:num] 生成hash的长度(默认16位)
+
+如变动则生成新的js
+
+-[chunkhash]只针对变动的文件发生hash变动并创立
+
+> output:{filename:[name]-[hash:6]... }
+
+则应该使用**占位符**(substitutions)来确保每个文件具有唯一的名称。
 
 ****
+
+
+
+#### 2.占位符
 
 
 
@@ -176,19 +226,32 @@ webpack将打包好的产物称作  Bundle
 
 
 
+**__dirname**
 
-#### 2.输出配置
+文件名变量	*一般代表该文件所存在的目录*
 
-**filename**
-而output文件名输出 `filename` 里提供了一组配置供我们使用
-[name]	根据对象的键名来命名出口
-－[hash]	追加hash值来校验*所有*对象打包的内容变与不变
---[hash:num] 生成hash的长度(默认16位)
+> entry:	path.join(__dirname,'./src/index.js')	
+>
+> //入口处配置 路径环境配置 加入 当前文件名路径中的 './src/index.js'
 
-如变动则生成新的js
+这样就能简单的指定打包的入口
 
-－[chunkhash]只针对变动的文件发生hash变动并创立
-> output:{filename:[name]-[hash:6]... }
+
+
+output同理
+
+> output:{
+>
+> path: path.join(__dirname,'src'),
+> filename: 'bundle.js'
+>
+> }
+
+****
+
+
+
+#### 3.其他配置
 
 ****
 
@@ -240,3 +303,16 @@ webpack联动npm工作环境(线上环境与开发环境)
 > -S操作则为使得webpack采用尽力压缩算法 节省空间
 
 ****
+
+
+
+### 2.额外插件引入
+
+
+
+实现类似live-server的效果
+
+**webpack-dev-server**
+
+
+
