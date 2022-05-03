@@ -141,7 +141,7 @@ github(
 >
 > 只能在.ssh的.config将sshGitHub的端口强行拉到https ssh的443
 >
-> 而且在与github的远程仓库沟通时 不允许使用隧道服务器
+> 而且在与github的远程仓库沟通时 不允许使用隧道服务器(但是仅仅通过一些本地代理倒是可以)
 
 
 
@@ -209,15 +209,17 @@ git reset [--soft | --mixed | --hard] [HEAD]
 
 ****
 
-**忽略文件**
+#### **忽略文件**
 
 你不可能每次都能在工作区里面都创建好你全部需要上传的东西
 
-无可避免的会有你不想上传的东西 总而言之 
+无可避免的会有你不想上传的东西(经典.idea node_modules) 
 
-我们需要**黑名单**(.gitignore)
+总而言之 我们需要**黑名单**(.gitignore)
 
  
+
+usage:
 
 在主目录创立.gitgnore文件
 
@@ -233,11 +235,21 @@ git是linux环境 那理所当然的就用上了linux的通配符
 /lib		#只忽略该文件夹下的文件
 lib/		#只忽略该文件夹里的文件夹
 lib/*.txt	#只忽略该文件夹下的指定后缀(文件 文件夹嵌套 etc..)
-默认全忽略当然就直接
-
-实例
-/webpack/*/node_modules
 ```
+
+
+
+实例:
+
+> .gitignore	//追踪忽略它本身
+>
+> Lab/webpack/*/node_modules
+>
+> ....
+>
+> 
+
+
 
 
 
@@ -339,4 +351,6 @@ git pull --rebase [name] [fetch]
 22 connect refused
 
 建议用https来push，或者多等一会(恼
+
+或者直接代理push
 

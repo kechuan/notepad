@@ -85,12 +85,15 @@ Expression_1:
 
 #### 1. 入口与出口(Entry&Output)
 
-入口起点(entry point)指示 webpack 应该使用哪个模块
+入口起点(entry point)指示 webpack 应该调用哪些东西打包成模块
 
-疑似	loader webpack 会找出有哪些模块和库是有依赖关系的。
+并将下文的loader一起联合 处理引入的模块
 
-webpack将打包好的产物称作  Bundle
-而所有被打包的东西被称作  chunk 
+
+
+`webpack`而所有被打包的东西被称作 `chunk` 
+
+`webpack`将打包好的产物称作  `Bundle`
 
 
 
@@ -123,34 +126,34 @@ webpack将打包好的产物称作  Bundle
 
 > entry:['./js/json2css.js','pink.json']
 
+(意义不是非常的大 一般这样做也等效于在一个index.js上import一大堆额外的东西)
+
 ****
 
 
 
 3. object(对象,多入口,多出口)
 
-> entry:{ react:{index:[1.js], sub:[2.js]	} jquery:{'jquery.js'},}
+> entry:{ react:{index:[1.js], sub:[2.js]}, jquery:{'jquery.js'}}
 对象分为键与值（其实就是属性与对应的值）
 每个对象都会被生成一个bundle
+
+(这个主要是用来明确的区分环境 或者为不同的版本产出)
 
 ****
 
 
 
-**output:**
+**output**:
 
 `output` 属性告诉 `webpack` 在哪里输出它所创建的 bundles，以及如何命名这些文件
 
 
 
 <div style="color:red">封装完成后会默认在项目根目录生成<b>dist</b>文件夹 以及其<b>main.js</b>文件<div>
+这便是`webpack`打包完的产物
 
-
-
-
-这便是webpack打包完的产物
-
-直接引入这个js 便可调用本次打包的所有资源
+在某个html上直接引入这个js 便可调用本次打包的所有资源
 
 ****
 
@@ -165,7 +168,11 @@ output:{
 }
 ```
 
-而问题在于既然是多出口 那么每一个出口的名字就应该有独立的一个名字(默认名字都是main.js) 
+
+
+`output`本身是支持**多出口**的
+
+而问题在于既然是**多出口** 那么每一个出口的名字就应该有独立的一个名字(默认名字都是main.js) 
 
 否则会导致出口名字冲突导致报错
 
@@ -179,7 +186,7 @@ output:{
 
 
 
-**path**
+**path**:
 
 此处`path`基本会与`entry`的规则配置一致 只是输出不再是具体到文件 而是文件夹
 
@@ -189,7 +196,7 @@ output:{
 
 
 
-**filename**
+**filename**:
 而output文件名输出 `filename` 里提供了一组配置供我们使用
 [name]	根据对象的键名来命名出口
 -[hash]	追加hash值来校验*所有*对象打包的内容变与不变
@@ -255,28 +262,119 @@ output同理
 
 ****
 
-**loader:**
+##### **loader**
+
 兼容性管理
 通过调用npm里的其他解码包 来生成对应处理过的可被浏览器直接读取的资源文件以达成兼容的目的
 
-通过rules:
-来引入 test,use:loader
-test则为引入的文件类型
-use则为对此文件类型采用对应的手段
-而loader便是手段本身(一般通过npm包引入)
 
 
-> module.export = {
-> test: /\.css$/,
-> use: [ { loader: 'style-loader' }, { loader: 'css-loader', options: { modules: true } } ] } ]
-> }
+webpack本身打包只能处理以.js模块 非js的模块webpack并不能处理
+
+所以需要loader引入第三方加载器协助打包
+
+> css-loader:	*.css
+>
+> less-loader:	*.less
+>
+> 
+>
+> ...
+
+
+
+`module.rules`允许你在 webpack上配置中指定多个 loader
+
+一般来说loader都有这样的子选项
+
+> ```js
+> module: {
+>     rules: [{
+>         test: /\.css$/,						//test代表对何种文件生效(try)
+>         use: [
+>              {loader: 'style-loader'},		//use代表采取什么loader(catch)	
+> 			 {loader: 'css-loader',options: {modules: true}}
+>             		//而loader本身有会有子选项options 这因loader不同
+>              ] 	 	
+>    	 	     }]
+>  		 }
+> ```
+
+
+
+第三方loader:
+
+[为什么解析css内容需要两个loader?(简书)](https://www.jianshu.com/p/d2470f719fee)
+
+1. style-loader	再将其套入style标签封装(css-in-js)
+   1. css-loader      先将css解析出来(将css的每一行内容单独字符串解析出来，合为一个总数组)
+
+
+
+
+
+**注意**
+
+*webpack5+*
+
+在以往的webpack版本中	像url/图片之类的资源 要靠第三方loader去解析
+
+而在webpack5里已经可以 直接载入这类资源 而不用再去自己手动适配了！！！
+
+
+
+这原本应该是好事 然而又是经典前端更新后端不更 webpack本体改是改了
+
+然后file-loader,url-loader全特么没改 
+
+经典白忙活一天 
+
+经典官方文档对这类改动的**兼容性**问题不谈
+
+[From CSDN](https://blog.csdn.net/Coralpapy/article/details/119419137)
+
+
 
 ****
 
-**mode:**
-module.exports = { 
-mode: 'production'/mode: development 
-};
+
+
+通过**module**节点中**rules**数组里:
+来引入**test**与**use** 来处理webpack本身无法处理的模块
+
+test则为匹配的文件类型(类似**try**):可以用正则来匹配
+use则为对此文件类型采用对应的手段(类似**catch**)
+
+
+> module.export = {
+>
+> module: {
+> 		rules:[
+> 			{test: /\.css$/, use:['style-loader','css-loader']}	//匹配css后缀 对其使用两个loader 
+> 		]
+> 	}
+>
+> }
+
+
+
+关于loader的调用**顺序** 是从后往前调用(老出入栈思想了)
+
+
+
+
+
+
+
+****
+
+##### **mode**
+
+> module.exports = { 
+> mode: 'production'/mode: development 
+> };
+
+
 
 webpack联动npm工作环境(线上环境与开发环境)
 不过疑惑的是 命令行直接
@@ -287,6 +385,8 @@ webpack联动npm工作环境(线上环境与开发环境)
 ~~为啥还要特地配置呢~~
 
 
+
+****
 
 22.4.27
 
@@ -306,13 +406,207 @@ webpack联动npm工作环境(线上环境与开发环境)
 
 
 
+##### **devServer**
+
+该节点负责的内容也很简单明了 跟live-server类似
+
+负责输出内容的服务器各项调整
+
+> devServer:{
+> 		static: './src',
+> 		open: true,	//弹出浏览器 live-server里则是nobroswer
+> 		host: 'localhost',
+> 		port: 8888
+> 	}
+
+
+
+不过实际上你也可以直接在`package.json`中的scripts上操作也是可以的 这也等同于npm环境上的操作
+
+> "scripts": {
+>     "dev": "webpack serve --port=8888"
+>
+> }
+
+
+
+****
+
+
+
 ### 2.额外插件引入
 
+[webpack](https://www.webpackjs.com/plugins)官方提供了很多插件以及说明文档
+
+<div style="color:red">额外插件所有的设置 一般都应该在webpack.config.js中配置</div>
+
+这里调一些一般都会用得上的来讲
+
+ 
 
 
-实现类似live-server的效果
 
-**webpack-dev-server**
+#### **webpack-dev-server**
+
+实现类似live-server的效果	但是是作为一个实时打包器
 
 
 
+##### 配置
+
+****
+
+**usage:**
+
+模块安装后
+
+在`package.json`的`script`节点中引入`serve`
+
+默认端口值为8080
+
+每次webpack打包的时候就会自动连携该插件
+
+
+
+这个时候你就得问 那我为什么不直接用live-server监控所有文件?
+
+****
+
+好 那我们先直接用live-server(
+
+
+
+live-server
+
+> pnpm i live-server -g
+
+用法简单粗暴 直接在**全局模块**上安装 然后直接npm环境执行live-server就行
+
+同你在sublime-text上的设置一样
+
+```json
+{
+  "port": 8888,
+  "cors": true,
+  "browser": "default",
+  "nobrowser": false,
+  "wait": 100
+}
+
+```
+
+当然NODE_PATH一类的东西是已经调好了的 一般用得上的就是port之类的杂项
+
+运行的时候附带参数就行
+
+> live-server --port=8888 --nobroswer=false
+
+
+
+或者是在上文一样在config上单独设立 再用json方式调整
+
+
+
+然而这样的话每次打包变更都得
+
+> [editor] --save
+>
+> npm run dev
+>
+> ………………
+
+****
+
+
+
+然而webpack-dev-server
+
+仅仅只需要在编辑器上执行保存的动作 就能一键连携
+
+且devServer会将打包的文件放入内存作为缓存 要调用的时候直接从内存中读取
+
+无论是从性能上还是损耗性都会是这个好
+
+
+
+##### **注意**
+
+但是正因如此 启用了**serve**后 它也不会在磁盘上生成文件 而是一直只读内存上的缓存文件
+
+> 在网站上会读取到 xxx:8888/js.js
+
+所以在**production**环境下不应该启用它 改该用正常的live-server了(
+
+
+
+我感觉可以说是叠加了打包功能的live-server
+
+实际上在控制台上也确实是这样子(
+
+> (2) [webpack-dev-server] Live Reloading enabled.	VM1946 index.js:551 
+
+不过用的是livereload
+
+****
+
+
+
+
+
+##### 排障
+
+22.4.30	经典前端改动后端不改
+
+****
+
+webpack-dev-server返回404返回页面
+
+> 应该还是版本问题，最后在官网文档上找到
+>
+> ```json
+> devServer: {
+> 	static:'./src'	//默认本应为当前工作目录
+> }
+> ```
+
+From: [CNblogs](https://www.cnblogs.com/tangtangtang1/p/15459368.html)
+
+
+
+而默认属性是项目根目录/public	
+
+> <i> [webpack-dev-server] Content not from webpack is served from 'C:\Users\lenovo\Desktop\website\Lab(HTML测试)\webpack\0.color_interaction\public' directory
+
+好家伙 你webpack打包出来的默认文件夹充其量默认是dist 好端端哪来的public啊？？？
+
+
+
+正常旧版本至少还会提示
+
+> webpack output is served from /???
+
+新版本居然什么都没提示
+
+
+
+推荐选择版本
+
+> webpack 5.42.1
+>
+> webpack-dev-server@4.0.0beta.0 
+>
+>  4.0.0beta.0 提供了比较完善的错误提示，当设置了错误属性时能够给出详细提示信息。
+
+****
+
+
+
+
+
+#### html-webpack-plugin
+
+用来自定义index.html内容 我现在确实不知道有个什么用
+
+先空着
+
+****
