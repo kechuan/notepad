@@ -4287,7 +4287,9 @@ let start_timestamp;
 
 
 
-### 9、 import引入JS
+### 9、 import引入资源
+
+#### JavaScript模块
 
 你当然可以直接在html里面直接写进一堆script标签来将你要的script全部引入
 
@@ -4424,16 +4426,6 @@ import * as ??? from "../js/jsonchange"
 
 
 
-天国的json导入( 现在找到的一些项目都要要求你http链接传入才能导入json 
-
-```
-import "" from "" assert {type:json}
-```
-
-还没找到完全本地化的json导入
-
-
-
 但是还是有个问题 你作为module导入的js 你是没有办法在本module script以外的地方调用的
 
 这确实有好处 防止用户直接在控制台里乱调用函数 也防止一些入侵攻击
@@ -4442,11 +4434,60 @@ import "" from "" assert {type:json}
 
 
 
+#### **JSON**
+
+
+
+为什么我不能直接import js一样导入json?
+
+```JavaScript
+>>import pink from "./json/pink.json"
+<<MIME type of "application/json". Strict MIME type checking is enforced for module scripts
+
+//module类型的script无法检测到json应用类型
+```
+
+
+
+这就要提到MINE类型模块资源 因为`json/JavaScript`在**模块化**的时候 同属于`MINE`资源 
+
+
+
+即无法保证json文件引入之后是否真的像json一样运作
+
+而不会被恶意植入JavaScript有预先恶意执行脚本的风险
+(最经典的莫过于劫持后 给你正常浏览的网页添加挖矿负载之类的东西)
+除非引入的时候 承认该文件就是`json`(只能于`json`的方式运作解析`json`文件
+
+
+
+否则第三方脚本实际上可以在这种情况下执行，因为第三方服务器可能会意外的返回`JavaScript／MIME`类型和恶意JavaScript负载，在导入的作用于中执行代码
+
+
+
+原生方法
+
+> Chrome 91+
+> import pink from "./json/pink.json" assert {type:"json"}
+> 这样做之后 确实能够把json打包成模块等待模块工具调用了 但是缺点也很明显 对客户端的版本号要求较高
+
+Jesus 还是需要import assert 否则就老老实实用httprequest
+
+
+
+##### CommonJS/require()
+
+
+
+
+
 ### 10、异步操作
 
-原生的JavaScript是一个单线程语言 在现在 单线程语言当然完全不能支撑一些负载
+原生的JavaScript是一个单线程语言 
 
-然而JavaScript又引入了异步操作概念来实现类似多线程处理任务的效果
+在现在而言 单线程语言过于的低效了
+
+因此JavaScript又引入了异步操作概念来实现类似多线程处理任务的效果
 
 
 
@@ -5030,33 +5071,7 @@ html部分
 
 ****
 
-##### 引用json
 
-```JavaScript
-为什么我不能直接import js一样导入json?
->>import pink from "./json/pink.json"
-<<MIME type of "application/json". Strict MIME type checking is enforced for module scripts
-/**
-它提到module类型的script无法检测到json应用类型
-这就要提到MINE类型模块资源 因为json/JavaScript在模块化的时候 同属于MINE资源 
-即无法保证json文件引入之后是否真的像json一样运作而不会被恶意植入JavaScript有预先恶意执行脚本的风险
-(最经典的莫过于劫持后 给你正常浏览的网页添加挖矿负载之类的东西)
-除非引入的时候 承认该文件就是json(只能于json的方式运作解析json文件)
-
-但是第三方脚本实际上可以在这种情况下执行，因为第三方服务器可能会意外的返回JavaScript／MIME类型和恶意JavaScript负载，在导入的作用于中执行代码
-**/
-
-
-//Chrome 91+
-import pink from "./json/pink.json" assert {type:"json"}
-//这样做之后 确实能够把json打包成模块等待模块工具调用了 但是缺点也很明显 对客户端的版本号要求较高
-```
-
-
-
-Jesus 还是需要import assert 否则就老老实实用httprequest
-
-****
 
 #### 指令
 

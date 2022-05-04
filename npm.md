@@ -87,6 +87,8 @@ from:[简书](https://www.jianshu.com/p/9f1b5b347bd1)
 
 一般是丢给对应的mod扩展用的 比如sublime text里的live-server
 
+以及各种cli环境处理
+
 
 
 那它可不可以单独直接当生产环境用？
@@ -97,7 +99,7 @@ from:[简书](https://www.jianshu.com/p/9f1b5b347bd1)
 
 
 
-所以 大概是不行的罢(node_module浪费体积的一大原因)
+所以 大概是不行的罢(npm里node_module浪费体积的一大原因)
 
 
 
@@ -111,9 +113,9 @@ from:[简书](https://www.jianshu.com/p/9f1b5b347bd1)
 
 
 
-比如性能监视窗 它就只适合在开发用
+比如**性能监视窗** 它就只适合在开发用
 
-而jQuery就适合一直应用
+而**jQuery**就适合一直应用
 
 
 
@@ -149,15 +151,76 @@ from:[简书](https://www.jianshu.com/p/9f1b5b347bd1)
 
 > 当前项目位置执行	npm install
 
+这个行为会根据`package.json`里的 **dependencies/devdependencies**的记录安装
+
+然后从仓库源里拖缺失的组件下来到本地`node_modules`里以实现补全
 
 
-所以有人说package.json是最重要的东西(指体积上的重要占比) 倒也没错
+
+所以有人说package.json是最重要的东西(指体积上的重要占比) 这倒也没错
 
 ****
 
 
 
-**Tips3 ^和~的区别** [From 稀土掘金](https://juejin.cn/post/7009674584211324964)
+#### 3、package.json的解析
+
+在此之前 我们先引入一张普普通通的一个项目中的`package.json`
+
+```json
+{
+  "name": "webpage_test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack serve",
+    "app": "webpack --mode prodction"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jquery": "^3.6.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.72.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.8.1"
+  }
+}
+
+```
+
+
+
+这里一般有用的关键字是
+
+> **main**
+>
+> 它代表着此项目中整个package.json指向的入口 一般**默认**为index.js
+>
+> 如果后续没有其他引入 则**默认**处理会是这个名字
+>
+> 
+>
+> **script**
+>
+> 允许将该项目的其他模块命令写在一个触发字段上
+>
+> 便于一键npm run dev触发
+>
+> 要注意的是 一般来说各种命令都有其分支选项 选项既可以在npm cli环境下执行 也可以直接写入json环境下等待执行调用
+>
+> 
+>
+> **dependecies/devdependecies**
+>
+> 依赖说明 说明这个项目将会用到什么组件 其中划分**产品环境**和**开发环境**
+
+
+
+**Tips ^和~的区别** [From 稀土掘金](https://juejin.cn/post/7009674584211324964)
 
 ```
 "dependencies": {
@@ -227,7 +290,7 @@ pnpm:
 
 > pnpm因为把模块**全部**赛进 global_dir 充当本体备份 
 >
-> 等真正要用的时候 在`store-dir`使用**符号链接** 从本体外分割出去一个**小副本** 再从**小副本**链接到项目
+> 等真正要用的时候 在`store-dir`使用**符号链接** 从本体外分割出去一个**小副本链接** 再从**小副本链接**到项目
 >
 > 这样做的好处就是如果该项目某个什么文件改动了 
 >
@@ -240,6 +303,14 @@ pnpm:
 
 
 所以npm自带的cache是来干嘛的？	*我不到啊*
+
+22.5.3 From 鸥鸽
+
+npm的cache缓存的只有安装包
+
+而 pnpm 是直接把安装过的链接过去
+
+
 
 ****
 
@@ -264,6 +335,10 @@ pnpm:
 
 
 欧鸽推荐: 命令用npm -g存放	其余本地使用pnpm存放
+
+不管你的实际模块环境怎么样
+
+至少得确保你的`package.json`依赖需求准确 要不然兼容性白搭
 
 ****
 

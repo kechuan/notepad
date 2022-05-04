@@ -77,7 +77,9 @@ Expression_1:
 
 > const path = require('path');
 
-目前意义不是很明
+引入当前路径的变量	不管兼容性还是易用性都比敲纯路径要有效的多
+
+
 
 ****
 
@@ -288,17 +290,20 @@ webpack本身打包只能处理以.js模块 非js的模块webpack并不能处理
 一般来说loader都有这样的子选项
 
 > ```js
-> module: {
->     rules: [{
->         test: /\.css$/,						//test代表对何种文件生效(try)
->         use: [
->              {loader: 'style-loader'},		//use代表采取什么loader(catch)	
-> 			 {loader: 'css-loader',options: {modules: true}}
->             		//而loader本身有会有子选项options 这因loader不同
->              ] 	 	
->    	 	     }]
->  		 }
+> module: 
+> {
+>  rules: [{
+>      test: /\.css$/,						//test代表对何种文件生效(try)
+>      use: [
+> 			{loader: 'style-loader'},		//use代表采取什么loader(catch)	
+>          	{loader: 'css-loader',options: {modules: true}}
+>          	//wepack5+ 而loader本身有会有子选项options 这因loader本体而不同
+>           ] 	 	
+> 		}]
+> }
 > ```
+
+
 
 
 
@@ -413,7 +418,7 @@ webpack联动npm工作环境(线上环境与开发环境)
 负责输出内容的服务器各项调整
 
 > devServer:{
-> 		static: './src',
+> 		static: './src',	//webpack5+ 暂且未知定位信息
 > 		open: true,	//弹出浏览器 live-server里则是nobroswer
 > 		host: 'localhost',
 > 		port: 8888
