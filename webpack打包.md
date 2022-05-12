@@ -12,7 +12,7 @@
 得至少在91+版本的Chrome么
 
 这显然已经不符合这一世代的泛用性了
-那就只能靠webpack这种第三方引入编译了
+那就只能靠webpack这种引入第三方工具编译了
 
 而且而且 react也需要这种工具
 *来干嘛？*
@@ -33,7 +33,7 @@ node.js>npm>webpack
 
 在工作环境(项目根目录下)文件下创立`webpack.config.js`
 
-基础内容应包括`module.export`以声明以下内容都是将作为以ES6的module总出口导出 以达成大部分浏览器平台的兼容性
+基础内容应包括`module.export`以声明以下内容都是将作为以**ES6**的**module**总出口导出 以达成大部分浏览器平台的兼容性
 
 `webpack.config.js`一般与将要被打包的模块平级 以方便调用
 
@@ -43,7 +43,7 @@ node.js>npm>webpack
 
 **运行配置**
 
-最后在npm项目根目录下的`package.json`中的`script`引入webpack入口
+最后在**npm**项目根目录下的`package.json`中的`script`引入webpack入口
 
 ```
 Expression_1:
@@ -56,11 +56,11 @@ Expression_1:
 
 > npm run dev
 
-以执行webpack封装程序
+以执行**webpack**封装程序
 
 
 
-*那么代价就是node_module 占用22MB 比你自己写的所有静态网址大小翻了有四倍多体积*
+*那么代价就是`node_module` 占用22MB 比你自己写的所有静态网址大小翻了有四倍多体积*
 
 *所以不要傻乎乎的连同node_module一起发布(半恼*
 
@@ -71,7 +71,7 @@ Expression_1:
 
 
 
-#### 0.路径环境
+#### 0.路径环境(建议)
 
 用来导入node.js中专门操作路径的模块
 
@@ -93,26 +93,29 @@ Expression_1:
 
 
 
-`webpack`而所有被打包的东西被称作 `chunk` 
+**webpack**将所有被打包的东西被称作 `chunk` 
 
-`webpack`将打包好的产物称作  `Bundle`
+**webpack**将打包好的产物称作  `Bundle`
 
 
 
 <div style="color:red">默认的打包入口文件会在<b>src</b>文件夹里的<b>index.js</b>
 
-*注:无论是默认入口还是默认出口 均可以被`webpack.config.js`相关配置修改*
+
+
+*注:无论是默认入口还是默认出口的**文件指向路径**与**名称** 均可以被`webpack.config.js`相关配置修改*
 
 ****
 
-
+**entry:**
 
 单入口与多入口
 
-**entry:**
-
 1. string --> './js/json2css.js'
 	字符串方式(单入口)
+	
+	不写名称直接引入路径
+	
 	此时chunk们都有一个默认的名称为 "main"
 
 >	entry:'./js/json2css.js'
@@ -153,9 +156,10 @@ Expression_1:
 
 
 <div style="color:red">封装完成后会默认在项目根目录生成<b>dist</b>文件夹 以及其<b>main.js</b>文件<div>
+
 这便是`webpack`打包完的产物
 
-在某个html上直接引入这个js 便可调用本次打包的所有资源
+在某个**html**上直接引入这个**js** 便可调用本次打包内含的所有资源
 
 ****
 
@@ -192,6 +196,8 @@ output:{
 
 此处`path`基本会与`entry`的规则配置一致 只是输出不再是具体到文件 而是文件夹
 
+> path:path.resolve(__dirname,'???')
+
 因为文件名会交给`filename`处理
 
 
@@ -216,160 +222,56 @@ output:{
 
 
 
-#### 2.占位符
+### 2.Asset层级资源
+
+*require(webpack5+)*
+
+webpack5中因为原生兼容了通常资源的载入(图片/url/..etc)
+
+即使你不用去特地的去**引入**也能够自动处理
 
 
 
-**path**
-而输出在哪里 则需要依靠node.js环境给的路径了
+其中划分为:
 
-比如最上面提到的
-
-> const path = require('path')
-
-这项操作使得webpack能借助node访问当前的路径并绑定在path常量里
-
-> output:path:		path.resolve(__dirname,'dist'),
-
-****
+1. asset/inline => file-loader(include svg!)
+2. asset/resource => url-loader
+3. asset/source => raw-loader
 
 
 
-**__dirname**
+在webpack5中 对常规资源打包如下
 
-文件名变量	*一般代表该文件所存在的目录*
+例如官方演示代码中的`.png`图片
 
-> entry:	path.join(__dirname,'./src/index.js')	
->
-> //入口处配置 路径环境配置 加入 当前文件名路径中的 './src/index.js'
-
-这样就能简单的指定打包的入口
-
-
-
-output同理
-
-> output:{
->
-> path: path.join(__dirname,'src'),
-> filename: 'bundle.js'
->
-> }
-
-****
-
-
-
-#### 3.其他配置
-
-****
-
-##### **loader**
-
-兼容性管理
-通过调用npm里的其他解码包 来生成对应处理过的可被浏览器直接读取的资源文件以达成兼容的目的
-
-
-
-webpack本身打包只能处理以.js模块 非js的模块webpack并不能处理
-
-所以需要loader引入第三方加载器协助打包
-
-> css-loader:	*.css
->
-> less-loader:	*.less
->
-> 
->
-> ...
-
-
-
-`module.rules`允许你在 webpack上配置中指定多个 loader
-
-一般来说loader都有这样的子选项
-
-> ```js
-> module: 
-> {
->  rules: [{
->      test: /\.css$/,						//test代表对何种文件生效(try)
->      use: [
-> 			{loader: 'style-loader'},		//use代表采取什么loader(catch)	
->          	{loader: 'css-loader',options: {modules: true}}
->          	//wepack5+ 而loader本身有会有子选项options 这因loader本体而不同
->           ] 	 	
-> 		}]
-> }
+> ```diff
+> module: {
+> +   rules: [
+> +     {
+> +       test: /\.png/,
+> +       type: 'asset/resource'
+> +     }
+> +   ]
+> + },
 > ```
 
+注:实际上如果只是普通的html网页src引入的话 甚至都**不需要**专门去配置
+
+会默认直接以**[hash:16]**的形式丢在你打包完的文件夹里
 
 
 
+好 那我要怎么给每个图片以及其他资源设立独立的文件夹与文件名？
 
-第三方loader:
-
-[为什么解析css内容需要两个loader?(简书)](https://www.jianshu.com/p/d2470f719fee)
-
-1. style-loader	再将其套入style标签封装(css-in-js)
-   1. css-loader      先将css解析出来(将css的每一行内容单独字符串解析出来，合为一个总数组)
+这就得开始需要用一些额外设置了
 
 
 
-
-
-**注意**
-
-*webpack5+*
-
-在以往的webpack版本中	像url/图片之类的资源 要靠第三方loader去解析
-
-而在webpack5里已经可以 直接载入这类资源 而不用再去自己手动适配了！！！
+它可以通过下文的generator节点设置来独立设置
 
 
 
-这原本应该是好事 然而又是经典前端更新后端不更 webpack本体改是改了
-
-然后file-loader,url-loader全特么没改 
-
-经典白忙活一天 
-
-经典官方文档对这类改动的**兼容性**问题不谈
-
-[From CSDN](https://blog.csdn.net/Coralpapy/article/details/119419137)
-
-
-
-****
-
-
-
-通过**module**节点中**rules**数组里:
-来引入**test**与**use** 来处理webpack本身无法处理的模块
-
-test则为匹配的文件类型(类似**try**):可以用正则来匹配
-use则为对此文件类型采用对应的手段(类似**catch**)
-
-
-> module.export = {
->
-> module: {
-> 		rules:[
-> 			{test: /\.css$/, use:['style-loader','css-loader']}	//匹配css后缀 对其使用两个loader 
-> 		]
-> 	}
->
-> }
-
-
-
-关于loader的调用**顺序** 是从后往前调用(老出入栈思想了)
-
-
-
-
-
-
+### 3.其他配置
 
 ****
 
@@ -385,7 +287,7 @@ webpack联动npm工作环境(线上环境与开发环境)
 不过疑惑的是 命令行直接
 
 > webpack -D/-S
-就能选择了
+> 就能选择了
 
 ~~为啥还要特地配置呢~~
 
@@ -406,6 +308,226 @@ webpack联动npm工作环境(线上环境与开发环境)
 > -D操作会使得webpack快速打包 快速生成main.js
 >
 > -S操作则为使得webpack采用尽力压缩算法 节省空间
+
+****
+
+
+
+##### plugins
+
+一般会和你引入的第三方包环境联动
+
+例如
+
+> const Htmlplugin = require('html-webpack-plugin')
+>
+> const webpage = new Htmlplugin({	//因为其是一个实例函数 所以你需要new一个来调用 并指定其参数
+> 	template: './src/index.html',
+> 	filename: './index.html'
+> })
+>
+> 则在moudle.exports的plugins节点中
+>
+> plugins:[webpage],
+
+感觉本质上就是全局作用型的**module.rules**
+
+
+
+##### resolve
+
+字如其名 负责解析部分 
+
+不过是负责设置模块**如何**被解析(options)
+
+
+
+****
+
+**alias**
+
+
+
+**@的用处**
+
+基于webpack中**resolve.alias**节点特性
+
+在webpack打包时，会把路径引用中的@符号，转换为相对应的路径
+
+**usage**:
+
+> ```js
+> module.exports = {
+>   resolve: {
+>     alias:{	//alias(别名的意思)
+>       'vue$': 'vue/dist/vue.common.js',
+>       '@': path.resolve(__dirname, './src'),　　// 通过这里的配置，@符号等同于src 
+>     }
+>   }
+> }
+> ```
+
+简单易懂 实际上就是名称上define/const
+
+目的也很简单 为了在js引入模块上做到简化与语义化
+
+通过此操作后
+
+其实就类似于模块环境里的
+
+> import @ from './src' => import $ from 'jquery'
+
+
+
+****
+
+##### loader/generator
+
+兼容性管理
+通过调用环境里的其他解码包 来生成对应处理过的可被浏览器直接读取的资源文件以达成兼容的目的
+
+
+
+webpack本身打包只能处理以.js模块 非js的模块webpack并不能处理
+
+所以需要loader引入第三方加载器协助打包
+
+> css-loader:	*.css
+>
+> less-loader:	*.less
+>
+> 
+>
+> ...
+
+
+
+通过**module**节点中**rules**数组里:
+来引入**test**与**use** 来处理webpack本身无法处理的模块
+
+test则为匹配的文件类型(类似**try**):可以用正则来匹配
+use则为对此文件类型采用对应的手段(类似**catch**)
+
+```js
+module: 
+{
+rules: [{
+  	  test: /\.css$/,						//test代表对何种文件生效(try)
+      use: [{loader: 'style-loader'},		//use代表采取什么loader(catch)	
+            {loader: 'css-loader',
+             options: {modules: true}		//options中的选项会因各个引入的loader不同
+            }]		
+      	}]
+}
+```
+
+关于loader的调用**顺序** 是从后往前调用(老出入栈思想了)
+
+
+
+`module.rules`允许你在 webpack上配置中指定多个 loader
+
+
+
+其余第三方loader(此处不看作额外**功能性**插件):
+
+[为什么解析css内容需要两个loader?(简书)](https://www.jianshu.com/p/d2470f719fee)
+
+1. style-loader	再将其套入style标签封装(css-in-js)
+   1. css-loader      先将css解析出来(将css的每一行内容单独字符串解析出来，合为一个总数组)
+
+
+
+
+
+****
+
+*require(webpack 5.12.0+)*
+
+**module.generator**
+
+这个节点来**确定如何处理项目中不同类型的模块**
+
+
+
+在使用webpack5时 默认配置的 三个loader皆会与asset处理冲突
+
+> When using the old assets loaders (i.e. `file-loader`/`url-loader`/`raw-loader`) along with Asset Module in webpack 5, you might want to stop Asset Module from processing your assets again as that would result in asset **duplication**. This can be done by setting asset's module type to `'javascript/auto'`.
+
+冲突是因为两个进程造成的资源打包重复
+
+你可以在**rule**节点下添加**type**节点:
+
+> type:javascript/auto
+
+以规避冲突
+
+
+
+而且文档还提到过
+
+> `asset` automatically chooses between exporting a data URI and emitting a separate file. Previously achievable by using `url-loader` with asset size **limit**.
+>
+> 等效于
+>
+> use['url-loader'],options:{limit:???}
+
+已经可以自己自动选择合适的limit大小了
+
+
+
+那既然原生都自带处理程序了 且你项目没怎么开始构建 那自然就转用官方的asset试试看
+
+不过管理方式的节点就不是单纯的**test**/**use**
+
+而是统一用**generator**这个节点管理
+
+
+
+实例**usage**:
+
+```js
+{
+test: /(\.jpg|jpeg|png|bmp|ico|gif)$/,
+type:'asset/resource',	//因为原生的关系 措词关系不再是引入 而是直接指示资源的类型让webpack处理
+    generator: {		// Generator options for asset modules(实际上就是options for asset)
+        filename: 'images/[name]_[hash:8][ext]'	 //通用的filename,outputPath,etc...
+	}
+
+ }
+```
+
+
+
+**注意**
+
+*webpack5+*
+
+在以往的webpack版本中	像url/图片之类的资源 要靠第三方loader去解析
+
+而在webpack5里已经可以 直接载入这类资源 而不用再去自己手动适配了！！！
+
+
+
+这原本应该是好事 然而又是经典前端更新后端不更 webpack本体改是改了
+
+然后file-loader,url-loader全特么没改 
+
+经典白忙活一天 
+
+经典官方**中文**文档对这类改动的**兼容性**问题不谈
+
+[From CSDN](https://blog.csdn.net/Coralpapy/article/details/119419137)
+
+
+
+22.5.7
+
+英文文档里有 也确实谈了这个问题
+
+但是中文文档的https证书不更新 根本进不去
+
+
 
 ****
 
@@ -439,7 +561,220 @@ webpack联动npm工作环境(线上环境与开发环境)
 
 
 
-### 2.额外插件引入
+
+
+****
+
+
+
+
+
+### 4.节流/优化
+
+文件大小分割/base64转换
+
+
+
+
+
+代码内联
+
+所谓内联就是打包的时候将代码直接写在该html内 这样在请求的时候可以减少服务端HTTP请求次数
+
+代价当然就是用户端一次性接收的文件大小变大
+
+
+
+****
+
+
+
+### 5.打包后排障处理
+
+为什么需要这样做？
+
+webpack是多么方便 直接合并各种loader(less,vue,jquery)堆成一个js让你去慢慢开发
+
+所以很有可能你以后就干脆一直用webpack了(反正有devserver帮你实现类似live-server的效果)
+
+好了 问题来了
+
+因为代码是直接被你**打包**过的 如果某个环节报错了 你可能难以定位到错误信息
+
+
+
+我写的东西里 暂时找一个不太好说明的例子
+
+local:
+
+> << http://127.0.0.1:8666/images/mediabox/carousel_04.png 404 (Not Found)
+
+
+
+webpack打包
+
+> <<carousel_.*\.png$:14 Uncaught Error: Cannot find module './carousel_04.png'
+>     at webpackContextResolve (VM1159 carousel_.*\.png$:14)
+>     at webpackContext (VM1159 carousel_.*\.png$:9)
+>     at Object.change (VM972 carousel.js:61)
+>     at Object.next (VM972 carousel.js:25)
+>     at HTMLDivElement.eval (VM954 javascript.js:54)
+
+
+
+同样是报错信息
+
+本地**live-server**下 可以说是言简意骸 关系链仅仅只有找不到04.png
+
+**webpack**上则扯出来一堆的错误链 jquery.next()调用>JavaScript.js(import carousel)>carousel
+
+最后给你说找不到04.png这个模块
+
+而且实际上**最后**还没有指出到底是说04打包失败(命令行里看)/还是说根本没有04图片
+
+
+
+那么 我需要 至少能让在打包环境下还原出本地live-server的环境的**报错信息**
+
+
+
+#### sourceMap
+
+这就是 `Source Map` 想要解决的问题。
+
+sourceMap不是单独的一个软件 似乎是一种集成手段 类似live-server一样的动态服务器
+
+甚至webpack本身就有sourceMap的设置
+
+![](https://pic3.zhimg.com/80/v2-a1b36828a0e36d46b5e9325de2a97e02_720w.jpg)
+
+说实话 我没感觉给的报错代码有哪里不一样 好像默认的就够了？？
+
+
+
+建议刚写代码需要频繁调试的时候 把值切到 `eval-source-map`
+
+建议调试完后 默认不用动
+
+
+
+而在生产环境下 建议是把值切到 `nosources-source-map` 可以避免源码泄露 而写过的人也能看到
+
+代价就是图所示 速度最慢
+
+
+
+笑死 我什么时候才会用到这种功能
+
+
+
+先这样了罢(
+
+
+
+****
+
+
+
+
+
+### X.占位符
+
+##### **path**
+
+而输出在哪里 则需要依靠node.js环境给的路径了
+
+比如最上面提到的
+
+> const path = require('path')
+
+这项操作使得webpack能借助node访问当前的路径并绑定在path常量里
+
+> entry:path.join(__dirname,'./js/javascript')
+>
+> output:{
+>
+> ​	path:path.resolve(__dirname,'dist')
+>
+> ​	...
+>
+> }
+
+
+
+****
+
+`path.join()`与`path.resolve()`的区别？
+
+
+
+`path.join`	链接路径
+
+> path.join()方法可以连接任意多个路径字符串
+>
+> ```js
+> >>path.join('/foo', 'bar', 'baz/asdf', 'quux', '..')
+> //等效于
+> <<path.join('/foo/bar/baz/asdf)
+> ```
+
+
+
+`path.resolve` 路径解析
+
+> path.resolve()方法可以将多个路径解析为一个规范化的绝对路径
+>
+> 类似于对这些路径逐一进行cd操作，与cd操作不同的是，这引起路径可以是文件
+>
+> ```js
+> >>path.resolve('/foo/bar', './baz') 
+> //等效于
+> <<path.resolve('/foo/bar/baz')
+> 
+> path.resolve('wwwroot', 'static_files/png/', '../gif/image.gif') 
+> // 当前的工作路径是 /home/itbilu/node，则输出结果为 
+> '/home/itbilu/node/wwwroot/static_files/gif/image.gif'
+> 
+> ```
+
+
+
+实际上就是路径处理的不同方式
+
+只不过output上更贴近于实际的文件夹环境(类似 cd操作)里
+
+
+
+****
+
+
+
+##### **__dirname**
+
+文件名变量	*一般代表该文件所存在的目录*
+
+> entry:	path.join(__dirname,'./src/index.js')	
+>
+> //入口处配置 路径环境配置 加入 当前文件名路径中的 './src/index.js'
+
+这样就能简单的指定打包的入口
+
+
+
+output同理
+
+> output:{
+>
+> path: path.join(__dirname,'src'),
+> filename: 'bundle.js'
+>
+> }
+
+****
+
+
+
+### Y.额外插件引入
 
 [webpack](https://www.webpackjs.com/plugins)官方提供了很多插件以及说明文档
 
@@ -600,7 +935,7 @@ From: [CNblogs](https://www.cnblogs.com/tangtangtang1/p/15459368.html)
 >
 > webpack-dev-server@4.0.0beta.0 
 >
->  4.0.0beta.0 提供了比较完善的错误提示，当设置了错误属性时能够给出详细提示信息。
+> 4.0.0beta.0 提供了比较完善的错误提示，当设置了错误属性时能够给出详细提示信息。
 
 ****
 
@@ -610,8 +945,174 @@ From: [CNblogs](https://www.cnblogs.com/tangtangtang1/p/15459368.html)
 
 #### html-webpack-plugin
 
-用来自定义index.html内容 我现在确实不知道有个什么用
+用来自定义你的`index.html`内容 
 
-先空着
+
+
+官方文档介绍:
+
+> [`HtmlWebpackPlugin`](https://github.com/jantimon/html-webpack-plugin)简化了HTML文件的创建，以便为你的webpack包提供服务。这对于在文件名中包含每次会随着编译而发生变化哈希的 webpack bundle 尤其有用。
+
+
+
+不过一般而言
+
+我们都是先写好自己的`index.html` 再去写对应的js的
+
+直接纯**js**模式生成**html**至少对于我自己而言还是少见(
+
+
+
+所以用此插件**意义**就是为了给自己本地静态的`index.html`与打包的各种js资源关联起来
+
+
+
+**usage:**
+
+> npm i html-webpack-plugin
+
+
+
+在`webpack.config.js`上如此配置
+
+```js
+//引入 htmlplugin 环境
+const Htmlplugin = require('html-webpack-plugin')
+
+//根据其实例创建新的对象
+const webpage = new Htmlplugin({
+	template: './src/index.html',	//入口
+	filename: './index.html'
+})
+
+module.exports = {
+plugins: [webpage],	//最后通过打包的插件节点引入
+...
+}
+```
 
 ****
+
+
+
+**多页面构建**
+
+`html-webpack-plugin`的一个**实例**生成一个html文件，如果单页应用中需要多个页面入口，或者多页应用时配置多个html时，那么就需要实例化该插件多次；
+
+即有几个页面就需要在webpack的plugins数组中配置几个该插件实例：
+
+```javascript
+    ...
+    plugins: [
+        new HtmlWebpackPlugin({
+             template: 'src/html/index.html',
+             
+        }),
+        new HtmlWebpackPlugin({
+            filename: 'list.html',
+            template: 'src/html/list.html',
+            
+        }), 
+        new HtmlWebpackPlugin({
+          filename: 'detail.html',
+          template: 'src/html/detail.html',
+           
+        })
+    ]
+    ...
+```
+
+如上例应用中配置了三个入口页面：index.html、list.html、detail.html；并且每个页面注入的thunk不尽相同；类似如果多页面应用，就需要为每个页面配置一个；
+
+
+
+这对iframe页面来说是否有点..
+
+
+
+**额外设置**
+
+```json
+{
+	plugins: [
+		new CleanWebpackPlugin(), //删除上次打包文件，默认目录'./dist'
+		new HtmlWebpackPlugin({ // 打包输出HTML
+		  title: '测试htmlWebpackPlugin',
+		  minify: { // 压缩HTML文件
+			removeAttributeQuotes: true, // 移除属性的引号
+			removeComments: true, // 移除HTML中的注释
+			collapseWhitespace: true, // 删除空白符与换行符
+			minifyCSS: true// 压缩内联css
+		  },
+		  (多页面构建非常注意！！！)inject: true, // 默认值为true 会自动将输出的js自动绑定在新构建的html上,false关闭
+		  hash: true, // 引入 js 文件后面紧跟一个独特的 hash 值
+		  // filename: 'huangbiao.html', // 文件名
+		  filename:'huangbiao-[hash].html', // 带hash 值的文件名
+		  template: './src/template/index.html' // 模板地址
+		})
+	  ],
+}
+```
+
+
+
+另一个大问题
+
+这个插件**不会**去处理**内联**的css!
+
+又因为`webpack`环境上只能对**import**的模块做处理 如果你不把内联的`css`单独提取出一个模块让`webpack`处理
+
+简单来说就是那段**内联**`css`直接失效
+
+
+
+可惜的是 这个插件没有内置的选项去实现这个东西 你得找另外一个插件去实现它
+
+****
+
+
+
+#### ExtractTextWebpackPlugin
+
+你这上下段还是连着的啊
+
+你的**css样式**将不再内嵌到 JS bundle 中，而是会放到一个单独的 `CSS` 文件（即 `styles.css`）当中。
+
+
+
+
+
+****
+
+
+
+#### clean-webpack-plugin
+
+帮你清除打包之后的输出目录 避免文件冲突(说实话这个功能迟早应该被官方吸收)
+
+**简单配置**
+
+光速吟唱安装过程
+
+> npm i clean-webpack-plugin
+
+它是**实例函数**
+
+> const cleanPlugin = new CleanWebpackPlugin()
+
+然后直接插件节点中引入即可
+
+> module.exports = {
+>
+> ...
+>
+> plugins:[cleanPlugin],
+>
+> ...
+>
+> }
+
+
+
+plugin:[From(npm.js)](https://www.npmjs.com/package/clean-webpack-plugin)
+

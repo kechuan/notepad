@@ -574,7 +574,7 @@ E4:以某个词组(2021)开头的
 
 E5:文件格式匹配
 
-
+`/(\.jpg|jpeg|png|bmp|ico|gif)$/`
 
 
 
@@ -4145,7 +4145,6 @@ input包含的所有属性(name=组/value=填入值,placeholer=提示)
 usage:
 
 ```javascript
-具体的那种加密例子
 具体例子:
 
 <script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
@@ -4212,15 +4211,15 @@ setTimeout(exec,ms)/setInterval(exec,ms) 这两个在一般开发的时候用的
 
 **requestAnimationFrame()**
 
-询问动画帧？ 向谁问?
+请求动画帧？ 向谁要?
 
 
 
-向你的屏幕刷新率问
+向你的屏幕刷新率要
 
 > requestAnimationFrame(callback)
 >
-> 为什么参数是回调函数? 因为它的作用本来就是把其他要执行的函数递给**真正刷新动画帧的行为**执行 
+> 为什么参数是回调函数? 因为它的作用本来就是把其他要执行的函数递给**真正刷新动画帧后要执行的行为**
 >
 > 且其中 因为本身该函数会有一种固定值(你的屏幕刷新率) 
 >
@@ -4228,7 +4227,7 @@ setTimeout(exec,ms)/setInterval(exec,ms) 这两个在一般开发的时候用的
 
 
 
-能保持你显示器每刷新一hz就绝对会有一hz的响应 那动画当然就会流畅且节流
+能保持你显示器每刷新一hz就绝对会有一hz对应的响应 那动画自然就会流畅且节流
 
 
 
@@ -5502,7 +5501,23 @@ loop tasks 7.31
 
 - [x] *T Stack overflow什么的，有在访问吗？
 
-- [ ] T4 eval? 这是什么东西
+- [x] T4 eval? 这是什么东西 22.5.9
+
+> `eval()` 的参数是一个字符串。如果字符串表示的是表达式，`eval()` 会对表达式进行求值。如果参数表示一个或多个 JavaScript 语句，那么`eval()` 就会执行这些语句。
+>
+> 这意味着什么？
+>
+> var a = 3; var b = 4;
+>
+> eval(3+4) 		 <<7 这没什么大不了的对吧
+>
+> 然而
+>
+> eval(3+4+'3')	<<73 忽然感叹我之前瞎折腾toString()诸如此类的东西 人家老早就有了**极其快捷**的东西了
+>
+> 一般来说会 a+b+'3' << '73'
+>
+> parseInt(?) << 73
 
 8.19-8.23(截止)
 
