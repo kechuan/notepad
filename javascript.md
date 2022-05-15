@@ -4474,7 +4474,7 @@ Jesus 还是需要import assert 否则就老老实实用httprequest
 
 
 
-##### CommonJS/require()
+这部分 建议去看看webpack篇
 
 
 
@@ -4546,7 +4546,7 @@ After:
 
 <script>
     <script src="Jquery链接"></script>
-$("body").ready(function(){
+$(function(){
 	$("#openNotepad").click(function(){
 		$("#Notepad").css("right","0")
 	you know the rule

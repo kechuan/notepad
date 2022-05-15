@@ -220,6 +220,36 @@ from:[简书](https://www.jianshu.com/p/9f1b5b347bd1)
 
 
 
+**版本号**
+
+npm仓库里允许作者提供类似测试版-开发版等源
+
+一般找不到仓库的版本就会给你提供仓库里各种版本的最新版
+
+> Other releases are:
+>   * bridge: 7.0.0-bridge.0
+>   * lerna-temp: 6.26.3
+>   * next: 7.0.0-beta.3
+>   * old: 5.8.38
+
+
+
+而调用则为
+
+> npm i -D babel-core@next
+
+则为使用next源的7.0.0-beta.3版本
+
+
+
+如要查看所有版本则为
+
+> npm view [module_name] versions
+
+我建议你还是直接去[npm.js](https://www.npmjs.com)上看 比这个管用
+
+
+
 **Tips ^和~的区别** [From 稀土掘金](https://juejin.cn/post/7009674584211324964)
 
 ```
