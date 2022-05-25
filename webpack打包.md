@@ -249,8 +249,8 @@ webpack5中因为原生兼容了通常资源的载入(图片/url/..etc)
 其中划分为:
 
 1. asset/inline => file-loader(include svg!)
-2. asset/resource => url-loader
-3. asset/source => raw-loader
+2. asset/resource => url-loader(jpg..)
+3. asset/source => raw-loader(txt..)
 
 
 
@@ -275,11 +275,21 @@ webpack5中因为原生兼容了通常资源的载入(图片/url/..etc)
 
 
 
+##### 自定义路径
+
 好 那我要怎么给每个图片以及其他资源设立独立的文件夹与文件名？
 
 这就得开始需要用一些额外设置了
 
 > 我不到啊！
+
+
+
+*待验证*
+
+> 默认情况下，`asset/resource` 模块以 `[hash][ext][query]` 文件名发送到输出目录。
+
+
 
 
 
@@ -306,6 +316,8 @@ webpack5中因为原生兼容了通常资源的载入(图片/url/..etc)
 
 ### 3.Mine资源
 
+如 `JSON` 文件，`CSV`、`TSV` 和 `XML` 
+
 之前瞎折腾试着import Json的时候
 
 你已经知道什么是Mine资源 而且还顺便知道json如果处理不当不被当作json而是当作js进行解析的话
@@ -316,9 +328,25 @@ webpack5中因为原生兼容了通常资源的载入(图片/url/..etc)
 
 不过原来json/js 这类不算层级资源 出乎我预料
 
-毕竟我基本没层级资源这个概念
+毕竟我还基本没层级资源这个概念
 
 
+
+不过对于json表格 已经可以内置支持了
+
+这不比原生Chrome 91+要求低(
+
+> webpack:import pink from 'pink.json'
+>
+> native:import pink from 'pink.json' assert { type: "json" }
+
+
+
+而对于其他的表格 则有额外的loader载入
+
+> npm install --save-dev csv-loader xml-loader
+
+我估摸着也迟早会被webpack吸收掉
 
 
 
@@ -366,75 +394,13 @@ webpack联动npm工作环境(线上环境与开发环境)
 
 
 
-##### plugins
-
-一般会和你引入的第三方包环境联动
-
-例如
-
-> const Htmlplugin = require('html-webpack-plugin')
->
-> const webpage = new Htmlplugin({	//因为其是一个实例函数 所以你需要new一个来调用 并指定其参数
-> 	template: './src/index.html',
-> 	filename: './index.html'
-> })
->
-> 则在moudle.exports的plugins节点中
->
-> plugins:[webpage],
-
-感觉本质上就是全局作用型的**module.rules**
+##### module
 
 
 
-##### resolve
+**module.rules**
 
-字如其名 负责解析部分 
-
-不过是负责设置模块**如何**被解析(options)
-
-
-
-****
-
-**alias**
-
-
-
-**@的用处**
-
-基于webpack中**resolve.alias**节点特性
-
-在webpack打包时，会把路径引用中的@符号，转换为相对应的路径
-
-**usage**:
-
-> ```js
-> module.exports = {
->   resolve: {
->     alias:{	//alias(别名的意思)
->       'vue$': 'vue/dist/vue.common.js',
->       '@': path.resolve(__dirname, './src'),　　// 通过这里的配置，@符号等同于src 
->     }
->   }
-> }
-> ```
-
-简单易懂 实际上就是名称上define/const
-
-目的也很简单 为了在js引入模块上做到简化与语义化
-
-通过此操作后
-
-其实就类似于模块环境里的
-
-> import @ from './src' => import $ from 'jquery'
-
-
-
-****
-
-##### loader/generator
+###### loader/generator
 
 兼容性管理
 通过调用环境里的其他解码包 来生成对应处理过的可被浏览器直接读取的资源文件以达成兼容的目的
@@ -582,6 +548,94 @@ type:'asset/resource',	//因为原生的关系 措词关系不再是引入 而�
 
 
 
+###### **parser**
+
+打包后生成的解析器 与全局的resolve解析不同
+
+这个针对的是各种解析开关选项
+
+
+
+而且还替代了三个loader内的options中的maxSize划分划分为base64设置 具体内容会
+
+[^节流设置]: here
+
+详细讲
+
+****
+
+
+
+##### plugins
+
+一般会和你引入的第三方包环境联动
+
+例如
+
+> const Htmlplugin = require('html-webpack-plugin')
+>
+> const webpage = new Htmlplugin({	//因为其是一个实例函数 所以你需要new一个来调用 并指定其参数
+> 	template: './src/index.html',
+> 	filename: './index.html'
+> })
+>
+> 则在moudle.exports的plugins节点中
+>
+> plugins:[webpage],
+
+感觉本质上就是全局作用型的**module.rules**
+
+
+
+##### resolve
+
+字如其名 负责解析部分 
+
+不过是负责设置模块**如何**被解析(options)
+
+
+
+****
+
+**alias**
+
+
+
+**@的用处**
+
+基于webpack中**resolve.alias**节点特性
+
+在webpack打包时，会把路径引用中的@符号，转换为相对应的路径
+
+**usage**:
+
+> ```js
+> module.exports = {
+>   resolve: {
+>     alias:{	//alias(别名的意思)
+>       'vue$': 'vue/dist/vue.common.js',
+>       '@': path.resolve(__dirname, './src'),　　// 通过这里的配置，@符号等同于src 
+>     }
+>   }
+> }
+> ```
+
+简单易懂 实际上就是名称上define/const
+
+目的也很简单 为了在js引入模块上做到简化与语义化
+
+通过此操作后
+
+其实就类似于模块环境里的
+
+> import @ from './src' => import $ from 'jquery'
+
+
+
+****
+
+
+
 ##### **devServer**
 
 该节点负责的内容也很简单明了 跟live-server类似
@@ -609,6 +663,60 @@ type:'asset/resource',	//因为原生的关系 措词关系不再是引入 而�
 
 
 
+##### optimization
+
+重点优化节点会放在下一个章节上
+
+这里只简单解释节点内一般会用的到的属性的一些作用概念
+
+毕竟优化是个巨大的坑
+
+
+
+*webpack 4+，会根据你选择的 [`mode`](https://webpack.docschina.org/concepts/mode/) 来执行不同的优化， 不过所有的优化还是可以手动配置和重写。*
+
+
+
+**chunkIds**
+
+优化的处理方式
+
+默认值为`false` 不进行任何处理
+
+| 选项值            | 描述                                                         |
+| :---------------- | :----------------------------------------------------------- |
+| `'natural'`       | 按使用顺序的数字 id。                                        |
+| `'named'`         | 对调试更友好的可读的 id。                                    |
+| `'deterministic'` | 在不同的编译中不变的短数字 id。有益于长期缓存。在生产模式中会默认开启。 |
+| `'size'`          | 专注于让初始下载包大小更小的数字 id。                        |
+| `'total-size'`    | 专注于让总下载包大小更小的数字 id。                          |
+
+[wepback:chunkIds](https://webpack.docschina.org/configuration/optimization/#root)
+
+
+
+**usedExports**
+
+`boolean = true`|`string: 'global'`(默认值为false)
+
+告知 webpack 去决定每个模块使用的导出内容(第三方调用代码切割优化关键)
+
+收集的信息会被其它优化手段或者代码生成使用
+
+比如未使用的导出内容不会被生成
+
+> usedExports:false/true,
+>
+> or
+>
+> 'global'	//选择退出每次运行时使用 export 分享：
+
+
+
+
+
+
+
 ****
 
 
@@ -626,9 +734,13 @@ type:'asset/resource',	//因为原生的关系 措词关系不再是引入 而�
 
 
 
-**prevent duplication**
+****
 
 第一点
+
+1. **prevent duplication**
+
+*require webpack5+*
 
 假设你两个js都需要引入`jquery`,则默认条件下 **webpack**会将`jquery`都引入进两个出口js
 
@@ -638,21 +750,121 @@ type:'asset/resource',	//因为原生的关系 措词关系不再是引入 而�
 
 
 
-然后继续在`entry`节点内书写分享节点名字
+usage:
+
+```js
+entry: {
+javascript:{import:path.join(__dirname,'/src/js/javascript.js'),dependOn: 'shared'},
+sidebar_css:{import:path.join(__dirname,'/src/sidebar/css.js'),dependOn: 'shared'},
+shared: ['jquery']
+	},
+
+>===
+    
+index.html
+    <script src="js/javascript.js"></script>
+	<script src="js/shared.js"></script>
+
+>>==
+about.html
+	<script src="../js/sidebar_css.js"></script>
+	<script src="..js/shared.js"></script>
 
 
+```
+
+这样就能实现两个js文件共享`shared`里面的`jquery`了
+
+且`dist`下的js文件夹真正的核心代码也较符合其相应的大小
+
+问题是这样做基本没有其他选项 具体优化 就有点类似帮你还原回去本地引入的场景一样
+
+指每个src都引入个jquery
+
+
+
+另一种方式
+
+2. **optimization.splitChunks**
+
+`string = 'async'` | `function (chunk)`
+
+```js
+optimization: {
+    splitChunks: {
+      //在cacheGroups外层的属性设定适用于所有缓存组，不过每个缓存组内部可以重设这些属性
+      chunks: "async", //将什么类型的代码块用于分割，三选一： "initial"：入口代码块 | "all"：全部 | "async"：按需加载的代码块
+      minSize: 30000, //大小超过30kb的模块才会被提取
+      maxSize: 0, //只是提示，可以被违反，会尽量将chunk分的比maxSize小，当设为0代表能分则分，分不了不会强制
+      minChunks: 1, //某个模块至少被多少代码块引用，才会被提取成新的chunk
+      maxAsyncRequests: 5, //分割后，按需加载的代码块最多允许的并行请求数，在webpack5里默认值变为6
+      maxInitialRequests: 3, //分割后，入口代码块最多允许的并行请求数，在webpack5里默认值变为4
+      automaticNameDelimiter: "~", //代码块命名分割符
+      name: true, //每个缓存组打包得到的代码块的名称
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/, //匹配node_modules中的模块
+          priority: -10, //优先级，当模块同时命中多个缓存组的规则时，分配到优先级高的缓存组
+        },
+        default: {
+          minChunks: 2, //覆盖外层的全局属性
+          priority: -20,
+          reuseExistingChunk: true, //是否复用已经从原代码块中分割出来的模块
+        },
+      },
+    },
+  }
+```
+
+第二点
+
+**动态导入**
+
+****
+
+
+
+##### 代码提取
+
+
+
+**不管是什么手段 目的都是把打包过程中完全用不到的代码筛掉以节省空间**
 
 目前看到官方文档提供了两种方式来进行`chunk`的复用
 
-[Treeshaking](https://webpack.docschina.org/guides/tree-shaking)
+1. [Treeshaking](https://webpack.docschina.org/guides/tree-shaking)
 
-> 只对ECMA的模块模式有用处 而且方式有点费事/重复配置麻烦
->
-> 先空着看看下文
+**treeshaking(sideEffect)** 是 webpack 内置的优化功能
+
+sideEffect
+
+`Array`
+
+副作用 这里的副作用可以理解为treeshaking筛掉什么代码会有的副作用
+
+通过 package.json 的 `"sideEffects"` 属性	挺类似`.gitignore`
 
 
 
-****
+(启用默认为false 意为对全体引入的模块生效)
+
+有些地方 你可能需要手动去标注以添加白名单(side-effect-free)
+
+不过添加的方式是以数组添加相关文件 支持正则
+
+> 注意，所有导入文件都会受到 tree shaking 的影响。这意味着，如果在项目中使用类似 `css-loader` 并 import 一个 CSS 文件，则需要将其添加到 side effect 列表中，以免在生产模式中无意中将它删除
+
+
+
+自己试了下 应该更多是对完全不相干的代码有用 像jquery这种npm环境下给你一整块的就别想轻量化了(悲)
+
+[webpack能否轻量化jquery?](https://www.it1352.com/2479360.html)
+
+
+
+2. usedExports
+
+
 
 
 
@@ -664,7 +876,37 @@ lodash
 
 
 
-##### 文件大小分割/base64转换
+##### 文件大小分割/base64转换[^节流设置]
+
+如果用的是*webpak5*自带的层级资源asset
+
+其`module.rules`节点下的**parser**节点
+
+就有自带的限制分割选项
+
+
+
+##### 懒加载
+
+说起来 之前写js module的时候居然还意外的实现了一种懒加载
+
+其实就是在js module里 请求资源写成require(./src/images/...)
+
+
+
+懒加载本质是按需加载 只有在你**真正/即将**要去调用该代码的时候 才会去**网络请求**(NetWork选项卡上开始载入)
+
+
+
+实际上一般也跟列表有关
+
+比如经典你看的漫画[page] 以及视频加载条[.flv]
+
+只会在你看到附近的几页之前才会去加载
+
+否则那不就是等效于下载了(
+
+
 
 
 
@@ -1221,9 +1463,11 @@ plugin:[From(npm.js)](https://www.npmjs.com/package/clean-webpack-plugin)
 
 
 
-在大致搞明白babel系列的各个玩意具体用途 之前
+在大致搞明白babel系列的各个玩意具体用途之前
 
 先不再编辑
+
+[Babel家族](https://juejin.cn/post/6970678129845239839)
 
 
 

@@ -12,18 +12,17 @@ notepad for JavaScript
 >
 > 4. 而且HTML标签之后的MD语法通通失效(至少在预览上) 你是真的离谱
 >
-> 5. 总结 专事专办 祝你好用((
->
-> 6. 当我写这个的时候 我开始注意到浏览器的适配情况 
+> 5. 当我写这个的时候 我开始注意到浏览器的适配情况 
 >
 >    旧浏览器的代表IE11 ES6 几乎只支持到let与const 所以当你用到ES6的东西时
 >
 >    你就该祈祷不要碰上谁还在用IE打开你网页
->    
-> 7. 它虽然不支持unicode码直接转义写入 但还是支持HTML码识别的 通过[unicodewiki](https://unicode-table.com/cn/blocks/control-pictures/)查询
->    
->    
->    
+>
+> 6. 它虽然不支持unicode码直接转义写入 但还是支持HTML码识别的 通过[unicodewiki](https://unicode-table.com/cn/blocks/control-pictures/)查询
+>
+> 7. span样式可以兼容原生的md语法 而div不行
+>
+> 8. `[!]` 意味着这段内容在当前段落不合适 以后会去尝试迁移至其他符合的的地方
 
 ### 0、foundation
 
@@ -231,7 +230,7 @@ var array = [[1,2],[3,4],[5,6]];
 | 7    | \|         | 按位或           | x \| y           |
 | 6    | &&         | 逻辑与           | x && y           |
 | 5    | \|\|       | 逻辑否           | x \|\| y         |
-| 4    | ? :        | 条件             | ? "Yes" : "No"   |
+| 4    | ? :        | 三目表达式       | ? "Yes" : "No"   |
 |      |            |                  |                  |
 | 3    | =          | 赋值             | x = y            |
 | 3    | +=         | 赋值             | x += y           |
@@ -247,8 +246,6 @@ var array = [[1,2],[3,4],[5,6]];
 |      |            |                  |                  |
 | 2    | yield      | 暂停函数         | yield x          |
 | 1    | ,          | 逗号             | 7 , 8            |
-
-**注意：**淡红色指示实验性或建议性的技术（ECMASScript 2016 或 ES7）
 
 **提示：**括号中的表达式会在值在表达式的其余部分中被使用之前进行完全计算。
 
@@ -3037,7 +3034,7 @@ var rank = function(x){
 
 
 
-如果你仅仅只是因为输入了一个错误的值就导致蓝屏或者程序FC
+如果你仅仅只是因为输入了一个错误的值就让程序FC
 
 那确实是个很蠢的应答错误
 
@@ -3388,9 +3385,9 @@ var float_cal = function(a,b){
 
 实际上，链式其实就是JS各种封装后方法的组成 比如Math.pow()什么的
 
-你可以设计一个按钮进入模式 最后以"="按钮导向return result 以终止blabla的
+你可以设计一个按钮进入模式 最后以 `=` 按钮导向return result 以终止blabla的
 
-
+****
 
 
 
@@ -3403,6 +3400,10 @@ var float_cal = function(a,b){
 
 
 而闭包 通过局部变量可以访问全局变量的特性
+
+
+
+本质就是**内部可以访问外部** **外部不允许访问内部**的特性
 
 以实例来讲就是用函数再套一层函数 而用更内层的函数的局部变量再丢给外面的全局变量 
 
@@ -3490,7 +3491,8 @@ quick(1)
 
 不需要 function 关键字、return 关键字以及*花括号*。
 
-<div style="color:red">但是</div>
+<span style="color:red">但是</span>
+
 当我们使用箭头函数的时候，箭头函数会默认帮我们绑定外层 this 的值，所以在箭头函数中 this 的值和外层的 this 是一样的。
 
 既然是默认绑定的东西 也就意味着固定 所以它应该适应它的**作用**:拿来写一些简简单单的函数体
@@ -3553,17 +3555,13 @@ const flick = (x,y) =>  (x+y)	//return x+y
 
 ### 5、操作BOM对象
 
-**浏览器对象模型（Browser Object Model (BOM)）允许 JavaScript 与浏览器对话。**
+**浏览器对象模型（Browser Object Model (BOM)）允许 JavaScript 与浏览器的属性对话。**
 
 #### **Window 对象**
 
 所有浏览器都支持 *window* 对象。它代表浏览器的窗口。
 
 所有全局 JavaScript 对象，函数和变量自动成为 window 对象的成员。
-
-全局变量是 window 对象的属性。
-
-全局函数是 window 对象的方法。(From w3school)
 
 
 
@@ -3600,7 +3598,9 @@ navigator.userAgent
 这两种 一般调用的都是UA属性
 ```
 
-但是对于开发者来说 很少去调用UA属性 因为看看你的via设置(它是可以被修改的
+但是对于开发者来说 很少去调用UA属性(现在一般都直接通过网络检测你的UA了)
+
+因为看看你的via设置(它是可以被修改的
 
 聊胜于无？
 
@@ -3610,7 +3610,9 @@ navigator.userAgent
 
 你问为什么有了窗口大小还需要屏幕大小这个信息？
 
-因为不是所有时刻你的窗口都是最大化啊 kora,获取你的屏幕大小 能更好判断出用什么情况用什么css/js适配blablabla
+因为不是所有时刻你的窗口都是最大化啊(让我康康是谁在我的页面里面用缩放.jpg)
+
+获取你的屏幕大小 能更好判断出用什么情况用什么css/js适配blablabla
 
 `screen`
 
@@ -3635,11 +3637,13 @@ location.href	应答当前链接
 大概用于判断什么链接时就应用什么json
 ```
 
-对于一些针对某域名的脚本来说
+~~对于一些针对某域名的脚本来说~~
 
-就是会先调用href来储存当前域名
+~~会先调用href来储存当前域名~~
 
-然后再后续的操作里面调用match之类的函数来检测匹配是否在域名下,在时则启用脚本
+~~然后再后续的操作里面调用match之类的函数来检测匹配是否在域名下,在时则启用脚本~~
+
+搓啦 人家是直接用`@include`和正则匹配reg的
 
 
 
@@ -3677,6 +3681,8 @@ document.cookie
 ```
 
 
+
+jesus 重新看了一遍发现简直就是个巨坑 怎么才这点内容啊(恼)
 
 ****
 
@@ -4183,7 +4189,7 @@ setTimeout(exec,ms)/setInterval(exec,ms) 这两个在一般开发的时候用的
 
 且你也知道setTimeout的受影响程度(根据你要执行的代码复杂程度)非常大
 
-且setTimeout仅仅是改变了 内存中的值
+
 
 如果你是靠它来实现动画的话 你还需要等下一次浏览器layout 属于是雪上加霜了
 
@@ -4286,17 +4292,109 @@ let start_timestamp;
 
 
 
-### 9、 import引入资源
+以后会直接探明异步调用
 
-#### JavaScript模块
+****
+
+
+
+### 9、 资源引入
+
+C语言里也有类似的文件指针来执行读取文件
+
+实际上在html前端的
+
+> <input type="file"> </input>
+
+就有类似资源引入的东西了
+
+但也仅仅只是引入而已 并没有做任何的什么处理
+
+难道就没有什么搭配的吗？
+
+坑-[FileReader](https://developer.mozilla.org/zh-CN/docs/Web/API/FileReader)与[readAsDataUrl](https://developer.mozilla.org/zh-CN/docs/Web/API/FileReader/readAsDataURL)
+
+
+
+#### CommonJS/ES6
+
+`require`|`import/export`
+
+在谈到资源引入之前
+
+实际上要说明的是资源引入现在有两种方式
+
+> 其实在ES6出现的`import`之前
+>
+> 就早有打包这种概念诞生并持续应用了(指`webpack`,`stream`等)
+>
+> 那当时又没有 ES6(ES2015) 这种官方提供的东西 那只能靠社区推举选用一个打包方式
+>
+> 于是乎在09年`commonJS`就出来了 
+>
+> 使得当时发展到现在还活跃着的一些`xxx.js`都还在默认用commonJS(在？康康你的`webpack.config.js`里的模块引入方式)
+
+
+
+**require与import的区别**
+
+****
+
+**总体上**
+
+> 1. require是CommonJS规范的模块化语法，import是ECMAScript 6规范的模块化语法；
+>
+> 2. **require是运行时加载(也是一种节流方式)**，import是编译时加载；
+>
+> 3. **require可以写在代码的任意位置，import只能写在文件的最顶端且不可在条件语句或函数作用域中使用；**
+>
+> 4. **require**通过module.exports导出的值就不能再变化，**import**通过export导出的值可以改变；
+>
+> 5. **require**通过module.exports导出的是exports对象，**import**通过export导出是指定输出的代码；
+>
+> 6. **require**运行时才引入模块的属性所以性能相对较低，**import**编译时引入模块的属性所所以性能稍高。
+
+
+
+在**节流**操作上(具体会在webpack上详细讲)
+
+一般用于以import方式导入js本体(编译引入,小文件webpack合并减少http请求)
+
+然后又用require方式导入大型文件(运行引入,图片,节省网页打开时间)
+
+****
+
+**加载/导出**上
+
+require通用资源
+
+它们在加载与导出上的处理方式也有不同
+
+require在载入文件上是这么种规则
+
+> 1. 如果参数字符串以“/”开头则表示加载的是绝对路径的模块文件
+> 2. 如果参数字符串以“./”开头则表示加载的是相对路径的模块文件
+> 3. 模块同步加载并按照JavaScript运行时查找的顺序进行处理。
+
+require更偏向导入通用资源
+
+无论是什么文件都可以用其url进行导入 类似文件读取
+
+
+
+而对于**import**...
+
+****
+
+#### import JavaScript模块
 
 你当然可以直接在html里面直接写进一堆script标签来将你要的script全部引入
 
 就算是要动态引入 你也可以通过jQuery
 
-```
+```js
 $("Father_node").append(<script src="blablabla")
-或者自己手写内容在textarea上面 然后click提交等等
+//或者自己手写内容在textarea上面 然后click提交等等
 ```
 
 不过这样引入 未免太不语义化了(
@@ -4309,7 +4407,7 @@ $("Father_node").append(<script src="blablabla")
 
 终于有了类似其他语言一样 可以直接以**模块**的形式import引入外部文件的操作
 
-而**模块**是由要引入的js文件书写export自己说明的
+而**模块**是由 要引入的js文件中内部书写的`export`出口说明的东西
 
 `import`与`export`是相互配合的
 
@@ -4327,7 +4425,7 @@ $("Father_node").append(<script src="blablabla")
 >
 > 且JavaScript的module可以控制外部的js哪个部分/函数 可以被调用 哪个无法调用
 >
-> 且ES6发展的时候 也有其他类webpack打包工具 大概原生ES6就是更好兼容他们？
+> 且ES6发展之前 也有其他类webpack打包工具 大概原生ES6就是更好兼容他们？
 
 
 
@@ -4370,6 +4468,8 @@ var acc = function(){
 export default acc
 <<
 import acc2 from "/js"
+等效于
+import acc form '/js'
 ```
 
 
@@ -4433,6 +4533,8 @@ import * as ??? from "../js/jsonchange"
 
 
 
+****
+
 #### **JSON**
 
 
@@ -4482,15 +4584,411 @@ Jesus 还是需要import assert 否则就老老实实用httprequest
 
 ### 10、异步操作
 
-原生的JavaScript是一个单线程语言 
+*require ES6+*
 
-在现在而言 单线程语言过于的低效了
+#### **0.概念**
 
-因此JavaScript又引入了异步操作概念来实现类似多线程处理任务的效果
+> 原生的JavaScript是一个单线程语言 
+>
+> 设计当初 为了防止页面元素变化操作的不一致问题 以及用户交互问题
+>
+> 因此特地的被设置为单线程
+>
+> 
+>
+> 而现在而言 如果真的是仅一个线程进行任务那真的过于的低效了
+>
+> 因此JavaScript又引入了异步操作概念来实现类似多线程处理任务的效果
+>
+
+
+
+在此之前先拿出以前摸过的东西来导入
+
+
+
+我最直接的最熟悉例子刚好就是
+
+**`SetTimeout`**与**`SetInterval`**的
+
+它们两个的名称就告诉了你的区别
+
+一个是**设置任务延时**
+
+另一个是**设置计划任务**
+
+
+
+如果都是以仅仅实现一些简单的代码为要求的话
+
+那么`setTimeout`和`setInterval`的区别就是一个是延时且仅执行一次 一个是定时不间断执行
+
+****
+
+
+
+那这和异步操作有什么关系？
+
+搬移一个例子
+
+**setimeout**
+
+```js
+console.log(111)
+setTimeout(() => {
+    console.log(222);
+}, 3000)
+console.log(333)
+setTimeout(() => {
+    console.log(444);
+}, 0)
+console.log(555)
+setTimeout(() => {
+    console.log(666);
+}, 1000)
+
+<<111
+<<333
+<<555
+<<444
+<<666
+<<222
+
+```
+
+上文可以看到输出的文字并没有按顺序输出
+
+至少是没有按常规思维一样 444应该在555之前 而是放在了后面的位置输出
+
+
+
+为什么？
+
+> 这是因为设置延时(Timeout)的代码会在浏览器上创建一个等待队列
+>
+> 让其可以放进队列中执行而非真的像全局`delay(1000)`一样整个执行体卡住1s
+>
+> 从而另其他**非等待序列**的代码能够直接执行(即使等待的数值被设置为0也一样)
+>
+> 其实根据上面那一行的特性可以制作一个另类的if else函数(
 
 
 
 
+
+而这种处于**非等待序列**的代码执行 被叫做 **主线程**
+
+位于**等待序列**的代码 被叫做 **任务队列**
+
+
+
+而我们把主线程排队执行的任务被叫做**同步**
+
+而被放在任务队列里另外等候被推入主线程执行的被叫做**异步**
+
+
+
+浏览器工作划分为多个线程与队列
+
+主线程(处理主任务)→(消息队列)→等待序列(其余线程)
+
+Event Loop循环
+
+
+
+##### 任务队列
+
+****
+
+关于浏览器卡**任务队列**的麻烦
+
+这里举一个很极端的例子
+
+```js
+var i = 5;
+setTimeout(() => {
+    console.log(222);
+}, 3000)
+while(i){
+    setTimeout(() => {
+    i--
+}, 1000)
+};
+
+//按道理来说i是应该会减小的 然而主进程下永远有while(i)占用 导致一大堆setTimeout(){i--}在任务队列堆积
+//这点无论是setInterval或者是setTimeout都会出现的问题
+```
+
+笑死 console里输入了之后只能靠chrome://kill解决了
+
+到浏览器挂掉之前你都见不到222的输出
+
+
+
+这也是为毛经典吃小苹果用`setTimeout`的性能拉大垮
+
+因为要等待主程序的一些渲染变动处理完毕
+
+才能让等待队列的计时器执行相应的代码让计时开始变动(再放入主程序)
+
+那自然就造成了性能上的严重时延
+
+
+
+****
+
+
+
+##### 同异区别
+
+
+
+好了 这就引出了另一个问题
+
+实例代码里 setTimeout确实也有进入到任务队列里啊
+
+那为什么网上会说setTimeout是**同步** 而setInterval却是**异步**且性能更好的呢？
+
+
+
+因为盲点就在于
+
+`setTimeout`确实是插入到任务队列了 然而还是得等主任务执行完毕才会去将等待队列推进去**主线程**执行
+
+
+
+而真正的**异步任务**是当主线程发起一次异步请求(`setInterval`) 
+
+浏览器(浏览器本身当然不会只吃单核的啊)的其他线程接收请求 
+
+然后告知主线程(通过消息队列)收到并去执行
+
+当其他工作线程完成之后 再告知主线程并去返回给主线程结果
+
+而主线程本身只需要处理完当前的代码之后再去拿整个工作代码的结果就行了 
+
+不必再像setTimeout一样再塞进去主线程进行
+
+
+
+当然你取出结果也是要等主线程是了 一个while(1)过来 否则该跪还得跪
+
+其实整个过程类似于终端操作交互 其他工作托管其他服务器运行的样子
+
+
+
+> 至此已经说明 setTimeout并不是异步的 而是JavaScript在执行的时候 会将setTimeout放入任务队列 等待主线程的执行(不阻塞主线程)全部执行完成后 再通过event loop去询问任务队列中是否有可执行的代码 再继续放入主线程中执行 故产生了异步的假象。
+
+
+
+****
+
+不过我还是蛮好奇既然都有异步操作了 那为什么还会冒出任务队列与setTimeout的处理机制
+
+可能是当时setTimeout(1996)刚出来的时候 大多数人都是单核单线程？
+
+
+
+当然我更推荐在动画的实现上直接用上文提到过的`requestAnimationFrame()`(
+
+****
+
+
+
+#### 1.Promise
+
+那么 除了原生自带的异步任务(`setInterval`)处理之外 有没有让其他任务变成异步处理的东西？
+
+那当然有
+
+
+
+既然你是想通过它变成新的异步函数
+
+那它本身就不会是什么基础函数
+
+而是一个构造函数
+
+> const non_sync = new Promise(
+>
+> function(resolve,reject){
+>
+> resolve("123")	//指定执行成功后返回123
+>
+> reject("???")		//指定执行失败后返回???
+>
+> }
+>
+> );
+
+
+
+从上面的基础结构可以看得出来
+
+promise需求你给出一个**基础函数** 以及 需求你传入两个**回调函数**(callback)
+
+以便函数执行**成功(resolve)**时处理的方法
+
+以及函数执行**失败(reject)**的对应处理方法
+
+
+
+[!]当promise实例对象被创建出来后 该对象有三种状态，他们分别是：
+
+pending: 等待中，或者进行中，表示还没有得到结果(你刚刚从控制台输入之后多半都会得到pending)
+resolved(Fulfilled): 已经完成，表示得到了我们想要的结果，可以继续往下执行
+rejected: 也表示得到结果，但是由于结果并非我们所愿，因此拒绝执行
+
+****
+
+
+
+##### then
+
+不过值得注意的是 因其需要返回的值都是**回调函数**
+
+它们是不可能仅仅创建了一个这样的函数之后就会自动返回值的
+
+而是需要另一个trigger来引出它们回调中的值
+
+而在promise上则有其子方法`then`来实现
+
+
+
+而`then`的调用方式有这两种
+
+> const non_sync = new Promise(
+>
+>  (resolve, reject) => {...}
+>
+> ）
+>
+> .then(...)	//直接跟进then
+>
+> 
+>
+> **or**
+>
+> 
+>
+> const non_sync = new Promise(  
+>
+> (resolve, reject) => {...}
+>
+> )
+>
+> non_sync.then(...)	//加上定义名 使其能够随时使用then函数执行
+>
+> 
+>
+> //其中这里的value默认Promise fulfilled之后会指向reslove/reject之后返回过来的值
+
+
+
+
+
+微小实例:
+
+```js
+const non_sync = new Promise(
+  (resolve, reject) => {
+          setTimeout(() => {
+            resolve('foobar');	//返回resolve时的值
+          }, 3000);				//promise进程等待3s
+        });
+
+	non_sync.then((value) => {
+      console.log(value);	//由then来调出promise执行后resolve出来的值:foobar
+	}
+);
+```
+
+> 当然 因为其在前已经被创造过 如果你使用了类似`setTimeout`等延时函数 等你过了那段时间再去调用的话
+>
+> 会直接给你返回应有的结果 这个时候then会更像一个console.log/return(因为主线程的消息队列
+
+
+
+你可以看到 即使是then来调用 也需要额外一个function来请求promise产生的值
+
+
+
+那为什么不能直接(
+
+> non_sync.then(console.log(resolve))
+
+反正默认指向的不都是resolve么
+
+
+
+除非是这个回调允许你返回多个变量才会这么设计
+
+这点先鸽置(
+
+****
+
+
+
+##### catch/finally
+
+> .catch(function (err)  {console.log(err);})	//捕获到错误时抛出
+> .finally(function(value){console.log("value")})
+
+虽然我认为try/catch这种不如直接保存live-server刷新调试的快
+
+但是刚好因为promise 本来就有err相关的抛出 那搭配catch是个顺带的方式(
+
+
+
+**return覆盖/throw终止**
+
+先不清楚原本的名字会是什么但我先这么写(
+
+
+
+return在then方法表示
+
+
+
+一般来说 throw应该搭配err抛出的函数
+
+毕竟意味故障终止
+
+
+
+
+
+****
+
+[MDN教程](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Using_promises)
+
+
+
+
+
+以及应该锁定一条线程连续执行多次任务而非指派多个线程执行单个任务
+
+(这种需求在想异步操作dom时会特别频繁)
+
+
+
+
+
+
+
+
+
+
+
+****
+
+#### 2.async/await
+
+
+
+
+
+****
 
 ### X、 Jquery库
 
@@ -4909,7 +5407,7 @@ jQuery里将赋值和得值都并在一个接口里
 
 在所有DOM节点之前 更想说的是页面载入问题
 
-[^DOM注意事项]: here
+[^DOM注意事项]:here
 
 然后 相比起window.onload()
 
@@ -5007,7 +5505,7 @@ jQuery毕竟还能控制js
 
 ****
 
-### Y、Vue.js
+### Y、Vue.js(以后肯定会自己独立一个md的)
 
 介绍
 

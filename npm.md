@@ -172,6 +172,7 @@ from:[简书](https://www.jianshu.com/p/9f1b5b347bd1)
   "name": "webpage_test",
   "version": "1.0.0",
   "description": "",
+ // "type":"module",
   "main": "index.js",
   "scripts": {
     "dev": "webpack serve",
@@ -217,6 +218,16 @@ from:[简书](https://www.jianshu.com/p/9f1b5b347bd1)
 > **dependecies/devdependecies**
 >
 > 依赖说明 说明这个项目将会用到什么组件 其中划分**产品环境**和**开发环境**
+>
+>  
+>
+> **type**
+>
+> 模块类型说明
+>
+> 默认为commonJS的require导入
+>
+> 而当type的值设置为module的时候就为ES6的import导入
 
 
 
@@ -246,7 +257,7 @@ npm仓库里允许作者提供类似测试版-开发版等源
 
 > npm view [module_name] versions
 
-我建议你还是直接去[npm.js](https://www.npmjs.com)上看 比这个管用
+但我建议你还是直接去[npm.js](https://www.npmjs.com)上看 可比这个命令管用
 
 
 
@@ -269,6 +280,255 @@ npm仓库里允许作者提供类似测试版-开发版等源
 ****
 
 
+
+#### 4、node环境指令运用
+
+除开熟悉的path变量(这个也是属于在node环境下的)
+
+
+
+##### **读取/打开文件的用法**
+
+网页端就已经有`require`/`import`了
+
+那为什么还需要更上一级(node)环境的读取文件？
+
+
+
+那可不废话吗
+
+在网页端上都已经是编译成静态资源了
+
+怎么和node环境下的动态库外加一堆插件来比啊(恼
+
+除非**electron**那种node和浏览器绑定的
+
+
+
+fs/then-fs
+
+> const fs = require('fs');	commonJS引入
+
+
+
+fs里自带方法`readFile()`
+
+
+
+`fs.readFile(url,[codec],function(err,data){}`
+
+
+
+> **err**代表读取不到文件执行的回调函数
+>
+> **data**则为读取成功执行的回调函数
+>
+> **codec**代表以什么编码方式打开文件 如果缺省则默认为Buffer HEX码
+>
+> 想保持hex码打开又要以文本显示就需要手动.toString()
+
+
+
+fs提供了**同步读取**以及**异步读取**的方式
+
+> 默认readFile()就是异步读取
+>
+> 同步读取:readFileSync()
+
+
+
+以一个简单示例
+
+```js
+import fs from 'fs' //ES6
+
+fs.readFile('1.txt','utf8',function(err,data){console.log(data)})
+fs.readFile('2.txt','utf8',function(err,data){console.log(data)})
+fs.readFile('3.txt','utf8',function(err,data){console.log(data)})
+
+const data1 = fs.readFileSync('1.txt','utf8');
+console.log("同步读取: " + data1);
+const data2 = fs.readFileSync('2.txt','utf8');
+console.log("同步读取: " + data2);
+const data3 = fs.readFileSync('3.txt','utf8');
+console.log("同步读取: " + data3);
+
+
+<<同步读取: 1
+<<同步读取: 2
+<<同步读取: 3
+<<1
+<<3
+<<2
+```
+
+
+
+****
+
+以及相似语法的`open()`
+
+打开文件
+
+`fs.open([url],flags,callback(err,fd))`
+
+
+
+flags是什么？
+
+还C语言只学文件指针皮毛的债
+
+> r/w 通俗易懂
+>
+> \+ 意味着扩展补全
+>
+> x 路径冲突检测
+>
+> a 追加(光标直接在文件尾)模式
+
+
+
+```js
+const fs = require("fs");	//commonJS
+fs.open('artical.txt',"r+",function(err,fd){
+   if (err) {
+       return console.error(err);
+   }
+
+   if(fd){
+      console.log(fd)
+   }
+})
+```
+
+
+
+前端总得需要读入图片/文字然后加以处理 最后返回
+
+文字还好 如果不是太长直接切成**字符串**+**队列**的形式存储并处理
+
+然而**图片**这种东西你不可能var一个变量给别人填进textarea然后再返回的 
+
+何况真的仅仅是文字/图片的话 前端的FileReader就完全足够了(
+
+
+
+待补充 open的具体真实意义
+
+****
+
+
+
+##### then-fs
+
+那么既然已经有看起来完善的**fs** 为什么会需要**then-fs**?
+
+因为上面说了那么多东西 它都是仅属于**node**环境里的东西
+
+而**then-fs**却有专门有面向静态网页的`Promise`方式
+
+
+
+还有一点
+
+上文有提到过node默认的fs方式 在**异步情况**下会出现读入文件乱序的问题
+
+这个现象的本质原因是多种线程的指派问题	(狗抢狗粮.jpg)
+
+所以你应该需要指定一个线程后锁定只在该线程执行
+
+
+
+而如果你用`readFileSync`同步方式明显就会阻塞主线程运行
+
+
+
+于是乎 then-fs来力
+
+
+
+****
+
+usage:
+
+> npm i then-fs
+
+
+
+> import thenFs from 'then-fs'
+
+
+
+它在使用与fs不同的地方是
+
+它把原本附带的回调函数集成进`.then()`里而非fs一样一次性写完
+
+原本的data变成**自定义变量**
+
+`thenfs.readFile(url,[codec]).then(r1 => {sucss_here},err => {err_here})`
+
+
+
+Buffer(HEX数据)
+
+不过thenfs就不会帮你把读取的数据默认导出为字符串出去
+
+而是需要手动`.toString()`
+
+
+
+否则会显示
+
+> <Buffer XX XX XX>
+
+
+
+不过`thenFs`和**promise**有什么鬼关系
+
+实际上then方法就是等于返回了一个新的promise实例对象(
+
+
+
+于是乎 你可以使用以前写过的**链式调用**来解决回调地狱/非顺序读取的问题
+
+```js
+thenFs.readFile('1.txt','utf8')
+    .then(r1 => {
+       console.log(r1)
+       return thenFs.readFile('2.txt','utf8')
+    })
+
+	.then(r2 => {
+       console.log(r2)
+       return thenFs.readFile('3.txt','utf8')
+    })
+
+	.then(r3 => {
+       console.log(r3)
+    })
+```
+
+这样就能在异步(其他线程)上进行相对于其本身的同步操作而不会指派给其他线程执行了
+
+
+
+其中**then**充当了原本return的返回*主页面作用*以及链接代码的作用
+
+说实话 比原本原生js 链式调用更格式化一点(
+
+
+
+希望能在以后的vue学习上用得到(
+
+
+
+你说try&catch？
+
+直接console.log()+保存刷新可比手动套一层试错快得多的多
+
+
+
+****
 
 #### X、PNPM
 
@@ -296,9 +556,11 @@ pnpm大致分为 **缓存存放区域** 以及 **全局模块存放区域**
 
 分别对应cache里的`index-v5` 与 正常全局`node_module`环境
 
+这两个都需要在`.npmrc`定义了路径才能实现完全的搬移
 
 
 
+****
 
 好了 那为什么实际用的时候 pnpm效率要爆杀npm呢
 
@@ -374,9 +636,25 @@ npm的cache缓存的只有安装包
 
 
 
+##### **节流**
+
+这在npm上是完全不敢想的
+
+除了用符号链接重复使用之外
+
+pnpm还有移除掉在内缓存完全在符号链接上没有**被引用**的包
+
+*未引用的包是系统上的任何项目中都未使用的包*
+
+> pnpm store prune
+
+
+
+****
+
 ##### 排障
 
-好了 因为你跟npm一样在乱搞pnpm的全局模块
+好了 因为你跟npm一样在乱搞pnpm的全局模块 把环境给搞炸了
 
 而且pnpm不会像npm一样仅靠`package.json`搞定一切
 
