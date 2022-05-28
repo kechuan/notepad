@@ -4946,15 +4946,41 @@ const non_sync = new Promise(
 
 
 
-return在then方法表示
+return在`then`里不仅仅表示返回 还会拥有覆盖值传入值的功能
+
+小小实例:
+
+```js
+const test = new Promise(function (resolve, reject) {
+    resolve(2222);
+})
+.then(function (value) {console.log(value); return 3333;})  //2222
+.then(function (value) {console.log(value);}) 				//3333
+```
 
 
+
+throw在then里像一个结尾 执行完之后等于封锁在其后的then执行
+
+小小实例:
+
+```js
+var a = 0;
+const test = new Promise(function (resolve, reject) {
+    resolve(2222);
+})
+
+.then( () => a++)  
+.then( () => throw("end"))
+.then( () => a++) 
+.finally( ()=> console.log(a))
+```
 
 一般来说 throw应该搭配err抛出的函数
 
 毕竟意味故障终止
 
-
+但是不会影响到finally
 
 
 
