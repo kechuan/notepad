@@ -305,7 +305,9 @@ npm仓库里允许作者提供类似测试版-开发版等源
 
 
 
-fs/then-fs
+所以node环境里有自带的文件打开方式
+
+##### fs
 
 > const fs = require('fs');	commonJS引入
 
@@ -443,7 +445,7 @@ fs.open('artical.txt',"r+",function(err,fd){
 
 
 
-于是乎 then-fs来力
+于是乎 then-fs带着**.then()**方法来力
 
 
 
@@ -461,7 +463,7 @@ usage:
 
 它在使用与fs不同的地方是
 
-它把原本附带的回调函数集成进`.then()`里而非fs一样一次性写完
+它把原本附带的回调函数集成进以原生js里的`.then()`里而非fs一样一次性写完
 
 原本的data变成**自定义变量**
 
