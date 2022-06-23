@@ -225,17 +225,93 @@ from:[简书](https://www.jianshu.com/p/9f1b5b347bd1)
 >
 > 模块类型说明
 >
-> 默认为commonJS的require导入
+> 默认为commonJS的require导入("type":"commonjs")
 >
 > 而当type的值设置为module的时候就为ES6的import导入
 
 
 
-**版本号**
+##### CommonJS与ESM的兼容性管理
+
+无论如何，正常情况下，一个 package 只能支持一种模块它要么是 ESM 要么是 CJS。
+
+> type:"module/commonJS"
+
+
+
+但是你看看别人的项目
+
+为什么它们的build.js里面怎么就可以做到require和import一起用啊？
+
+而且别人还有 `.cjs` `.mjs` 那又是什么？
+
+****
+
+
+
+先解释`.cjs`与`.mjs`
+
+顾名思义就是专门给`commonJS`与`ES module`引入做的版本
+
+这个道理就和一个mod的作者
+
+它要考虑支援的版本有 旧版本玩家 以及 新版本玩家
+
+而commonJS前文也提到过是一个古早时候没ES module标准前提出的东西
+
+虽然一度极其盛行 但是终究还是因为有官方自带的东西 那趋势就是转向用官方的
+
+
+
+有些作者可能还会留一个 `.cjs`给旧版本客户端专门适配
+
+但是现在我已经发现有作者(execa,fullscreen)直接在package.json 直接声明
+
+> "type":"module"
+
+
+
+所以不管怎么说 自己搞项目的时候 也尽量往ESM靠拢罢
+
+*用ejs不代表node不会支持cjs 因为有时还是需要require的特性(运行时载入)*
+
+****
+
+
+
+但那也是以后才能考虑的事情 现在我只是个只会调用别人库的屑
+
+我想知道怎么在一个package里同时引入`cjs`和`mjs`
+
+
+
+网上给出的方案是 用原生node环境去支持cjs的引入
+
+又用npm引入的包 例如webpack/rollup来支持mjs的引入
+
+听起来感觉蛮抽象的
+
+
+
+不过在此之前 还是先统一用ejs构建架构罢
+
+
+
+[ESM/CJS共存](https://www.jianshu.com/p/0ad1e1a8c518)
+
+****
+
+
+
+##### **版本号**
 
 npm仓库里允许作者提供类似测试版-开发版等源
 
-一般找不到仓库的版本就会给你提供仓库里各种版本的最新版
+一般找不到你想指定要的版本仓库就会返回给你**各种版本**的最新版
+
+
+
+例如:
 
 > Other releases are:
 >   * bridge: 7.0.0-bridge.0
@@ -281,7 +357,7 @@ npm仓库里允许作者提供类似测试版-开发版等源
 
 
 
-#### 4、node环境指令运用
+#### 4、node环境变量指令运用
 
 除开熟悉的path变量(这个也是属于在node环境下的)
 
@@ -289,7 +365,7 @@ npm仓库里允许作者提供类似测试版-开发版等源
 
 ##### **读取/打开文件的用法**
 
-网页端就已经有`require`/`import`了
+在静态的网页端就已经有`require`/`import`了
 
 那为什么还需要更上一级(node)环境的读取文件？
 
@@ -307,9 +383,11 @@ npm仓库里允许作者提供类似测试版-开发版等源
 
 所以node环境里有自带的文件打开方式
 
-##### fs
+###### fs
 
 > const fs = require('fs');	commonJS引入
+>
+> import Fs from 'fs'
 
 
 
@@ -415,13 +493,13 @@ fs.open('artical.txt',"r+",function(err,fd){
 
 
 
-待补充 open的具体真实意义
+*[!]待补充 open的具体真实意义*
 
 ****
 
 
 
-##### then-fs
+###### then-fs
 
 那么既然已经有看起来完善的**fs** 为什么会需要**then-fs**?
 
@@ -527,6 +605,12 @@ thenFs.readFile('1.txt','utf8')
 你说try&catch？
 
 直接console.log()+保存刷新可比手动套一层试错快得多的多
+
+
+
+process.env
+
+
 
 
 
@@ -638,6 +722,88 @@ npm的cache缓存的只有安装包
 
 
 
+##### **工作空间**
+
+特别指代`monorepo`这一类对于需求工作空间的东西
+
+pnpm给出设立`pnpm-workspace.yaml`配置文件来控制工作区
+
+```json
+packages:
+  # all packages in subdirs of packages/ and components/
+  - 'packages/**'
+  - 'components/**'
+  # exclude packages that are inside test directories
+  - '!**/test/**'
+```
+
+*似乎大家都把子包叫做 packages*
+
+
+
+上面就简单的把这个项目根目录文件下的`packages`与`components`文件夹设为子包
+
+但是仅仅设立了工作空间还不够
+
+对于其子包的模块关系还没有被声明建立
+
+而工作空间里pnpm分为了**全局依赖**以及**局部依赖**
+
+
+
+**全局**简单易懂 就是所有子包都能够享受
+
+> pnpm i typescript -w/-r
+
+*`-w`就是把依赖安装到根目录的`node_modules` 其实就是等于整个项目里的-g*
+
+当然也可以把它安装在所有 packages 中，使用 `-r` 代替 `-w`
+
+
+
+而**局部依赖**当然就是针对单个子包安装对应的依赖
+
+你可以直接cd进对应的子目录直接
+
+> pnpm i typescript
+
+
+
+不过pnpm提供了`filter`在安装时给你挑选
+
+[pnpm教程-工作空间](https://pnpm.io/zh/workspaces) [工作空间](https://www.kancloud.cn/chandler/web_technology/2625185#workspace_24)
+
+例如把`packages`下的`@test/utils`装入`packages/web`下 `package.json`的`name`为 `@test/web`包中。需要执行：
+
+```
+pnpm i [package] -F [projectname]/[filename]
+```
+
+使用 `--filter/-F` 后面接子 package 的 name 表示只把安装的新包装入这个`package`中。
+
+
+
+注:
+
+> 当你把项目设置成有工作空间的时候 无法再通过简单的 pnpm i ??? 安装 
+>
+> 必须指向-w(根目录) 以及局部的项目
+
+
+
+而在总项目上的脚本 你可以这样设置
+
+```json
+"scripts": {
+    "dev:app1": "pnpm start --filter @vue/reactivity",
+    "dev:app2": "pnpm start --filter @test/shared"
+},
+```
+
+
+
+****
+
 ##### **节流**
 
 这在npm上是完全不敢想的
@@ -649,6 +815,26 @@ pnpm还有移除掉在内缓存完全在符号链接上没有**被引用**的包
 *未引用的包是系统上的任何项目中都未使用的包*
 
 > pnpm store prune
+
+
+
+##### 项目移除
+
+> pnpm uni rm -r *
+
+移除项目所有的包
+
+> pnpm unlink -r *
+
+解除项目所有文件的联系
+
+> pnpm prune
+
+最后更新本地的仓库链接状况 以实现完全删除
+
+
+
+切记！与包一样 不要自己手动删除！
 
 
 
@@ -673,3 +859,19 @@ pnpm需求***符号链接目录***的真实性存在与***被链接目录的模�
 
 
 *虽然因其缓存的关系 重建起来的代价远小于npm的管理模式(*
+
+
+
+#### Y、模块推荐
+
+webpack那边有模块推荐
+
+那么这里应该也要有!
+
+这里都是教程里面基本没有的东西
+
+算是个扩展吧 逛别人项目大部分应该能看到这些新玩意
+
+
+
+ultra-run

@@ -2496,7 +2496,13 @@ every的代码块种仍然不能使用break，continue，会抛出异常
 
 ##### Map 和 Set(保留)
 
+*require ES6*
+
 **现在的我并不清楚它们的实际意义**
+
+
+
+用来调用数组 特别是json这样的**键**与**值**
 
 
 
@@ -4807,17 +4813,7 @@ while(i){
 
 而是一个构造函数
 
-> const non_sync = new Promise(
->
-> function(resolve,reject){
->
-> resolve("123")	//指定执行成功后返回123
->
-> reject("???")		//指定执行失败后返回???
->
-> }
->
-> );
+`new Promise( (resolve,reject) => {resolve("123");reject("???")});`
 
 
 
@@ -4830,6 +4826,12 @@ promise需求你给出一个**基础函数** 以及 需求你传入一个/两个
 *(可选)以及函数执行**失败(reject)**的对应处理方法
 
 (反向选择的时候则为`(_,reject)`)
+
+
+
+传递给 new Promise 的函数被称为 executor。当 new Promise 被创建，executor 会自动运行
+
+也就是说 一旦你创建了promise 里面的内容就会直接运行
 
 
 
@@ -4853,19 +4855,33 @@ pending: 等待中，或者进行中，表示还没有得到结果(你刚刚从�
 resolved(Fulfilled): 已经完成，表示得到了我们想要的结果，可以继续往下执行
 rejected: 也表示得到结果，但是由于结果并非我们所愿，因此拒绝执行
 
+
+
+
+
 ****
 
 
 
 ##### then
 
-不过值得注意的是 因其需要返回的值都是**回调函数**
+但是直接运行不代表会直接返回结果(当然 直接return也是不行的)
 
-它们是不可能仅仅创建了一个这样的函数之后就会自动返回值的
+于是promise有个子方法then其中之一的功能
 
-而是需要另一个trigger来引出它们回调中的值
+1. 就是用来放回resolve的值
 
-而在promise上则有其子方法`then`来实现
+  `test.then( (value)=>{return value} )`
+
+2. then使得该promise进程会单独一直只由某个锁定线程执行
+
+   以防止执行先后不同步的问题
+
+   `.then(const r1 = thenFs.readFile('1.txt','utf8'))`
+
+   `.then(const r2 = thenFs.readFile('2.txt','utf8'))`
+
+   *这样就可以固定顺序 先读取r1再读取r2*
 
 
 
@@ -4927,11 +4943,13 @@ const non_sync = new Promise(
 
 
 
+**疑问**
+
 那为什么不能直接(
 
 > non_sync.then(console.log(resolve))
 
-反正默认指向的不都是resolve么
+反正默认指向的不都是resolve/reject么
 
 
 
@@ -5046,13 +5064,19 @@ const test = new Promise(function (resolve, reject) {
 
 并发任务
 
-
+`promise.all([1,2,3])`
 
 **异步不意味着是并发**
 
 异步可以把事情分摊给另一个线程做 工作在线的可以一直**只有一个**线程
 
 而并发绝对是多个线程**同时**工作
+
+
+
+Promise.all()会等待数组里面所有promise的executor 运行完毕后再以.then（）处理
+
+意味为并发处理所有 `[]`内的事物 但会等所有的promise结果(resolve/reject)出来才会去输出
 
 
 
@@ -5066,36 +5090,90 @@ const test = new Promise(function (resolve, reject) {
 
 async/await
 
-
+##### 特点
 
 可以看作是promise处理的扩展/简化声明
 
-因为有时候其实你并不想专门为一个异步任务专门写其对应的**成功(resolve)**/**失败(reject)**的回应
 
-你只是想单纯的转变一个异步任务
+
+虽然promise提供了异步操作函数以及并发操作的实现方法
+
+但是实现各种各样的用途却会显得比较冗余
+
+> - 如果我只是想让单纯让函数变成一个异步操作 而不想编写代码时每次都要赋值resolve
+> - 如果我想在异步操作中间插入同步操作？
 
 
 
 那么async/await就来力
 
-原生的promise需要你去新实例一个函数还要附带
+原生的promise需要你去新实例一个函数还要必须附带解析成功的回应
 
-而async 应该说更符合一般调用函数的思想罢
+而 async 应该说更符合一般调用函数的思想罢
 
 
+
+`async function(){}`
+
+简简单单对比
+
+###### **书写简易**
 
 ```diff
-+ async function non_sync(){
-+ const r1 = await thenFs.(execute);
-+ const r2 = await thenFs.(execute)
++ async function foo() {
++   await 1
 + }
-- const test = new Promise(function (resolve, [reject]) {
-- resolve("?");
-- })
-- .then( (execute) )
-- .then( (execute) );
-- 
+>>等价于
+- function foo() {
+-   return Promise.resolve(1).then(() => undefined)
+- }
 
+```
+
+
+
+###### async队列变化
+
+无论是原生**promise**还是有了**await**的**async**都属于异步内容
+
+是异步内容都会涉及到任务队列
+
+
+
+然而在promise的函数体里是不存在什么同异关系的 因为其本身就是一个异步体
+
+而async与await则是在额外有一个函数体去调用promise 这就使得允许了同异步的存在
+
+
+
+不过只有在持续到异步操作之前允许同步任务先行
+
+
+
+简简单单例子
+
+```javascript
+console.log(1)
+async function read(){
+console.log(2) 					  //同步
+setTimeout(console.log('test'),0) //同步
+const r1 = await thenFs.readFile('1.txt') //111
+const r2 = await thenFs.readFile('1.txt') //222
+const r3 = await thenFs.readFile('1.txt') //333
+console.log(r1,r2,r3) //异步开始 await会排进任务队列 和之前的setTimeout(,0)一样 
+console.log(3)
+}
+read()
+console.log(4)
+
+<< 1
+<< 2
+<< test
+<< 4			//主线程收到异步任务开始的信号 优先处理接下来的主线程任务
+//(异步任务处理完毕，返回消息给主线程)
+//主线程接收到异步的resolve消息 且主线程没有其他任务 继续进行异步流程
+<< 111,222,333 	//返回async函数处理await
+<< 3			//异步任务等待
 ```
 
 
@@ -5128,7 +5206,13 @@ var resolveAfter1Seconds = function() {
 };
 
 //两个带有promise语法的简单函数
+```
 
+
+
+顺序执行(`.then`)
+
+```javascript
 var sequentialStart = async function() {
   const slow = await resolveAfter2Seconds(); 
   console.log(slow); //this runs 2 seconds
@@ -5142,6 +5226,13 @@ var sequentialStart = async function() {
 <<slow 2s
 <<fast 1s
 
+```
+
+
+
+并发处理/顺序输出
+
+```javascript
 var concurrentStart = async function() {
   const slow = resolveAfter2Seconds();
   const fast = resolveAfter1Second(); // 直接运行不带await
@@ -5153,6 +5244,7 @@ var concurrentStart = async function() {
 
 << slow 2s
 << fast ^
+  
 //与promise.all()类似的并发效果
 /**
 但是为什么await slow和const slow = await function()执行结果不一致?
@@ -5173,14 +5265,63 @@ var concurrentStart = async function() {
 思想:它们是异步函数，但是获取结果后的赋值时继发
 /**
 
-
 ```
 
 
 
+单纯并行promise处理
+
+```JavaScript
+var parallelPromise = function() {
+  console.log('==PARALLEL with Promise.then==');
+  resolveAfter2Seconds().then((message)=>console.log(message));
+  resolveAfter1Second().then((message)=>console.log(message));
+}
+
+//结果同样也是 但是是下面的结果同等 写法的另一个版本吧
+//因为没有async await触发promise回调 需要用到原本的then来获得resolve
+<< fast 1s
+<< slow 1s
+```
 
 
-而且！async和await是不需要你去装额外的库(npm环境)的
+
+并行任务(`promise.all()`) 谁先处理完毕谁输出
+
+```javascript
+var parallel = async function() {
+  // Start 2 "jobs" in parallel and wait for both of them to complete
+  await Promise.all([	//await 触发promise.all并发
+      (async()=>console.log(await resolveAfter2Seconds()))(),	//提前执行并行处理await
+      (async()=>console.log(await resolveAfter1Second()))()		//提前执行并行处理await
+  ]);
+}
+
+//于是结果便是
+<< fast 1s
+<< slow 1s
+
+```
+
+> 如果你希望并行执行两个或更多的任务
+>
+> 你必须像在`parallel`中一样使用`await Promise.all([job1(), job2(),...])`。
+
+
+
+你可以发现async与await扩展了promise方法使其有更高的操作性
+
+而对于原promise的迁移上
+
+只需要将该实例promise函数return
+
+然后将then/catch变更为
+
+await function,try {(await)}, catch {(await)}
+
+
+
+
 
 
 
@@ -5700,415 +5841,6 @@ jQuery毕竟还能控制js
 
 
 ****
-
-### Y、Vue.js(以后肯定会自己独立一个md的)
-
-介绍
-
-一套用于构建用户界面的**渐进式框架** 帮你从js底层与表层html的各种标签直接建立一层关系
-
-从而**方便**你快捷将底层的js呈现在表层的html上
-
-*渐进式*:简单来说就是要用什么给你什么 跟你调用单个函数这种感觉
-
-
-
-为什么不接着用jQuery更新DOM？
-
-> 我们要做的无非就是更新类似计时器 然后DOM更新
->
-> 然而以后的数据在变化之后 往往难以继续快捷的追踪
->
-> 而这些的成因都是 因为他们<b>没有</b>一个<b>简单</b>的提示板来告诉我当前数值的状态
->
-> 而vue直接将一个标签绑定在一段APP上 则APP的数据便能在这个标签很快捷的查看/修改
->
-> 以往的DOM想实现这点只能手动适配
->
->  
->
-> 而且 在追求原生占用和快速构建上 后者往往收益更高 和jQuery一样的原则 write less do more.
->
-> 更合理的选择是原生ES jQuery Vue 混用 哪个在当前条件下适合就用哪个
-
-
-
-#### 创建/挂载
-
-Vue的处理方式是将一个需要作用的片段命名为App,然后将需要作用的地方称作挂载(Mount)
-
-```javascript
-const app = Vue.createApp({
-				data(){
-					return {counter:0}	//已将counter绑定到app的$data上 
-				}
-				
-			}).mount("#counter")		//与#id=counter的元素挂载
-
-html部分
-
-<div id="#counter">{{ counter }}</div>
-
-已可以通过app.counter来访问 counter标签里的counter数据
->>app.counter
-<<0
-```
-
-上述也被称为文本挂载 根据`{{}}`标签与挂载定位让vue来处理
-
-
-
-**注**:这样绑定的方式不允许第二个重名的标签，为什么？大概是给下面的指令让路
-
-利用`v-for`即可重命名标签 但需调用子属性
-
-****
-
-
-
-#### 指令
-
-除了单纯的对标记执行关联
-
-Vue内置作用于标签的多种指令以便Vue调用函数来实现各种功能
-
-
-
-监听事件	但是不知道为什么目前的例子click都只能对按钮标签使用(
-
-`v-on`
-
-缩写: `@prop`
-
-```html
-<button v-on:click="reset">清零</button>	//挂载后从methods库里寻找reset函数执行
-
-const reset = {
-  data() {
-    return {
-    				     //注意 标注的字符 不能与method的函数名字一致! 否则会报堆栈溢出错误
-        				 //所以还是第一次显示文字时不如直接在标签上重命名 
-    }
-  },
-
-  methods: {
-    reset() {
-      display.counter = 0
-    }
-  }
-}
-
-Vue.createApp(reset).mount('ul li')
-```
-
-****
-
-同原生一样 一般我们的行为都可以被监听到
-
-不过在vue里则是以一种修饰符来细分监听的区域
-
-用户在浏览器正常的输入 大多数的媒介也是键盘/鼠标
-
-所以vue里也细分为 `click`,`keyup`领域
-
-
-
-
-
-**事件处理**
-
-一般来讲 v-on代表`addEventListener`事件 但原生的ES代码是有对其植入传入参数的
-
-其实这里也有 且vue针对v-on还有和jQuery一样的省略符号`@`
-
-@click = 这个事件将要执行什么 可以是直接执行@click="count++" = v-on:click("count++")
-
-
-
-且也能代表标签对应的动作
-
-例如 `<input>`里面的`submit`动作 只需要
-
-```html
-<form action="post">
-<input @keyup.enter.prevent="submit"></input>	//即可代表在激活输入框时输入enter完成提交动作
-</form>
-```
-
-
-
-**事件修饰符**
-
-1. Vue.js 为 v-on 提供了事件修饰符来处理 DOM 事件细节
-2. Vue.js 通过由点 `.` 表示的指令后缀来调用修饰符。(@click.*)
-3. 修饰符允许单独调用不必加 `v-on`等指令 (@submit.prevent)
-4. 修饰符允许串联调用
-
-
-
-**click**的则有
-
-> - `.once` - 只触发一次	//事件通用
-> - `.left` - 左键事件
-> - `.right` - 右键事件
-> - `.middle` - 中键事件 (滚轮)..
-
-
-
-**keyup**的则将部分常用的key绑定在vue的修饰符上供调用
-
-> 常用的除F(X)的功能键
->
-> 而除此以外的则遵循ASCII码转义(48→0 65→A 97→a)
->
-> 例:<**input** @keyup.alt.67="clear">	*<!-- Alt + C -->*
->
-> 也可以将鼠标键盘的事件组合起来
->
-> *<!-- Ctrl + Click -->*
-> <**div** @click.ctrl="doSomething">Do something</**div**>
-
-
-
-通用
-
-> **exact 修饰符**	精确的系统修饰符组合触发的事件
->
-> *<!-- 有且只有 Ctrl与鼠标 被按下的时候才触发 -->*
-> <**button** @click.ctrl.exact="onCtrlClick">A</**button**>
->
->  
->
-> **触发**
->
-> 如submit事件
->
-> - `.stop` - 阻止冒泡
->   - `.prevent` - 阻止默认事件	例如submit提交时默认会重载页面
->   - 而直接<submit @.prevent>这样就可以防重载直接提交数据
-> - `.capture` - 捕获事件?
-
-
-
-从这个部分开始大概是原生ES6 `addEventListener`不包含的事件了( 
-
-我觉得这点上我才能感受得出响应式框架的特点罢
-
-
-
-****
-
-**通用传参**
-
-不过即使是原生ES6也包含传入参数 要不然监听是为了干什么(
-
-```javascript
-或传入methods里function中的参数 缺省时等于空参传入
-
-仅传入写入参数 
-v-on:click="fun(123)" = <button @click="fun(123)">烦内</button>
-传入自定义参数(args)/写入参数
-
-<button @click="reset($event,123)">烦内</button>
-//兄啊 click事件要怎么传除了鼠标输入的值啊(
-//input里的键盘也是这样 怎么传入除键盘动作以外的值啊(恼)
-```
-
-****
-
-
-
-`v-model`
-
-双向数据绑定
-
-目前的绑定都是底层→表层
-
-而双向就能实现表单输入和应用状态之间的双向绑定 但是我目前还真找不到这玩意从表层直接作用于底层的效果 它是从表层到底层再到表层 既然如此 
-
-如果我仅仅只要我输入的东西 我直接input.value不也是一样的？ 
-
-~~也许就为了看浏览器的文字渲染？~~
-
-知识 未来可期
-
-
-
-2.21
-
-`v-model`更多用于表单上(`v-model` 会根据控件类型自动选取正确的方法来更新元素)
-
-因为它会关联表单中的 toggle、checked、value、selected、picked等事件  
-
-```html
-那么既然是表格单 那肯定也有输入
-无论是单选还是复选
-<div id="post">
-<form action="post">
-  <input type="radio" v-model="picked" id="number" value="1234">1234</input>
-  <input type="radio" v-model="picked" id="number2" value="5678">5678</input>
-  <div id="status">{{ picked }}</div>
-</div>
-
-<input @keyup.enter="submit" placeholder="input即可以被触发为post"></input>
-<input @keyup.enter.prevent="choice3" placeholder="input也可以触发app函数"></input>
-</form>
-</div>
-
-```
-
-
-
-****
-
-`v-if`
-
-绑定到DOM的结构 大概是通过attribute与val(true/false)来控制DOM结构？
-
-****
-
-`v-for`
-
-绑定**数组**的数据来渲染一个项目列表
-
-目前作用是文字标签的增强版 应该说更合理的版本
-
-```javascript
-<div id="list-rendering">		<!-- 这个for指令就可以做到整个标签内都是作用域 -->
-  <ol>
-    <li v-for="todo in todos">	<!-- 经典for循环 从todos列表里寻找 但是调用起来时却又是todo的子属性 -->
-      {{ todo.text }}
-      {{ todo.text2 }} 			<!-- 也允许在同一个标签内写上两个同父属性的标签 -->
-      {{ todo.description}}
-    </li>
-
-  </ol>
-</div>
-
-const ListRendering = {
-  data() {
-    return {
-      todos: [
-        { text: 'JavaScript' },
-        { text: 'Vue' },
-        { text2: 'awesome' },
-        { description:"比单独文字标签不知道高到哪里去了"}
-      ]
-      
-    }
-  },
-
-}
-Vue.createApp(ListRendering).mount('#list-rendering')
-```
-
-****
-
-`v-bind`
-
-缩写 `:prop`
-
-和标签的 **属性名** 或 **属性值** 绑定 属性值绑定类似于原生的`setAttribute()`
-
-```html
-<!-- 绑定 attribute -->
-<img src="1.jpg"></img>
-setAttribute("src","???")
-or
-<img :src="???"></img>	create--> mounted --> app.src=""
-<!-- 动态 attribute 名 -->
-<button :[key]="value"></button>	create--> mounted --> app.key="???" << ???="value"
-
-<!-- 但对于class属性有点特殊	因为同一个标签允许同时上多个标签
-而vue允许你动态得将某些已绑定的class属性进行修改
-其中包括开/关 !-->
-<div :class="{red:isRed}"></div> create-->(data:{isRed:true}) mounted --> app.isRed="false"  //Red失效
-<!--也支持一次性引入多个class属性 并赋予可开关属性!-->
-<div :class="[classA, classB]"></div>
-<div :class="[classA, { classB: isB, classC: isC }]"></div>
-
-```
-
-也和style属性直接绑定
-
-```
-
-```
-
-
-
-jQuery貌似不能直接.css("style","attr") 看看vue行不行
-
-
-
-#### 组件化
-
-`app.component("",{})`
-
-实际上就是将你的代码转变成模板使其可以重复在任何地方上插入
-
-就是重复利用代码
-
-```javascript
-const component_head1 = Vue.createApp({})   //先创建app
-
-component_head1.component('head1', {      //然后将app组件化 (标签组件名,{执行体})
-    data() {
-    return {
-      count: 0
-    }
-  },
-    template: 								//组件和模板对应 如果你没有重复利用的必要 那也没必要去组件化
-    `<h1>自定义组件!</h1>
-	<button @click="count++">
-      点了 {{ count }} 次！
-    </button>` 
-    
-    //模板内容(如果标签需要因为打属性要用到双引号时 要前置加上反引号包裹 不过加了反引号的话就不再需要双引号包裹了)
-    
-}).mount('#app_widget')              //但是调用组件前必须要前置挂载位创立
- 
- 
-
-<div id="app_widget">
-    <head1></head1> = <h1>自定义组件!</h1>	//生效
-</div>
-
-<head1></head1>	//不生效
-```
-
-
-
-不过vue还能将app的内容能单纯的用变量代替
-
-```javascript
-const button_temp = {
-	template:
-    `<h1>自定义组件!</h1>
-	<button @click="count++">
-      点了 {{ count }} 次！
-    </button>` 
-}
-
-const button = Vue.createApp({
-	compoenet:{button_temp}	//更语义化
-}).mount('#app_widget')
-
-<div id="app_widget">
-    <head1></head1> = <h1>自定义组件!</h1>	//生效
-</div>
-
-//methods应该也是同理
-```
-
-
-
-Z、包管理
-
-```
-npm root -g	//获取当前npm全局安装包的位置
-npm install -g
-```
 
 
 
