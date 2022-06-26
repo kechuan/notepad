@@ -46,7 +46,7 @@ echo 除了基础的off/on 以切换命令输入显示和单纯的输出文字�
 **set**
 
 > SET /A expression
-> SET /P variable=[promptString]
+> SET /P variable=[promptString] 让用户输入的变量值
 
 
 

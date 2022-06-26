@@ -23,6 +23,8 @@ notepad for JavaScript
 > 7. span样式可以兼容原生的md语法 而div不行
 >
 > 8. `[!]` 意味着这段内容在当前段落不合适 以后会去尝试迁移至其他符合的的地方
+>
+> 9. TODO全部完成 以后将迁移至另一个md作为目标篇(22.6.26)
 
 ### 0、foundation
 
@@ -2498,13 +2500,49 @@ every的代码块种仍然不能使用break，continue，会抛出异常
 
 *require ES6*
 
-**现在的我并不清楚它们的实际意义**
+~~**现在的我并不清楚它们的实际意义**~~
 
 
 
 用来调用数组 特别是json这样的**键**与**值**
 
+为什么不用一贯的**array**,**Object**?
 
+
+
+MDN文档给出的说明是
+
+相对于**Object**来说 Map在频繁增减键值的场景下性能会更好
+
+
+
+且对于**迭代协议**来说
+
+Object下没有迭代
+
+所以无法直接通过 `for...of`来获得对象 只能通过`for...in`来获取基本的**键**
+
+
+
+而Map/Array恰好相反
+
+只能通过`for...of`获取 但是 可以直接获取到**键**与**值**
+
+其中Map通过**set**与`**delete**`来操作值 以及**size**与`status.get(a)`获取当前Map的信息
+
+```javascript
+var a = {lv:3,atk:50,def:40};
+var b = {name:"player"}
+
+const status = new Map()
+status.set("attribute",a)
+status.set("name",b)
+console.log(status.get("name"))
+console.log(status.get("attribute"))
+>>player
+>>{lv: 3, atk: 50, def: 40}
+
+```
 
 
 
@@ -4471,7 +4509,10 @@ var acc = function(){
 
 }
 
+export var acc = function(){}
+||
 export default acc
+
 <<
 import acc2 from "/js"
 等效于
@@ -5319,9 +5360,201 @@ var parallel = async function() {
 
 await function,try {(await)}, catch {(await)}
 
+即可实现迁移
+
+****
 
 
 
+### 11、Proxy代理
+
+*require ES6+*
+
+**Proxy** 对象用于创建一个对象的代理
+
+从而实现基本操作的拦截和自定义（如属性查找、赋值、枚举、函数调用等）。
+
+
+
+本质上是一种复制
+
+但为什么会需要proxy来进行代理操作 不能直接var一个变量引用处理吗？
+
+道理很简单:**那样麻烦**
+
+控制台没少打开吧
+
+对于想调试某个值的时候
+
+每次都得这样来定义
+
+> var a=0;
+>
+> var b = a;
+>
+> b++;
+>
+> var b = a; //因为值变更了 而我又不想污染原本的a值
+>
+> …………
+
+
+
+而Proxy就是相当于把一个模板寄于一个内存中 然后让你一直调用 人如其名的代理
+
+*实际上对于主线程而言Proxy就是一个一次对目标数据的拦截(D N S 污 染)*
+
+
+
+(构造函数)
+
+> let proxy =  new Proxy(target, handler)
+
+`Proxy`在构造对象时接受两个参数：`target`和`handler` 且两个参数的类型必须是`object`
+
+> target为需要作为模板的对象
+>
+> handler则为要处理的事 可以视作是对模板复制体作为的处理
+
+但无法缺省 否则会无法创建对应的构造函数
+
+
+
+#### **基础应用**
+
+
+
+这样每次再执行新操作的时候都只需要
+
+> var Fn = 
+>
+> var new_Fn=...
+>
+> let proxy =  new Proxy(target, new_Fn)
+>
+> let proxy =  new Proxy(target, new_Fn)
+>
+> let proxy =  new Proxy(target, new_Fn)
+>
+> 从而在调试的时候减少变量的引用量 且更贴合规范性
+
+
+
+Proxy还能用来定义对象各种基本操作的自定义行为 （在文档中被称为**traps**，我觉得可以理解为一个针对对象**各种行为**的钩子），拿它可以做很多有意思的事情，在我们需要对一些对象的行为进行控制时将变得非常有效。
+
+
+
+对于一次浅略的复制你可以这样操作
+
+> let m = new Proxy(a, {})
+
+
+
+此为无handler的操作
+
+此时会进行**无操作的转发代理**
+
+即为**真实影响**到源数据
+
+
+
+意义么 就是为了简略变量吧
+
+****
+
+
+
+#### handler子方法的使用
+
+而对于handler对数据处理的方法最常用的方法分为这两种 **get**,**set**,[(更多在这里](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Proxy#handler_对象的方法))
+
+不难理解这是意味着从模板数据进行读取与修改写入
+
+*如果说上文proxy是对整体的拦截 那么对于get来说 就是对于具体属性的拦截*
+
+
+
+对于**get**的用法
+
+它有三个参数
+
+> target: 代理的目标对象(本体)
+>
+> propKey：目标对象的属性
+>
+> receiver ：代理的对象
+
+
+
+```javascript
+var a = {name:"01",rank:"F"};
+var Fn = {
+    get: function(target, propKey) {
+    if (propKey in target) {
+      return target[propKey];
+    } else {
+      throw new ReferenceError(`Prop name ${propKey} does not exist.`);
+    }
+  }
+}
+let test = new Proxy(a, Fn)
+```
+
+
+
+而对于**set**来说
+
+则有四个参数
+
+> target
+>
+> propKey
+>
+> receiver
+>
+> value:值(合理)
+
+```json
+var a = {name:"01",rank:"F"};
+var Fn = {
+    set(target, propKey, value, receiver) {
+        console.log(`设置 ${target} 的${propKey} 属性，值为${value}`);
+        target[propKey] = value
+    }
+};
+let test2 = new Proxy(a, Fn)
+proxy.name = 'Tom'
+proxy.rank = 18
+
+```
+
+每次执行变更操作的时候 都会执行set的内容
+
+这样确实就有实际意义了 搭配上vue之类的刷新面板
+
+不动的时候静态显示 变更之后调用requestAnimationFrame刷新之类的
+
+****
+
+
+
+#### 额外思路
+
+**用Proxy还能够来做些什么？**
+
+因为在使用了`Proxy`后，对象的行为基本上都是可控的，所以我们能拿来做一些之前实现起来比较复杂的事情。
+
+可以用来定义对象各种基本操作的自定义行为 （在文档中被称为traps，我觉得可以理解为一个针对对象各种行为的钩子(Hook)），拿它可以做很多有意思的事情，在我们需要对一些对象的行为进行控制时将变得非常有效。
+
+
+
+举个例子就是因为其set的方法使得在**监控数据变化**就做出**响应**的特性被用在了Vue3的`reactive `API上面
+
+
+
+*Hook:大致的意思是一种父类模板*
+
+[Proxy的用法](https://zhuanlan.zhihu.com/p/69106037)
 
 
 
@@ -5363,7 +5596,7 @@ Before:
 <div id="openNotepad" onclick="openNotepad()">打开</div>
 <div id="openNotepad" onclick="closeNotepad()">关闭</div>
 
-然后js里面自行配置
+//然后js里面自行配置
 function openNotepad(){
 var Notepad = document.getElementById("Notepad")
 Notepad.style.right = "0"
@@ -5402,7 +5635,7 @@ $(function(){
 
 毕竟本质就是对JS的代码封装然后丢给你API调用
 
-但是ST上有个人说的好
+但是StackOverflow上有个人说的好
 
 > Computers cost much less than programmers.
 >
@@ -5445,11 +5678,9 @@ string.push(array+':'+style[array]);
 
 这也说明你只能调用一个对象集的某个属性 `${status.num}` 而非`${status}`本身 
 
-
-
-实现一个整体是字符串 生效字符 
-
 ****
+
+
 
 `$()` 代表着CSS转义
 
@@ -5526,7 +5757,7 @@ etc...
 
 引入之后 使用方式大大修改 具体用法是
 
-> $("*") |([0]) .css("attr","val")	如果是标签名\<a>类[0]就成了可选 此时指代所有的\<a>标签
+> $("*") *[x]* .css("attr","val")	如果是标签名\<a>类[0]就成了可选 此时指代所有的\<a>标签
 >
 > 或
 >
@@ -5534,19 +5765,19 @@ etc...
 > $("*").attr({'id': 'id1', 'index':1, 'value':10,'check':'checked'});
 > ```
 >
-> goto EXP1
+> EXP1
 >
 > $("a").css("text-decoration","underline")	TAG类
 >
-> ::EXP1
->
 > 
 >
-> goto EXP2
+> EXP2
 >
-> $('#framework').css("z-index","3") 是的 对具体的ID用jquery自带的css属性后 你已经不需要特定指定[*]了
+> $('#framework').css("z-index","3") 
 >
-> ::EXP2
+> 是的 对具体的ID用jquery自带的css属性后 你已经不需要特定指定[*]了
+>
+> 
 
 
 
@@ -5556,9 +5787,15 @@ etc...
 
 还有一种用法`$`在引入jQuery后 本来就代表着一个选择器
 
-> 即 $ =  $(document).ready() 的简写
->
+即 `$ = $(document).ready()` 的简写
+
+
+
+如此一来 想提前在body标签上快速引入js就可以这么简写
+
 > $.($("*").on.("click","function(){}"))
+
+****
 
 
 
@@ -5582,7 +5819,7 @@ jQuery里普遍有这么一种定义
 >
 > 是的 这意味着你应该如此调用**$(#framework)[0]**才能等同于
 >
-> 不加jQuery **$(#freamwork)**的效果
+> 不加jQuery的**$(#freamwork)**的效果
 
 
 
@@ -5626,11 +5863,6 @@ jQuery里普遍有这么一种定义
 | .father | $("#001").father() | 此节点的上一级 |
 | .find | $("#01").next().find("span") | 寻找div id=01标签用span包裹的元素 |
 |                         |                              | 在一个标签里面有副属性的 是[x=?]           |
-|                                  |                              |                                            |
-|                                  |                              |                                            |
-|                                  |                              |                                            |
-|                                  |                              |                                            |
-|  |  |  |
 
 
 
@@ -5690,7 +5922,7 @@ ST里有一处解答
 
 用起来就和平常的css:hover感觉没啥区别
 
-何况这可是js导入的hover 在此之前 我好像还真没做过js导入的伪类选择器
+何况这可是js导入的hover 在此之前 我好像还真没看到过js导入的伪类选择器
 
 
 
@@ -5708,8 +5940,8 @@ Extra:
 >     //do something
 > });
 > 
-> 不过你真的需要必须要用on的情况再去吧
-> 要不然这方式也怪离谱的
+> //不过你真的需要必须要用on的情况再去用这种方式吧
+> //要不然这方式也怪离谱的
 > ```
 
 
@@ -5888,81 +6120,3 @@ function symbol_fliter(str) {
 ```
 
 
-
-实时刷新插件 Livereload
-
-```
-不仅有实时刷新能力 还可以直接建立http端口 模拟真实的访问
-```
-
-
-
-### B、 TODO
-
-loop tasks 7.31
-
-- [x] T1 了解null&undefined
-
-- [x] ~~T2 了解新建new的原理~~(8.14)
-
-- [x] T3 课程3节
-
-  8.7 complete
-  
-  正在完善对象条目信息
-  
-  function条目架构搭建完毕
-  
-  ES规范了解
-
-8.8 loop task
-
-- [x] T3 课程3节/3个有用点
-
-- [x] constructor.prototype.constructor.prototype.........
-
-  bonus task
-
-- [ ] *T 父子关系
-
-- [x] *T Stack overflow什么的，有在访问吗？
-
-- [x] T4 eval? 这是什么东西 22.5.9
-
-> `eval()` 的参数是一个字符串。如果字符串表示的是表达式，`eval()` 会对表达式进行求值。如果参数表示一个或多个 JavaScript 语句，那么`eval()` 就会执行这些语句。
->
-> 这意味着什么？
->
-> var a = 3; var b = 4;
->
-> eval(3+4) 		 <<7 这没什么大不了的对吧
->
-> 然而
->
-> eval(3+4+'3')	<<73 忽然感叹我之前瞎折腾toString()诸如此类的东西 人家老早就有了**极其快捷**的东西了
->
-> 一般来说会 a+b+'3' << '73'
->
-> parseInt(?) << 73
-
-8.19-8.23(截止)
-
-- [x] 正则表达式
-- [x] T3 课程3节/3个有用点
-- [x] json!
-- [x] ~~flex布局?~~ inline-block布局!
-- [x] git!
-- [x] stack overflow什么的 会用吗
-
- 狂妄 懒惰
-
-9.10
-
-- [x] jquery选择器应用
-
-
-
-2.27
-
-- [ ] 如何import json并正确调用？
-- [ ] 如何理解async的意义

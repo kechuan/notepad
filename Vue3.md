@@ -1,6 +1,6 @@
 > 本md除了js的基本规则以外有其他的修订(说明)
 >
-> - [!]：Todo 												 Total:3
+> - [!]：Todo 												 Total:2
 > - [?]：书写位置疑似不适合                        Total:1
 >
 > v1.2 贺电一下typora终于支持代码块中的多光标选择了
@@ -898,160 +898,53 @@ shallow代表着浅层
 
 
 
-[!]这一段完成后会同步至JS篇
+****
 
-*什么是proxy?*
-
-*require ES6+*
-
-**Proxy** 对象用于创建一个对象的代理
-
-从而实现基本操作的拦截和自定义（如属性查找、赋值、枚举、函数调用等）。
+*为什么说因为`reactive`调用了**Proxy**就会被叫做响应式？*
 
 
 
-本质上是一种复制
+因为Proxy的运行原理(特别是**set**)就是响应式的,所以在封装了Proxy处理方式的`reactive`也是响应式的
 
-但为什么会需要proxy来进行代理操作 不能直接var一个变量引用处理吗？
+例如选用Vue3的第一个API `reactive`
 
-道理很简单:**那样麻烦**
+`index.html`
 
-控制台没少打开吧
-
-对于想调试某个值的时候
-
-每次都得这样来定义
-
-> var a=0;
->
-> var b = a;
->
-> b++;
->
-> var b = a; //因为值变更了 而我又不想污染原本的a值
->
-> …………
+```html
+<script src="vue.global.js"></script>
+<script>
+	let {reactive} = Vue <!--使该对象绑定Vue上的API 类似于激活罢-->
+    
+	console.log(reactive({name:3}))  
+</script>
 
 
+<<Proxy {name: 3}
+```
 
-而Proxy就是相当于把一个模板寄于一个内存中 然后让你一直调用 人如其名的代理
+它会在控制台上直接输出Proxy，证明其本身就是通过Proxy响应式的设计
 
-*实际上对于主线程而言Proxy就是一个一次对目标数据的拦截(D N S 污 染)*
+比如**Proxy**中的子方法set 其可以在进行值更新之后允许插入额外的function操作
 
 
 
-(构造函数)
+那么问题来了(
 
-> let proxy =  new Proxy(target, handler)
+我为什么不直接用Proxy呢？
 
-`Proxy`在构造对象时接受两个参数：`target`和`handler` 且两个参数的类型必须是`object`
-
-> target为需要作为模板的对象
->
-> handler则为要处理的事 可以视作是对模板复制体作为的处理
+reactive本身到底额外封装了什么内容 对比单纯的Proxy多了什么功能？
 
 
 
-对于一次浅略的复制你可以这样操作
+简单来说 是Vue对内置的各个子方法内额外封装了一大堆的**handler**
 
-> let m = new Proxy(a, {})
-
-但无法缺省 否则会无法创建对应的构造函数
+从而在调用Vue下的reactive的时候，用引入的内置的方法就比自己额外写Proxy要好的多(
 
 
-
-[!]不是很懂这样做有什么用(
 
 ****
 
 
 
-handler的对数据处理的方法基本分为这两种 **get**,**set**
-
-不难理解是这意味着从模板数据进行读取与修改写入
 
 
-
-*如果说上文proxy是对整体的拦截 那么对于get来说 就是对于具体属性的拦截*
-
-
-
-对于**get**的用法
-
-它有三个参数
-
-> target: 代理的目标对象(本体)
->
-> propKey：目标对象的属性
->
-> receiver ：代理的对象
-
-
-
-```javascript
-var a = {name:"01",rank:"F"};
-var Fn = {
-    get: function(target, propKey) {
-    if (propKey in target) {
-      return target[propKey];
-    } else {
-      throw new ReferenceError(`Prop name ${propKey} does not exist.`);
-    }
-  }
-}
-let test = new Proxy(a, Fn)
-```
-
-
-
-而对于**set**来说
-
-则有四个参数
-
-> target
->
-> propKey
->
-> receiver
->
-> value:值(合理)
-
-```json
-var a = {name:"01",rank:"F"};
-var Fn = {
-    set(target, propKey, value, receiver) {
-        console.log(`设置 ${target} 的${propKey} 属性，值为${value}`);
-        target[propKey] = value
-    }
-};
-let test2 = new Proxy(a, Fn)
-proxy.name = 'Tom'
-proxy.rank = 18
-
-```
-
-每次执行变更操作的时候 都会执行set的内容
-
-这样确实就有实际意义了 搭配上vue之类的刷新面板
-
-不动的时候静态显示 变更之后调用requestAnimationFrame刷新
-
-
-
-但是这和 proxy有是什么关系。。
-
-
-
-不是很懂(
-
-再看看吧
-
-
-
-https://juejin.cn/post/6975858843729264653
-
-
-
-可以用来定义对象各种基本操作的自定义行为 （在文档中被称为traps，我觉得可以理解为一个针对对象各种行为的钩子(Hook)），拿它可以做很多有意思的事情，在我们需要对一些对象的行为进行控制时将变得非常有效。
-
-*Hook:大致的意思是一种父类模板*
