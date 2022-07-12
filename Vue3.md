@@ -61,7 +61,7 @@ webpack上终究还是外部环境 既然是外部环境就难以断明那些内
 
 
 
-[?]鸥鸽鸽之前提到过用vue代替juqery实现$的功能 或许我以后也可以试试
+[!]鸥鸽鸽之前提到过用vue代替juqery实现$的功能 或许我以后也可以试试
 
 
 
@@ -123,7 +123,7 @@ vue作为一个框架 它也有类似于包的关系
 
 #### 打包工具
 
-你当然可以继续用webpack来打包 但是针对于这种架构型的东西 更建议用rollup
+你当然可以继续用webpack来打包 但是针对于这种架构型的东西 教程更建议用rollup/vite
 
 > 和webpack相比，rollup更加的小巧简介，它更加适用于构建各种类库，比如你的项目需要代码拆分、含有图片、字体等资源。webpack比rollup更加适合。
 
@@ -505,8 +505,6 @@ const name = path.basename(packageDir) 	//取文件名
 
 
 
-
-
 ****
 
 
@@ -517,13 +515,12 @@ Vue的处理方式是将一个需要作用的片段命名为App,然后将需要�
 
 ```javascript
 const app = Vue.createApp({
-				data(){
-					return {counter:0}	//已将counter绑定到app的$data上 
-				}
-				
-			}).mount("#counter")		//与#id=counter的元素挂载
+	data(){
+		return {counter:0}	//已将counter绑定到app的$data上 
+	}
+}).mount("#counter")		//与#id=counter的元素挂载
 
-html部分
+//html部分
 
 <div id="#counter">{{ counter }}</div>
 
@@ -542,6 +539,331 @@ html部分
 
 ****
 
+### 3.SFC单文件组件
+
+具体创建部分在**npm**篇上
+
+
+
+通常使用 `*.vue` 文件扩展名，是一种自定义文件格式，它使用类似 HTML 的语法来描述 Vue 组件。
+
+`*.vue` 都由三种类型的顶层语法块所组成：\<template>、\<script>、\<style>
+
+
+
+此时在这种SFC模式下
+
+`index.html`
+
+```html
+...
+<body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+</body>
+...
+```
+
+js-Vue的挂载启用部分由`main.ts`主导
+
+```tsx
+import { createApp } from 'vue'	//从vue上单独分离createApp功能
+import App from './App.vue'		//Vue的核心用法
+
+createApp(App).mount('#app')
+
+```
+
+而核心Vue语法则由`App.vue`负责
+
+```vue
+<template>
+<div>
+	{{message}} //html部分
+</div>
+</template>
+
+<script setup lang="ts">
+	const message:string = 'test' //简略了js上原本 data(){return message:""}部分
+    							  //但是引入了ts上的严格声明变量类型的审查
+</script>
+
+<style>
+	
+</style>
+```
+
+可以看出此举将原本主要负责的ts书写部分直接分离出类似html写法的Vue上
+
+更对入门者友好 且更加结构化
+
+
+
+所以核心内容在于Vue文件上 这里来说说Vue文件的基本组成
+
+
+
+**\<template>**
+每个 *.vue 文件最多可同时包含**1个**顶层 \<template> 块。
+
+
+
+其中的内容会被提取出来并传递给 **@vue/compiler-dom**，预编译为 JavaScript 的渲染函数，并附属到导出的组件上作为其 render 选项。
+
+
+
+template允许编写条件运算，调用API……与html下的基本编写一致
+
+```html
+<div>{{message1  + 1}}</div>
+<div>{{message2.split(',')}}</div>
+
+...
+以及各种指令的调用
+<button @click="reset"/v-on:click="reset"></button>
+```
+
+还支持一个div写多个标签
+
+```html
+<template>
+<div class="home">{{name}} {{age}}</div>
+</template>
+```
+
+usage与在html上创建基本一致:都需要一个div分块与 {{[name]}}
+
+
+
+****
+
+**\<script>**
+每一个 `*.vue` 文件最多可同时包含**1个** \<script> 块 (不包括<script setup>)。
+
+
+
+
+该脚本将作为 ES Module 来执行。
+
+其默认导出的内容应该是 Vue 组件选项对象，它要么是一个普通的对象，要么是 defineComponent 的返回值。
+
+##### ts声明[?]
+
+*因为本md环境下是以ts封装 所以变量声明也相应的会变**严格***
+
+> const message: string = ""
+>
+> const number: number = [number]
+>
+> const function = ()=>{}
+>
+> const status: boolean = true/false
+
+
+
+在SFC里 你可以用对象一并返回多个标签
+
+
+
+****
+
+**\<script setup>**
+每个 `*.vue` 文件最多可同时包含**1个** \<script setup> 块 (不包括常规的 \<script>)
+
+
+
+该脚本会被预处理并作为组件的 setup() 函数使用，也就是说它会在每个组件实例中执行。\<script setup> 的顶层绑定会自动暴露给模板。
+
+****
+
+**\<style>**
+一个 `*.vue` 文件可以包含多个 \<style> 标签。
+
+\<style> 标签可以通过 scoped 或 module attribute (更多详情请查看 SFC 样式特性) 将样式封装在当前组件内。多个不同封装模式的 \<style> 标签可以在同一个组件中混用
+
+
+
+
+
+### 4.ref关联
+
+ref用来接受一个内部Vue的变量并**可以**返回一个**响应可变**的ref对象
+
+> 内部可变变量(SetInterval,Animation) ref抛出=> 渲染变动(v-model/...)
+
+
+
+总而言之 最直接的作用就是获取DOM元素以便进行关联
+
+为什么要这样做？
+
+data(){return}的过程不就是在进行关联了吗
+
+
+
+那就得看你用什么写法了
+
+
+
+在Vue3中 我们更经常用setup写法进行一次性的DOM关联定义以便简写代码
+
+而这也带来了关联只有一次性的问题 所以需要ref来代替以前的Vue2写法来继续更新DOM数据
+
+
+
+#### value
+
+**注意被ref包装之后需要.value 来进行赋值**
+
+为什么？
+
+因为被ref包装之后的变量无论原来是什么 现在都会变成对象(RefImpl)
+
+而原本的信息则被存放了.value属性上
+
+
+
+但是为什么要对**值**进行**包装**？
+
+首先还是得明确一个概念 vue的所有响应式是基于ES6的`proxy`函数的
+
+`Proxy`是可以处理任何类型的对象 但回想起`proxy`的建立过程是
+
+> const me = new Proxy(target obj,handler)
+
+proxy的目标一直是对象 它不可能单单传入一个值去代理 于是就需要对象包裹起来
+
+顺便实现一些vue的特色功能
+
+
+
+Exp1:
+
+v-model绑定简化:
+
+```html
+<template>
+<input v-model="message" type="text" />
+  <div>{{ message }}</div>
+</template>
+```
+
+基本用法
+
+```diff
+<script setup lang="ts">
++ import { ref } from 'vue' //ref
++ const message = ref() //将v-model与message通过ref链接
+这样就完成了v-model的绑定关联
+
+等效于data(){	return{message:""}	}
+```
+
+
+
+但是ref遇到比较复杂的声明需求(对象)的时候就无法再进行数据关联
+
+于是就请出API上的功能更全面的reactive来负责关联**对象**数据
+
+
+
+#### reactive
+
+不过实际上:
+
+如果将对象分配为 ref 值，则它将被 [reactive](https://v3.cn.vuejs.org/api/basic-reactivity.html#reactive) 函数处理为深层的响应式对象。
+
+所以知道对于对象来说是reactive在工作就行了
+
+
+
+但是有时光reactive工作还不行
+
+这涉及到了**解构**的概念
+
+如果你想在一个对象里一次性返回多个标签语句 reactive是没办法单独进行**解构**的 
+
+
+
+ref系列中只有搭配**toRefs**上才能配合**reactive**进行对象中的**多个标签语句**解构
+
+```html
+<template>
+<div id="data2">{{name}} {{age}}</div>
+</template>
+
+<script setup lang='ts'>
+let obj = reactive({
+	name:'Sanbei',
+	age:24
+})	//无法解构
+let {name, age} = toRefs(obj) //搭配toRefs 可以解构
+</script>
+```
+
+
+
+#### toRef
+
+绑定 
+
+该函数接收两个参数
+
+1. 需要给属性创建响应式的对象
+
+2. 需要创建响应式的属性。
+
+```html
+<template>
+<div class="item">
+    <input type="text" v-model="toRefVal" @input="inputToRefHander" />
+    {{ toRefVal }}
+</div>
+
+</template>
+
+<script setup lang='ts'>
+const obj2 = { type: 'obj', target: '5' }
+const toRefVal = toRef(obj2, 'target'); 
+    //将obj2对象里的target属性与v-model关联
+</script>
+```
+
+
+
+专门用来**链接**指定对象的属性的
+
+但并不能像ref那样能够变化，想快捷追踪建议将值抛给ref处理
+
+
+
+
+
+说完关联 就说说怎么取消关联
+
+这个应用场景就类似于计时器的暂停 etc..
+
+
+
+#### toRefs
+
+上面只是说到了toRefs的特殊用途 其一般用途还是解除绑定(单值)
+
+如果说上面的ref是为了让前台的显示关联到后台的变动数据
+
+那么toRefs则是将这个关联**取消**掉 但是后台的数据**仍然**可以改变
+
+
+
+| 类型     | 是否触发页面改变 | 是否可以解构 |
+| :------- | :--------------- | :----------- |
+| ref      | 是               | 否           |
+| reactive | 是               | 否           |
+| toRef    | 否               | 否           |
+| toRefs   | 否               | 是           |
+
+****
+
 
 
 ### 指令
@@ -552,9 +874,11 @@ Vue内置作用于标签的多种指令以便Vue调用函数来实现各种功�
 
 
 
-监听事件	但是不知道为什么目前的例子click都只能对按钮标签使用(
+监听事件	
 
-`v-on`
+~~但是不知道为什么目前的例子click都只能对按钮标签使用(~~ 是个div块就能用
+
+#### v-on
 
 缩写: `@prop`
 
@@ -581,41 +905,17 @@ Vue.createApp(reset).mount('ul li')
 
 ****
 
-同原生一样 一般我们的行为都可以被监听到
+同原生**addEventListner**一样 一般我们常用的行为都可以被监听到
 
 不过在vue里则是以一种修饰符来细分监听的区域
 
 用户在浏览器正常的输入 大多数的媒介也是键盘/鼠标
 
-所以vue里也细分为 `click`,`keyup`领域
+所以vue里也细分为 `click`,`keyup`以及对应表单输入的`input`领域
 
 
 
-
-
-**事件处理**
-
-一般来讲 v-on代表`addEventListener`事件 但原生的ES代码是有对其植入传入参数的
-
-其实这里也有 且vue针对v-on还有和jQuery一样的省略符号`@`
-
-@click = 这个事件将要执行什么 可以是直接执行@click="count++" = v-on:click("count++")
-
-
-
-且也能代表标签对应的动作
-
-例如 `<input>`里面的`submit`动作 只需要
-
-```html
-<form action="post">
-<input @keyup.enter.prevent="submit"></input>	//即可代表在激活输入框时输入enter完成提交动作
-</form>
-```
-
-
-
-**事件修饰符**
+##### **事件修饰符**
 
 1. Vue.js 为 v-on 提供了事件修饰符来处理 DOM 事件细节
 2. Vue.js 通过由点 `.` 表示的指令后缀来调用修饰符。(@click.*)
@@ -624,7 +924,7 @@ Vue.createApp(reset).mount('ul li')
 
 
 
-**click**的则有
+##### **click**
 
 > - `.once` - 只触发一次	//事件通用
 > - `.left` - 左键事件
@@ -633,7 +933,9 @@ Vue.createApp(reset).mount('ul li')
 
 
 
-**keyup**的则将部分常用的key绑定在vue的修饰符上供调用
+##### **keyup**
+
+将部分常用的key绑定在vue的修饰符上供调用
 
 > 常用的除F(X)的功能键
 >
@@ -645,6 +947,18 @@ Vue.createApp(reset).mount('ul li')
 >
 > *<!-- Ctrl + Click -->*
 > <**div** @click.ctrl="doSomething">Do something</**div**>
+
+
+
+以及
+
+##### input
+
+> <input type="text" v-model="toRefVal" @input="inputToRefHander" />
+>
+> const inputToRefHander = ()=>{...}
+
+
 
 
 
@@ -674,14 +988,38 @@ Vue.createApp(reset).mount('ul li')
 
 
 
+##### **事件处理**
+
+一般来讲 v-on 代表**addEventListener**事件 但原生的ES代码是有对其植入传入参数的
+
+其实这里也有 且vue针对v-on还有和jQuery(`.on`)一样的省略写法`@`
+
+@click = 这个事件将要执行什么 可以是直接执行
+
+> @click="count++" = v-on:click("count++")
+
+
+
+且也能代表标签对应的动作
+
+例如 `<input>`里面的`submit`动作 只需要
+
+```html
+<form action="post">
+<input @keyup.enter.prevent="submit"></input>	//即可代表在激活输入框时输入enter完成提交动作
+</form>
+```
+
+
+
 ****
 
-**通用传参**
+##### **通用传参**
 
-不过即使是原生ES6也包含传入参数 要不然监听是为了干什么(
+即使是原生ES6也包含传入参数 要不然监听是为了干什么(
 
 ```javascript
-或传入methods里function中的参数 缺省时等于空参传入
+//或传入methods里function中的参数 缺省时等于空参传入
 
 仅传入写入参数 
 v-on:click="fun(123)" = <button @click="fun(123)">烦内</button>
@@ -696,7 +1034,7 @@ v-on:click="fun(123)" = <button @click="fun(123)">烦内</button>
 
 
 
-`v-model`
+#### v-model
 
 双向数据绑定
 
@@ -706,7 +1044,7 @@ v-on:click="fun(123)" = <button @click="fun(123)">烦内</button>
 
 如果我仅仅只要我输入的东西 我直接input.value不也是一样的？ 
 
-~~也许就为了看浏览器的文字渲染？~~
+~~也许就为了看浏览器的文字渲染？~~ 图片预览
 
 知识 未来可期
 
@@ -739,13 +1077,13 @@ v-on:click="fun(123)" = <button @click="fun(123)">烦内</button>
 
 ****
 
-`v-if`
+#### v-if
 
 绑定到DOM的结构 大概是通过attribute与val(true/false)来控制DOM结构？
 
 ****
 
-`v-for`
+#### v-for
 
 绑定**数组**的数据来渲染一个项目列表
 
@@ -782,9 +1120,11 @@ Vue.createApp(ListRendering).mount('#list-rendering')
 
 ****
 
-`v-bind`
+#### v-bind
 
-缩写 `:prop`
+缩写: `:prop`
+
+
 
 和标签的 **属性名** 或 **属性值** 绑定 属性值绑定类似于原生的`setAttribute()`
 
@@ -793,21 +1133,70 @@ Vue.createApp(ListRendering).mount('#list-rendering')
 <img src="1.jpg"></img>
 setAttribute("src","???")
 or
-<img :src="???"></img>	create--> mounted --> app.src=""
-<!-- 动态 attribute 名 -->
-<button :[key]="value"></button>	create--> mounted --> app.key="???" << ???="value"
+<img :src="???"></img>	create--> mounted --> 
+<<app.src=[value]
 
-<!-- 但对于class属性有点特殊	因为同一个标签允许同时上多个标签
-而vue允许你动态得将某些已绑定的class属性进行修改
-其中包括开/关 !-->
-<div :class="{red:isRed}"></div> create-->(data:{isRed:true}) mounted --> app.isRed="false"  //Red失效
+```
+
+允许动态切换class名，以及多class引入
+
+```html
+<button :[key?red:blue,detail]="value"></button>	
+create--> mounted --> 
+<< key=true => red
+<< key=false => blue
+
+--> <button red/blue="value" detail="value"></button>
+```
+
+**Ts+vite写法下** 允许一个prop聚合多个属性释放
+
+```html
+<div :class="flag">{{flag}}</div>
+
+<script setup lang="ts">
+type Cls = {			//聚合定义类型
+  other: boolean,
+  h: boolean
+}
+const flag: Cls = {		//引入定义释放
+  other: false,			//取消class下的other属性
+  h: true
+};
+</script>
+
+等效于<div class=h>{{flag}}</div>
+
+
+style类型
+
+<div :style="flag">{{flag}}</div>
+
+<script setup lang="ts">
+type Cls = {			//聚合定义类型
+  height: string,
+  weight: string
+}
+const flag: Cls = {		//引入定义释放
+  height: "300px",			//取消class下的other属性
+  weight: "300px"
+};
+</script>
+
+```
+
+
+
+属性判断
+
+```html
+<div :class="{red:isRed}"></div> 
+create-->(data:{isRed:true}) mounted --> app.isRed="false"  //Red失效
 <!--也支持一次性引入多个class属性 并赋予可开关属性!-->
 <div :class="[classA, classB]"></div>
 <div :class="[classA, { classB: isB, classC: isC }]"></div>
 
 ```
-
-也和style属性直接绑定
 
 
 
@@ -883,7 +1272,7 @@ const button = Vue.createApp({
 
 Vue本体对开发环境提供了4个API
 
-> - reactive
+> - reactive/ref
 > - shallowReactive
 > - readonly
 > - shallowReadonly
@@ -897,6 +1286,8 @@ shallow代表着浅层
 意味着被带上shallow关键字的属性是会对表层(即为数组/对象直接接触的属性)生效
 
 
+
+例如ShallowReadonly就只对表层执行readonly深层照常操作
 
 ****
 
@@ -944,7 +1335,164 @@ reactive本身到底额外封装了什么内容 对比单纯的Proxy多了什么
 
 ****
 
+### 节流选取
+
+上文说过vue本身是一个渐进性的架构
+
+也就是说你可以单取Vue的部分功能来打包 比如如果你只想利用上文的4个API
+
+
+
+在vite环境下 你可以在script标签上直接即引即用
+
+```
+import { reactive,shallowReactive } from 'vue' ..etc
+import { ref } from 'vue'
+
+
+const message = ref("v-model")
+```
+
+****
+
+
+
+### 工作流程
+
+#### 生命周期
+
+为什么要单独拧出来说？
+
+一个程序有多种状态不是很正常的吗？
+
+
+
+确实是 但是Vue有一个好就是允许你在每个状态都能让你插入执行代码
+
+所以就很有必要去了解它
+
+
+
+在Vue的周期上一般情况都遵循着这样的周期
+
+App创建，App挂载，App被使用……
+
+
+
+实际上这些API就可以在我们一开头的创建时就能被编写
+
+```js
+import {setup,beforeCreate,beforeMount,created,data} from 'vue'
+//生命周期API引入
+
+
+setup(){}
+data(){}
+beforeCreate(){}
+beforeMount(){}
+created(){}
+...
+```
+
+
+
+你看到最上面 我还标注了setup
+
+那是什么？
+
+实际上在vue被载入的时候也是有一个状态
+
+
+
+那个状态就叫做setup
+
+它不仅起到一种类似IIFE的效果
+
+它API的内部接口允许你去直接赋予在**script**标签上面(setup语法糖)
+
+
+
+所以在vue3上实际上一般会这么书写script语句
+
+```diff
++ <script setup lang="ts">
++ import { ref } from 'vue'
+const message = ref() //将v-model与message通过ref链接
++ <script>
+
+- <script lang="ts">
+- import { ref } from 'vue'
+- export default{
+const message = ref() //将v-model与message通过ref链接
+- return{message}
+- }
+- <script>
+```
+
+
+
+setup语法糖
+
+
+
+#### 虚拟DOM
+
+什么是虚拟DOM，为什么Vue要用虚拟DOM？
+
+
+
+首先DOM更新有这么个流程
+
+解析模板更新后与渲染引擎通信 然后来完整的重置更新DOM
+
+
+
+然而我们在操作DOM的时候首先得拉取该节点的属性
+
+而一旦拉取属性就得拉取一大群的属性
+
+> "0 length context selector jquery constructor init size toArray get pushStack each ready slice first last eq map end push sort splice extend data removeData queue dequeue delay clearQueue promise attr removeAttr prop removeProp addClass removeClass...
+
+
+
+这就是浪费性能的主要原因
+
+而你操作DOM是无可避免的，那该怎么办
+
+**那就只能去尽可能的少处理DOM**
+
+这点以前在js篇也有讲过( 但是没有说过怎么去少处理(
+
+
+
+于此出现了虚拟DOM
+
+**虚拟DOM的解决方式是**：通过状态生成一个虚拟节点树，然后使用虚拟节点树进行渲染。假如是首次节点的渲染就直接渲染，但是第二次的话就需要进行虚拟节点树的**比较**，只渲染不同的部分。
+
+
+
+而整个过程是用js计算来直接实现的
+
+因为ES6的proxy是响应式的 这倒无需担心太大的延迟问题
+
+简而言之是将完整通信部分 改变成本地自行比较计算渲染
+
+**只能监听到组件的变化，而组件的内部就使用虚拟DOM进行状态比对**，也就是DIFF算法。
+
+
+
+DIFF算法的宗旨是 尽可能的去复用重复DOM
+
+通过一些比较流程使得花费时间小于更新完整的DOM
 
 
 
 
+
+### 额外模块推荐
+
+#### unplugin-auto-import
+
+
+
+[npm](https://www.npmjs.com/package/unplugin-auto-import)
