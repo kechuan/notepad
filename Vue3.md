@@ -797,7 +797,7 @@ let obj = reactive({
 	name:'Sanbei',
 	age:24
 })	//无法解构
-let {name, age} = toRefs(obj) //搭配toRefs 可以解构
+let {name, age} = toRefs(obj) //搭配toRefs 可以解构 但是无法响应
 </script>
 ```
 
@@ -805,13 +805,11 @@ let {name, age} = toRefs(obj) //搭配toRefs 可以解构
 
 #### toRef
 
-绑定 
-
 该函数接收两个参数
 
 1. 需要给属性创建响应式的对象
 
-2. 需要创建响应式的属性。
+2. 需要创建响应式的属性
 
 ```html
 <template>
@@ -826,6 +824,7 @@ let {name, age} = toRefs(obj) //搭配toRefs 可以解构
 const obj2 = { type: 'obj', target: '5' }
 const toRefVal = toRef(obj2, 'target'); 
     //将obj2对象里的target属性与v-model关联
+    //但是无法再响应target变化的内容
 </script>
 ```
 
@@ -862,7 +861,223 @@ const toRefVal = toRef(obj2, 'target');
 | toRef    | 否               | 否           |
 | toRefs   | 否               | 是           |
 
+
+
+#### *$refs
+
+
+
+鉴于我用的是SFC来书写 
+
+在真正映射到网页之前 早就被创建挂载变成v-data好了
+
+实际上基本用不到"子组件"这个概念 那就简单说一说
+
+它指代一个对象，持有注册过 **ref** 属性 的所有 DOM 元素和组件实例。
+
+
+
+简单来说是一个vue APP组件内部DOM调用了ref属性时
+
+组件会多出一个**$refs**的子属性 这里面记录着哪个DOM节点使用了**ref**属性 以帮助快速书写
+
 ****
+
+
+
+### 5.Computed计算
+
+computed 计算属性
+
+
+
+*!页面上不可变动*
+
+
+
+computed与ref一样 一旦操作就会将变量值包裹进对象里
+
+不过有意思的是控制台返回ref是对象(**Ref**Impl) 
+
+而computed却是(Computed**Ref**Impl)
+
+说明计算computed 也是ref响应式的
+
+
+
+这就很奇怪了 既然也是ref词缀的 那为什么默认是不可变动的？
+
+文档上有这么一段说明:
+
+*由于 JavaScript 的限制，Vue **不能检测**数组和对象的变化*
+
+接受一个 getter 函数，并根据 getter 的返回值返回一个**不可变**的响应式 [ref](https://v3.cn.vuejs.org/api/refs-api.html#ref) 对象。
+
+
+
+还行，那还是先接着写罢
+
+*[?]为什么还要搭个ref标签*
+
+
+
+用法
+
+```vue
+<template>
+<div id="show2" @click='altar'>
+		{{msg2}} ==> {{msg2Change}}
+</div>
+</template>
+
+<script setup lang='ts'>
+let msg2Change = computed({
+	get(){
+		 msg2Change.value = 'it changed' //触发set 但是却不会改变页面内容
+		 
+	},
+	set(val){
+		console.log('changed')//正常输出
+	}
+
+})
+</script>
+```
+
+
+
+也可以当成正常输出那样用
+
+```vue
+<script setup lang='ts'>
+let msg2Change = computed(()=>{return msg2Change.value = '3'})
+//这样还不如直接ref..
+</script>
+```
+
+
+
+### 6.watch监控
+
+如果说原初的`v-model`只能从表层 返回到 表层
+
+那么watch则是允许把更新的`v-model`从**表层**返回至**底层**
+
+
+
+而且watch不止只监控单纯的数值 还能监控对象的变化……
+
+usage:
+
+> watch([target.tag],([newVal],[oldVal])=>{})
+>
+> target.tag代表定义的标签
+>
+> new/old代表更新后的值与原本的值
+>
+> 而函数本身则以为当值变动的时候 要执行的代码~~(怎么听起来比set的还实用啊)~~
+>
+> 不要忘了vue不能检测js数组,对象变动了什么 但是set是至少知道了你**肯定**变动了
+
+
+
+Exp1:
+
+```vue
+<template>
+<div class="text">Watch 初始化监听</div>
+	<input type="text" v-model='model2'>
+
+	<br><div class="text">Watch 多目标监听</div>
+	<input type="text" v-model='watch1'>
+	<input type="text" v-model='watch2'>
+
+	<br><div class="text">Watch 深层对象监听</div>
+	<input type="text" v-model='watch3.arr'>
+</template>
+
+<script setup lang='ts'>
+let model2 = ref('Data1')
+let watch1 = ref('')
+let watch2 = ref('')
+
+let watch3 = reactive({
+	a:1,
+	arr:['a','b','c'] //对象内属性监听
+}) 
+
+1.初值绑定监听
+watch(model2, (newVal,oldVal)=>{
+	console.log(oldVal+'=>'+newVal)
+})
+    
+2.多target监听
+watch([watch1,watch2],(newVal,oldVal)=>{console.log(newVal,oldVal)})
+
+3.对象属性target监听
+watch([()=>watch3.arr],(newVal,oldVal)=>{console.log(oldVal+'=>'+newVal)})
+//为什么是()=>?呢
+watch()
+</script>
+```
+
+
+
+#### 子方法
+
+**immdiate**
+
+意为立即执行
+
+watch默认绑定，页面首次加载时，是不会执行的。只有值发生改变才会执行。
+
+
+
+不过真的有什么需求需要连值都不改就一直需要监听么? 
+
+
+
+usage:
+
+> watch([maincode]),{immdiate:[boolean]}
+
+****
+
+
+
+**deep**
+
+如果是监听的是对象类型，当手动修改对象的某个属性时，发现是无效的。
+
+(但实际上在使用SFC的时候) 只要声明好是 obj.prop基本都能够响应(
+
+
+
+我不好说这个(
+
+
+
+usage:
+
+> watch([maincode]),{deep:[boolean]}
+
+
+
+#### watchEffect
+
+以及全局无差别监控
+
+> watchEffect(()=>) //由于是无差别 所以是提前注入至整个组件上 相当于IIFE
+
+
+
+估计是运用了proxy里的get/set做出来的
+
+
+
+### 7.路由
+
+
 
 
 
