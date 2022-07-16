@@ -539,6 +539,113 @@ const app = Vue.createApp({
 
 ****
 
+
+
+### 组件
+
+什么是组件(component)？
+
+*组件是带有名称的可复用实例*
+
+
+
+在vue当中 组件一旦被创立就可以作为标签直接引入
+
+
+
+官方例子:
+
+```vue
+<div id="components-demo">
+  <button-counter></button-counter>
+  <button-counter></button-counter>
+  <button-counter></button-counter>
+</div>
+```
+
+
+
+那么 怎么生成一个组件?
+
+组件基于APP之上
+
+通过app的**component**方法来生成
+
+> *.component('[name]',AppCode)
+
+```vue
+// 定义一个名为 button-counter 的新全局组件
+app.component('button-counter', {
+  data() {
+    return {
+      count: 0
+    }
+  },
+  template: `
+    <button @click="count++">
+      You clicked me {{ count }} times.
+    </button>`
+})
+```
+
+
+
+其实可以从上面看到 它与最基本的标签语法不同的是
+
+多增加了componet方法存放基本的**data**属性以及**额外**的**template**属性
+
+正因为有了template属性 才使得创建挂载之后可以以**标签**的形式直接引入
+
+无需再去通过标签语句 `{{[propname]}}`来声明
+
+
+
+#### 属性
+
+组件除了最基础的
+
+data,template之外的属性 还有**prop**属性
+
+
+
+##### Prop
+
+Prop 是你可以在组件上注册的一些自定义 attribute。
+
+你在App内定义了props之后
+
+> app.component('blog-post',{
+>
+> props: ['title']
+>
+> template: <h4>{{ title }}</h4>
+>
+> })
+>
+> 
+>
+> app.mount('#blog-post-demo')
+
+
+
+你就可以在标签上直接用上属性
+
+> \<test title='???'>\</test>
+>
+> =>\<h4 >???\</h4>
+
+
+
+因为template可以自定义写各种各样的正常html内容
+
+
+
+属于是外置的shadow DOM了
+
+
+
+****
+
 ### 3.SFC单文件组件
 
 具体创建部分在**npm**篇上
@@ -647,7 +754,7 @@ usage与在html上创建基本一致:都需要一个div分块与 {{[name]}}
 
 其默认导出的内容应该是 Vue 组件选项对象，它要么是一个普通的对象，要么是 defineComponent 的返回值。
 
-##### ts声明[?]
+###### ts声明
 
 *因为本md环境下是以ts封装 所以变量声明也相应的会变**严格***
 
@@ -674,6 +781,10 @@ usage与在html上创建基本一致:都需要一个div分块与 {{[name]}}
 
 该脚本会被预处理并作为组件的 setup() 函数使用，也就是说它会在每个组件实例中执行。\<script setup> 的顶层绑定会自动暴露给模板。
 
+
+
+setup作用下 this呼出直接为*undefined*
+
 ****
 
 **\<style>**
@@ -683,9 +794,7 @@ usage与在html上创建基本一致:都需要一个div分块与 {{[name]}}
 
 
 
-
-
-### 4.ref关联
+#### 1.响应式ref关联
 
 ref用来接受一个内部Vue的变量并**可以**返回一个**响应可变**的ref对象
 
@@ -711,7 +820,7 @@ data(){return}的过程不就是在进行关联了吗
 
 
 
-#### value
+##### value
 
 **注意被ref包装之后需要.value 来进行赋值**
 
@@ -767,7 +876,7 @@ v-model绑定简化:
 
 
 
-#### reactive
+##### reactive
 
 不过实际上:
 
@@ -803,7 +912,7 @@ let {name, age} = toRefs(obj) //搭配toRefs 可以解构 但是无法响应
 
 
 
-#### toRef
+##### toRef
 
 该函数接收两个参数
 
@@ -844,7 +953,7 @@ const toRefVal = toRef(obj2, 'target');
 
 
 
-#### toRefs
+##### toRefs
 
 上面只是说到了toRefs的特殊用途 其一般用途还是解除绑定(单值)
 
@@ -863,7 +972,7 @@ const toRefVal = toRef(obj2, 'target');
 
 
 
-#### *$refs
+##### *$refs
 
 
 
@@ -880,6 +989,117 @@ const toRefVal = toRef(obj2, 'target');
 简单来说是一个vue APP组件内部DOM调用了ref属性时
 
 组件会多出一个**$refs**的子属性 这里面记录着哪个DOM节点使用了**ref**属性 以帮助快速书写
+
+****
+
+#### 2.使用组件
+
+`<script setup>` 将其他文件范围里导出的**变量**也能被直接作为自定义组件的**标签**名
+
+
+
+##### 父子组件传递
+
+*本部分采用SFC+Setup书写*
+
+和大部分代码一样，父子组件是为了更加的使代码更有**各司其职**的意味在上面
+
+为了更加的 格式化
+
+
+
+那么 怎么做(
+
+所谓父子组件
+
+就是让子组件导出 然后让父组件引入
+
+过程有点像ESmodule的管理方式
+
+
+
+Exp1:
+
+`Father.vue` 组件引入与放置
+
+```vue
+<template>
+<div>
+	<List :msg='msg'></List> //总体显示
+</div>
+	
+</template>
+
+<script setup lang='ts'>
+import List from '../Son.vue'
+let msg = ref('Data Transport') 
+//父类可以自由控制引入子类的值(而且不用加value子属性)
+
+</script>
+
+<style lang="css">
+</style>
+```
+
+
+
+`Son.vue`  真正起作用的代码
+
+```vue
+<template>
+	<div>组件信息 => 这是Father传过来的数据{{msg}}</div>
+</template>
+
+<script setup lang='ts'>
+defineProps({
+	msg:{
+		type:String, //强行指定该组件的类型
+		default:''	//不传值下默认是什么值
+        ...
+	}
+})
+```
+
+
+
+在这整个过程里 子组件运用了**defineProps**的函数
+
+那是什么东西？
+
+为什么不能直接
+
+> let msg = {
+>
+> default:''
+>
+> ...
+>
+> }
+>
+> ...etc
+
+
+
+官方文档解释是
+
+`defineProps` 是只在 `<script setup>` 中才能使用的**编译器宏**。
+
+他们不需要导入且会随着 `<script setup>` 处理过程一同被编译掉。
+
+
+
+这个解释也说明了 即使是vue内部的组件关系 在被ESM的处理下依旧
+
+还是需要通过编译后才能被引入的
+
+我自己估摸着是vue在表面上省去了这些处理
+
+
+
+而且还可以看到针对typescript还特地声明了该组件的类型
+
+> type: string
+>
 
 ****
 
@@ -1049,7 +1269,7 @@ usage:
 
 如果是监听的是对象类型，当手动修改对象的某个属性时，发现是无效的。
 
-(但实际上在使用SFC的时候) 只要声明好是 obj.prop基本都能够响应(
+(但实际上在使用SFC的时候) 只要声明好是 `obj.prop` 基本都能够响应(
 
 
 
@@ -1075,9 +1295,298 @@ usage:
 
 
 
-### 7.路由
+### 7.路由和代码分离
+
+**vue**中的路由 实际上就是适配多个单页面组件的一个 中间节点
+
+就和**live-server**一样 在服务器的根目录下有类似的**文件浏览器**的选择
 
 
+
+而**vue**有自带的**router**节点选择 保证了**始终**都在页面内 
+
+而不会真的跳到去文件浏览器这种 有"资源风险"的视图
+
+
+
+而**vue.js**本身又对**vue-router**有比较好的支持
+
+所以你也不用自己额外设计一个页面 去放各种各样的链接
+
+
+
+*文档:当加入 Vue Router 时，我们需要做的就是将我们的组件映射到路由上，让 Vue Router 知道在哪里渲染它们。*
+
+
+
+那 怎么做？
+
+首先是引入vue-router
+
+> npm i vue-router -D
+
+目前版本ver:4.x 
+
+
+
+然后一般先在`src`下建立起一个文件夹单独存放对应的**配置文件**
+
+其配置一般如以下内容组合
+
+
+
+路由模式,路由节点配置
+
+节点本身以数组形式包裹，支持多个元素(节点)共同引入
+
+
+
+****
+
+
+
+##### 路由节点配置&路由模式
+
+Exp1:routes
+
+`index.js`
+
+```js
+import { createWebHistory, createRouter } from 'vue-router' 
+//模式与功能引入
+
+const routes = [ //节点信息配置
+	{
+		path:'/',
+		name:'Home',
+		component: ()=> import("../components/Home.vue")
+	},
+
+	{
+		path:'/HelloWorld',
+		name:'HelloWorld',
+		component:()=> import("../components/HelloWorld.vue")
+	}
+]
+...
+
+```
+
+
+
+对于单个节点所配置为:
+
+- path 当前路径 
+
+> path:'/' 如仅以`/`为值时则意味着路由节点下的默认视图组件
+>
+> 否则则指定为该router下的**相对**路径
+
+- name 名字属性 一般与你的path下的路径同名以保持一致性
+
+- component 组件源属性 此为真正的组件地址
+
+> component: import("../components/Home.vue")
+
+****
+
+
+
+而路由模式则划分为**WebHistory**与**WebHashHistory**
+
+由**history**属性来配置
+
+> history:createWebHistory/createWebHashHistory
+
+前者代表着正常转发
+
+后者则会在默认路径名额外附加一个 `/#/`
+
+
+
+*注意:*WebHashHistory路由模式路径带#号
+
+*(生产环境下不能直接访问项目，需要nginx转发)*
+
+
+
+不过至少在开发环境下 这两个实际上并没有很大的差别
+
+
+
+
+
+最后包裹上开启路由的**createRouter()**函数然后抛出给根目录的`main.js`以调用
+
+
+
+Exp2:router
+
+`index.js`
+
+```js
+...
+const router = createRouter({
+	history: createWebHistory(), //history模式
+	routes,	//上文的节点信息
+})
+
+export default router
+```
+
+
+
+##### 总路由组件生成
+
+
+
+根目录下配置完以后
+
+需要额外引入一层路由组件 以来充当路由页面的总路由显示
+
+以`APP.vue`为例
+
+其基础的配置总体就为
+
+```vue
+<template>
+	<router-view></router-view> //代表着路由视图
+</template>
+```
+
+
+
+此时如果你在开发者工具下打开了光标选取属性之后 你会发现所有的节点内容
+
+全部都属于#APP内
+
+这也说明 这个组件担当了完整的路由显示工作
+
+
+
+当然也可以对这个组件本身进行修改
+
+```vue
+<template>
+	<div id="lang">挂载 总路由节点 text 下方皆为路由视图</div>
+	<button @click='tp'>tp => back</button>
+	<router-view></router-view>
+</template>
+```
+
+
+
+你还可以多放几个**router-view**标签放到不同地方 类似复用的iframe
+
+
+
+****
+
+
+
+##### 子路由组件链接
+
+总路由页面配置完毕后
+
+到了子路由页面的配置
+
+实际上是对于子路由配置 最简单的方式就是在原本的template内
+
+多加一层
+
+```vue
+<template>
+	<router-link to='/Home'>路由主页面 点击传送Home app</router-link>
+</template>
+```
+
+
+
+在进行页面渲染的时候
+
+vue-router会自动将router-link自动转译成a标签
+
+ 而to则转译成href属性
+
+> \<router-link to=''> => \<a href=''>
+
+
+
+如此 基础的层级路由显示信息就配置完了
+
+****
+
+
+
+##### 挂载之前...
+
+特别说明一点
+
+对于**Vue**本身来说 虽然内部对`vue-router`支持较好
+
+但本质上依然不是**Vue本体**的内容
+
+所以在挂载之前 需要额外的调用use函数将之前抛出的router配置信息导入
+
+> createApp(APP).use(router).mount('#APP')
+
+
+
+至此 基础的路由显示 已配置完毕
+
+
+
+##### 路由跳转
+
+但是我们搭建路由的目的可不仅仅只是为了"显示"这么简单
+
+否则要不然直接一个单组件Vue载入不就行了，何苦要多配置那么多层那么多路由信息呢？
+
+
+
+而路由有一个常用的功能就是路由跳转
+
+可以简单的理解为将当前总路由显示可以跳转到其他APP组件上，就跟你电视机换台一样
+
+
+
+而变更的原理也很简单明了只要将显示的组件变更为name属性的其他有效值就行了
+
+而这个过程是通过**useRouter**函数来完成变更的
+
+useRouter的子方法 push将显示组件更换
+
+> let change = new useRouter
+>
+>  
+>
+> let tp = ()=>{
+> 	change.push('/')  //跳转至默认根目录
+> }
+
+然后套一层按钮来牵引触发就行了
+
+
+
+> useRoute 实际上就是以前写法的 this.$route
+>
+> useRouter 也是以前的 this.$router
+
+
+
+**注意**[!]:
+
+不过实际上当你跳转到其他组件的时候 routerview会被重新载入而非仅仅只是不显示
+
+看看后续是否有这些相关的配置
+
+
+
+
+
+
+
+****
 
 
 
@@ -1364,6 +1873,10 @@ create--> mounted -->
 --> <button red/blue="value" detail="value"></button>
 ```
 
+****
+
+
+
 **Ts+vite写法下** 允许一个prop聚合多个属性释放
 
 ```html
@@ -1413,9 +1926,7 @@ create-->(data:{isRed:true}) mounted --> app.isRed="false"  //Red失效
 
 ```
 
-
-
-jQuery貌似不能直接.css("style","attr") 看看vue行不行
+****
 
 
 
@@ -1479,11 +1990,51 @@ const button = Vue.createApp({
 //methods应该也是同理
 ```
 
+
+
+vue3更新
+
+
+
+当使用setup语法糖的时候
+
+不再需要额外配置compoenet组件
+
+
+
+
+
+组件:父与子组件
+
+![](C:\Users\lenovo\Desktop\notepad\群友劝学\iamges\temp0.png)
+
 ****
 
 
 
-### API
+
+
+
+
+****
+
+
+
+### 应用性API
+
+*随着的接触函数再去书写
+
+#### use
+
+
+
+
+
+****
+
+
+
+### 响应式API
 
 Vue本体对开发环境提供了4个API
 
